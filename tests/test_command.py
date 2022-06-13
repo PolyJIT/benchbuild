@@ -32,3 +32,13 @@ def test_basic_command_env():
     expected_str = "Command(path=ignore env={'E1': 1, 'E2': '2', 'E3': 'three'})"
     cmd = Command(Path("ignore"), E1=1, E2="2", E3="three")
     assert repr(cmd) == expected_str
+
+
+def test_as_plumbum():
+    expected_str = "/bin/true"
+    cmd = Command(Path("/bin/true"))
+    assert str(cmd.as_plumbum()) == expected_str
+
+    expected_str = "/bin/true 1 2 three"
+    pb_cmd = cmd[1, "2", "three"].as_plumbum()
+    assert str(pb_cmd) == expected_str

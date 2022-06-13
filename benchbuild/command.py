@@ -2,6 +2,7 @@ import typing as tp
 from pathlib import Path, PosixPath
 
 from plumbum import local
+from plumbum.commands.base import ConcreteCommand
 
 from benchbuild.project import Project
 from benchbuild.utils.run import watch
@@ -66,11 +67,16 @@ class Command:
 
     def __call__(self, *args: tp.Any) -> tp.Any:
         assert self.exists()
-        cmd = local[str(self.path)]
-        output_params = [arg.format(output=self.output) for arg in self._output_param]
-        cmd_w_output = cmd[output_params]
-
+        cmd_w_output = self.as_plumbum()
         return cmd_w_output(*args)
+
+    def as_plumbum(self) -> ConcreteCommand:
+        assert self.exists()
+
+        cmd = local[str(self.path)]
+        cmd_w_args = cmd[self._args]
+        output_params = [arg.format(output=self.output) for arg in self._output_param]
+        return cmd_w_args[output_params]
 
     def __repr__(self) -> str:
         repr_str = f"path={self._path}"

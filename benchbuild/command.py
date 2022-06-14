@@ -4,6 +4,7 @@ from pathlib import Path, PosixPath
 from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
 
+from benchbuild import source
 from benchbuild.project import Project
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
@@ -110,23 +111,27 @@ class ProjectCommand:
     def __init__(self, project: Project, command: Command) -> None:
         self.project = project
         self.command = command
+        self.command.path = self._create_project_path(self.command.path)
+
+    def _create_project_path(self, path: Path) -> Path:
+        all_sources = source.sources_as_dict(*self.project.source)
+        new_parts = []
+        for part in path.parts:
+            if part in all_sources:
+                new_parts.append(self.project.source_of(part))
+            else:
+                new_parts.append(part)
+        return Path(*new_parts)
 
     @property
     def path(self) -> Path:
-        path = self.command.path
-
-        num_parents = len(path.parents)
-        assert num_parents >= 2, f"expected 2 parent path elements, got {num_parents}"
-
-        source_name = path.parts[0]
-        source_dir = self.project.source_of(source_name)
-        if source_dir:
-            if isinstance(path, SourceRoot):
-                return Path(source_dir) / Path(*path.parts[1:])
-        return path
+        return self.command.path
 
     def __call__(self, *args: tp.Any):
         self.command.path = self.path
 
         watched_cmd = watch(wrap(str(self.command.path), self.project))
         return watched_cmd(*args)
+
+    def __repr__(self) -> str:
+        return f"ProjectCommand({self.project.name}, {repr(self.command)})"

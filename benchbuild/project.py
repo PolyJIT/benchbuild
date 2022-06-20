@@ -30,6 +30,7 @@ from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
 from benchbuild import extensions, source, workload
+from benchbuild.command import Command
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import primary, Git
@@ -43,12 +44,13 @@ MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
 VariantContext = source.VariantContext
 Sources = tp.List[source.FetchableSource]
-ContainerDeclaration = tp.Union[ContainerImage,
-                                tp.List[tp.Tuple[RevisionRange,
-                                                 ContainerImage]]]
+ContainerDeclaration = tp.Union[
+    ContainerImage, tp.List[tp.Tuple[RevisionRange, ContainerImage]]
+]
+Jobs = tp.Dict[str, tp.List[Command]]
 
-__REGISTRATION_SEPARATOR = '/'
-__REGISTRATION_OPTIONALS = ['/', '-']
+__REGISTRATION_SEPARATOR = "/"
+__REGISTRATION_OPTIONALS = ["/", "-"]
 
 
 class ProjectRegistry(type):
@@ -57,8 +59,10 @@ class ProjectRegistry(type):
     projects = StringTrie()
 
     def __new__(
-        mcs: tp.Type['Project'], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any]
+        mcs: tp.Type["Project"],
+        name: str,
+        bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any],
     ) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
@@ -69,7 +73,7 @@ class ProjectRegistry(type):
         defined_attrs = all(bool(attr) for attr in [name, domain, group])
 
         if bases and defined_attrs:
-            key = f'{name}/{group}'
+            key = f"{name}/{group}"
             ProjectRegistry.projects[key] = cls
 
         return cls
@@ -95,9 +99,7 @@ class MultiVersioned:
         Returns:
             Active variant context.
         """
-        assert hasattr(
-            self, 'variant'
-        ), 'Variant attribute missing from subclass.'
+        assert hasattr(self, "variant"), "Variant attribute missing from subclass."
 
         if self._active_variant is None:
             self._active_variant = self.variant
@@ -179,30 +181,30 @@ class Project(
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
+
     CONTAINER: tp.ClassVar[ContainerDeclaration] = ContainerImage()
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
     REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
     SOURCE: tp.ClassVar[Sources] = []
+    JOBS: tp.ClassVar[Jobs] = {}
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         del args, kwargs
 
         new_self = super(Project, cls).__new__(cls)
-        mod_ident = f'{cls.__name__} @ {cls.__module__}'
+        mod_ident = f"{cls.__name__} @ {cls.__module__}"
         if not cls.NAME:
-            raise AttributeError(
-                f'{mod_ident} does not define a NAME class attribute.'
-            )
+            raise AttributeError(f"{mod_ident} does not define a NAME class attribute.")
         if not cls.DOMAIN:
             raise AttributeError(
-                f'{mod_ident} does not define a DOMAIN class attribute.'
+                f"{mod_ident} does not define a DOMAIN class attribute."
             )
         if not cls.GROUP:
             raise AttributeError(
-                f'{mod_ident} does not define a GROUP class attribute.'
+                f"{mod_ident} does not define a GROUP class attribute."
             )
 
         return new_self
@@ -241,20 +243,25 @@ class Project(
         return uuid.uuid4()
 
     @run_uuid.validator
-    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use
+    def __check_if_uuid(
+        self, _: tp.Any, value: uuid.UUID
+    ) -> None:  # pylint: disable=no-self-use
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
     builddir: local.path = attr.ib(
         default=attr.Factory(
-            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.
-            run_uuid,
-            takes_self=True
+            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.run_uuid,
+            takes_self=True,
         )
     )
 
     source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True)
+    )
+
+    jobs: Jobs = attr.ib(
+        default=attr.Factory(lambda self: type(self).JOBS, takes_self=True)
     )
 
     primary_source: str = attr.ib()
@@ -294,7 +301,7 @@ class Project(
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def clone(self) -> 'Project':
+    def clone(self) -> "Project":
         """Create a deepcopy of ourself."""
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
@@ -303,7 +310,7 @@ class Project(
     @property
     def id(self) -> str:
         version_str = source.to_str(*tuple(self.variant.values()))
-        return f'{self.name}-{self.group}@{version_str}'
+        return f"{self.name}-{self.group}@{version_str}"
 
     def prepare(self) -> None:
         """Prepare the build diretory."""
@@ -364,7 +371,7 @@ class Project(
         """
         version_str = self.version_of(self.primary_source)
         if not version_str:
-            raise ValueError('You are expected to have a primary_source.')
+            raise ValueError("You are expected to have a primary_source.")
         return version_str
 
     @property
@@ -374,17 +381,15 @@ class Project(
         """
         source_str = self.source_of(self.primary_source)
         if not source_str:
-            raise ValueError('You are expected to have a primary_source.')
+            raise ValueError("You are expected to have a primary_source.")
         return source_str
 
 
 ProjectT = tp.Type[Project]
 
 
-def __split_project_input__(
-    project_input: str
-) -> tp.Tuple[str, tp.Optional[str]]:
-    split_input = project_input.rsplit('@', maxsplit=1)
+def __split_project_input__(project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
+    split_input = project_input.rsplit("@", maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
 
@@ -406,9 +411,7 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     return project
 
 
-def __add_indexed_filters__(
-    project: ProjectT, versions: tp.List[str]
-) -> ProjectT:
+def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> ProjectT:
     sources = project.SOURCE
     for i in range(min(len(sources), len(versions))):
         sources[i] = source.SingleVersionFilter(sources[i], versions[i])
@@ -417,9 +420,7 @@ def __add_indexed_filters__(
     return project
 
 
-def __add_named_filters__(
-    project: ProjectT, versions: tp.Dict[str, str]
-) -> ProjectT:
+def __add_named_filters__(project: ProjectT, versions: tp.Dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     named_sources: tp.Dict[str, source.base.FetchableSource] = {
         s.key: s for s in sources
@@ -455,7 +456,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
 
     def csv(in_str: tp.Union[tp.Any, str]) -> bool:
         if isinstance(in_str, str):
-            return len(in_str.split(',')) > 1
+            return len(in_str.split(",")) > 1
         return False
 
     is_csv = csv(version_in)
@@ -465,7 +466,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
         return __add_single_filter__(project, str(version_in))
 
     if isinstance(version_in, list) or is_csv:
-        version_in = version_in.split(',') if is_csv else version_in
+        version_in = version_in.split(",") if is_csv else version_in
         return __add_indexed_filters__(project, version_in)
 
     if isinstance(version_in, dict):
@@ -473,15 +474,14 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
             return __add_indexed_filters__(project, list(version_in.keys()))
         return __add_named_filters__(project, version_in)
 
-    raise ValueError('not sure what this version input')
+    raise ValueError("not sure what this version input")
 
 
 ProjectIndex = tp.Mapping[str, ProjectT]
 
 
 def populate(
-    projects_to_filter: ProjectNames,
-    group: MaybeGroupNames = None
+    projects_to_filter: ProjectNames, group: MaybeGroupNames = None
 ) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
@@ -525,15 +525,11 @@ def populate(
 
     if group:
         groupkeys = set(group)
-        prjs = {
-            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
-        }
+        prjs = {name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys}
 
-    populated = {
-        x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f
-    }
+    populated = {x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f}
     return populated
 
 
 def build_dir(e, p) -> LocalPath:
-    return local.path(str(CFG['build_dir'])) / str(e.name) / str(p.id)
+    return local.path(str(CFG["build_dir"])) / str(e.name) / str(p.id)

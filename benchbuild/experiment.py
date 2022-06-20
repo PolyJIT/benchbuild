@@ -51,14 +51,19 @@ class ExperimentRegistry(type):
     experiments = {}
 
     def __new__(
-        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any], *args: tp.Any, **kwargs: tp.Any
+        mcs: tp.Type[tp.Any],
+        name: str,
+        bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any],
+        *args: tp.Any,
+        **kwargs: tp.Any
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ExperimentRegistry,
-                    mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
-        if bases and 'NAME' in attrs:
-            ExperimentRegistry.experiments[attrs['NAME']] = cls
+        cls = super(ExperimentRegistry, mcs).__new__(
+            mcs, name, bases, attrs, *args, **kwargs
+        )
+        if bases and "NAME" in attrs:
+            ExperimentRegistry.experiments[attrs["NAME"]] = cls
         return cls
 
 
@@ -88,11 +93,10 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME: tp.ClassVar[str] = ''
+    NAME: tp.ClassVar[str] = ""
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
-    CONTAINER: tp.ClassVar[declarative.ContainerImage
-                          ] = declarative.ContainerImage()
+    CONTAINER: tp.ClassVar[declarative.ContainerImage] = declarative.ContainerImage()
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -110,8 +114,7 @@ class Experiment(metaclass=ExperimentRegistry):
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
     )
 
-    projects: Projects = \
-        attr.ib(default=attr.Factory(list))
+    projects: Projects = attr.ib(default=attr.Factory(list))
 
     id = attr.ib()
 
@@ -130,8 +133,8 @@ class Experiment(metaclass=ExperimentRegistry):
     def validate_id(self, _: tp.Any, new_id: uuid.UUID) -> None:
         if not isinstance(new_id, uuid.UUID):
             raise TypeError(
-                "%s expected to be '%s' but got '%s'" %
-                (str(new_id), str(uuid.UUID), str(type(new_id)))
+                "%s expected to be '%s' but got '%s'"
+                % (str(new_id), str(uuid.UUID), str(type(new_id)))
             )
 
     schema = attr.ib()
@@ -181,8 +184,9 @@ class Experiment(metaclass=ExperimentRegistry):
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
                     actns.Echo(
-                        message="Selected {0} with version {1}".
-                        format(p.name, version_str)
+                        message="Selected {0} with version {1}".format(
+                            p.name, version_str
+                        )
                     ),
                     actns.ProjectEnvironment(p),
                 ]
@@ -214,14 +218,15 @@ class Experiment(metaclass=ExperimentRegistry):
 
         if len(variants) > 0:
             return [source.context(*variants[0])]
-        raise ValueError('At least one variant is required!')
+        raise ValueError("At least one variant is required!")
 
     def default_runtime_actions(self, project: Project) -> Actions:
         """Return a series of actions for a run time experiment."""
         return [
             actns.Compile(project),
-            actns.Run(project, experiment=self),
-            actns.Clean(project)
+            actns.RunJobs(project, experiment=self),
+            # actns.Run(project, experiment=self),
+            actns.Clean(project),
         ]
 
     def default_compiletime_actions(self, project: Project) -> Actions:

@@ -9,88 +9,117 @@ from benchbuild.utils.cmd import make, tar
 
 
 class Bzip2(bb.Project):
-    """ Bzip2 """
+    """Bzip2"""
 
-    NAME = 'bzip2'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
+    NAME = "bzip2"
+    DOMAIN = "compression"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://github.com/PolyJIT/bzip2',
-            local='bzip2.git',
+            remote="https://github.com/PolyJIT/bzip2",
+            local="bzip2.git",
             limit=1,
-            refspec='HEAD'
+            refspec="HEAD",
         ),
         HTTP(
-            remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
-            local='compression.tar.gz'
-        )
+            remote={"1.0": "http://lairosiel.de/dist/compression.tar.gz"},
+            local="compression.tar.gz",
+        ),
     ]
 
-    CONTAINER = ContainerImage() \
-        .from_('benchbuild:alpine') \
-        .run('apk', 'add', 'make')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine").run("apk", "add", "make")
 
     STAGES = ["compression", "decompression"]
 
     JOBS = {
         "compression": [
             Command(
-                SourceRoot('bzip2.git') / 'bzip2',
-                '-f',
-                '-z',
-                '-k',
-                '--best',
-                'compression/text.html',
-                output_param=['--output', '{output}'],
-                output="foo.bar"
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-z",
+                "-k",
+                "--best",
+                "compression/text.html",
+                output_param=["--output", "{output}"],
+                output="foo.bar",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
-                'compression/chicken.jpg'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-z",
+                "-k",
+                "--best",
+                "compression/chicken.jpg",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
-                'compression/control'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-z",
+                "-k",
+                "--best",
+                "compression/control",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
-                'compression/input.source'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-z",
+                "-k",
+                "--best",
+                "compression/input.source",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
-                'compression/liberty.jpg'
-            )
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-z",
+                "-k",
+                "--best",
+                "compression/liberty.jpg",
+            ),
         ],
-        WorkloadSet(name="decompression", tags={Size.Large}): [
-            #"decompression": [
+        # WorkloadSet(name="decompression", tags={Size.Large}): [
+        "decompression": [
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
-                'compression/text.html.bz2'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-k",
+                "--decompress",
+                "compression/text.html.bz2",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
-                'compression/chicken.jpg.bz2'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-k",
+                "--decompress",
+                "compression/chicken.jpg.bz2",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
-                'compression/control.bz2'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-k",
+                "--decompress",
+                "compression/control.bz2",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
-                'compression/input.source.bz2'
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-k",
+                "--decompress",
+                "compression/input.source.bz2",
             ),
             Command(
-                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
-                'compression/liberty.jpg.bz2'
-            )
-        ]
+                SourceRoot("bzip2.git") / "bzip2",
+                "-f",
+                "-k",
+                "--decompress",
+                "compression/liberty.jpg.bz2",
+            ),
+        ],
     }
 
     def compile_project(self):
-        bzip2_repo = local.path(self.source_of('bzip2.git'))
-        compression_source = local.path(self.source_of('compression.tar.gz'))
-        tar('xf', compression_source)
+        bzip2_repo = local.path(self.source_of("bzip2.git"))
+        compression_source = local.path(self.source_of("compression.tar.gz"))
+        tar("xf", compression_source)
 
         clang = bb.compiler.cc(self)
         with local.cwd(bzip2_repo):

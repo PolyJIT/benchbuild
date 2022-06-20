@@ -5,7 +5,6 @@ from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
 
 from benchbuild import source
-from benchbuild.project import Project
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
 
@@ -98,17 +97,16 @@ class Command:
 
     def __str__(self) -> str:
         env_str = " ".join([f"{k}={v}" for k, v in self._env.items()])
-        print(self._args)
         args_str = " ".join(self._args)
 
         return f"{env_str} {self._path} {args_str}"
 
 
 class ProjectCommand:
-    project: Project
+    project: "benchbuild.project.Project"
     command: Command
 
-    def __init__(self, project: Project, command: Command) -> None:
+    def __init__(self, project: "benchbuild.project.Project", command: Command) -> None:
         self.project = project
         self.command = command
         self.command.path = self._create_project_path(self.command.path)
@@ -135,3 +133,6 @@ class ProjectCommand:
 
     def __repr__(self) -> str:
         return f"ProjectCommand({self.project.name}, {repr(self.command)})"
+
+    def __str__(self) -> str:
+        return str(self.command)

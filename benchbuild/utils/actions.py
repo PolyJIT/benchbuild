@@ -130,10 +130,11 @@ def log_before_after(name: str, desc: str) -> FunctionDecorator[StepResult, Step
             """Wrapper stub."""
             LOG.info("\n%s - %s", name, desc)
             res = func(*args, **kwargs)
-            if res == StepResult.ERROR:
-                LOG.info("%s - OK\n", name)
+            msg = f"{name} - {res.name}"
+            if res != StepResult.ERROR:
+                LOG.info(msg)
             else:
-                LOG.error("%s - ERROR\n", name)
+                LOG.error(msg)
             return res
 
         return wrapper

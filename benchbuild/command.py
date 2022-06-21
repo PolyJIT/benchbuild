@@ -6,7 +6,7 @@ from plumbum.commands.base import BoundEnvCommand
 
 from benchbuild import source
 from benchbuild.settings import CFG
-from benchbuild.utils.run import watch, store_config, in_builddir
+from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
 
 
@@ -67,13 +67,9 @@ class Command:
         return Command(self._path, *self._args, *args, output=self._output, **self._env)
 
     def __call__(self, *args: tp.Any) -> tp.Any:
-        print("0", self.exists())
         assert self.exists()
         cmd_w_output = self.as_plumbum()
-        print("1", str(self))
-        print("2", cmd_w_output)
         c = watch(cmd_w_output[args])
-        print("3", c)
         return watch(cmd_w_output)(*args)
 
     def as_plumbum(self) -> BoundEnvCommand:

@@ -724,6 +724,9 @@ class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
 
+    def __init__(self) -> None:
+        super().__init__(StepResult.UNSET)
+
     @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not CFG["clean"]:

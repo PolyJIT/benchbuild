@@ -196,7 +196,7 @@ class Experiment(metaclass=ExperimentRegistry):
             actions.extend(prj_actions)
 
         if actions:
-            actions.append(actns.CleanExtra(self))
+            actions.append(actns.CleanExtra())
         return actions
 
     @classmethod

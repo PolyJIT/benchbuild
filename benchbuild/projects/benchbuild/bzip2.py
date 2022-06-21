@@ -40,8 +40,6 @@ class Bzip2(bb.Project):
                 "-k",
                 "--best",
                 "compression/text.html",
-                output_param=["--output", "{output}"],
-                output="foo.bar",
             ),
             Command(
                 SourceRoot("bzip2.git") / "bzip2",
@@ -116,6 +114,7 @@ class Bzip2(bb.Project):
         ],
     }
 
+    @workload.define(workload.COMPILE)
     def compile_project(self):
         bzip2_repo = local.path(self.source_of("bzip2.git"))
         compression_source = local.path(self.source_of("compression.tar.gz"))

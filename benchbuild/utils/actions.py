@@ -653,7 +653,6 @@ class RunJob(ProjectStep):
         super().__init__(project)
         self.job = job
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         try:
             self.job()

@@ -22,6 +22,7 @@ import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
+from pathlib import Path
 
 import attr
 import yaml
@@ -117,9 +118,31 @@ class MultiVersioned:
         return self._active_variants
 
 
+class PathTracker:
+    """
+    Remember paths in any subclass
+    """
+
+    _tracked_paths: tp.Set[Path]
+
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+
+        cls._tracked_paths = set()
+
+    def remember_path(self, path: Path) -> None:
+        self._tracked_paths.add(path)
+
+    def forget_path(self, path: Path) -> None:
+        self._tracked_paths.remove(path)
+
+    def __contains__(self, path: Path) -> bool:
+        return path in self._tracked_paths
+
+
 @attr.s
 class Project(
-    MultiVersioned, workload.WorkloadMixin, metaclass=ProjectRegistry
+    PathTracker, MultiVersioned, workload.WorkloadMixin, metaclass=ProjectRegistry
 ):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 

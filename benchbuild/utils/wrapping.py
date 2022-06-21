@@ -26,6 +26,7 @@ import logging
 import os
 import sys
 import typing as tp
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dill
@@ -40,16 +41,14 @@ from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.uchroot import no_llvm as uchroot
 
-PROJECT_BIN_F_EXT = ".bin"
-PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from benchbuild.project import Project
     from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
 
 
-def strip_path_prefix(ipath: str, prefix: str) -> str:
+def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     """
     Strip prefix from path.
 
@@ -58,20 +57,19 @@ def strip_path_prefix(ipath: str, prefix: str) -> str:
         prefix: the prefix to remove, if it is found in :ipath:
 
     Examples:
-        >>> strip_path_prefix("/foo/bar", "/bar")
+        >>> strip_path_prefix(Path("/foo/bar"), Path("/bar"))
         '/foo/bar'
-        >>> strip_path_prefix("/foo/bar", "/")
+        >>> strip_path_prefix(Path("/foo/bar"), Path("/"))
         'foo/bar'
-        >>> strip_path_prefix("/foo/bar", "/foo")
+        >>> strip_path_prefix(Path("/foo/bar"), Path("/foo"))
         '/bar'
-        >>> strip_path_prefix("/foo/bar", "None")
+        >>> strip_path_prefix(Path("/foo/bar"), Path("None"))
         '/foo/bar'
 
     """
-    if not prefix:
-        return ipath
-
-    return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
+    if prefix in ipath.parents:
+        return Path("/") / ipath.relative_to(prefix)
+    return ipath
 
 
 def unpickle(pickle_file: str) -> tp.Any:
@@ -88,23 +86,27 @@ def __create_jinja_env() -> jinja2.Environment:
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,
-        loader=jinja2.PackageLoader('benchbuild', 'res')
+        loader=jinja2.PackageLoader("benchbuild", "res"),
     )
 
 
 def wrap(
     name: str,
-    project: 'Project',
-    sprefix: str = '',
-    python: str = sys.executable
+    project: "benchbuild.project.Project",
+    sprefix: str = Path(),
+    python: str = sys.executable,
+    bin_ext: str = ".bin",
 ) -> pb.commands.ConcreteCommand:
-    """ Wrap the binary :name: with the runtime extension of the project.
+    """Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:
     The function in runner only accepts the replaced binaries
     name as argument. We use the cloudpickle package to
     perform the serialization, make sure :runner: can be serialized
     with it and you're fine.
+
+    Default behavior will remember wrapped paths and never move a remembered
+    path to a binary location.
 
     Args:
         name: Binary we want to wrap
@@ -115,36 +117,38 @@ def wrap(
         A plumbum command, ready to launch.
     """
     env = __create_jinja_env()
-    template = env.get_template('wrapping/run_static.py.inc')
+    template = env.get_template("wrapping/run_static.py.inc")
 
-    name_absolute = os.path.abspath(name)
-    real_f = name_absolute + PROJECT_BIN_F_EXT
-    if sprefix:
+    prefix = Path(sprefix)
+    target = Path(name).absolute()
+    if prefix in target.parents:
         _mv = run.watch(uchroot()["/bin/mv"])
-        _mv(
-            strip_path_prefix(name_absolute, sprefix),
-            strip_path_prefix(real_f, sprefix)
-        )
     else:
         _mv = run.watch(mv)
-        _mv(name_absolute, real_f)
+
+    target = strip_path_prefix(target, prefix)
+    real_path = strip_path_prefix(target.with_suffix(bin_ext), prefix)
+
+    if target not in project:
+        _mv(target, real_path)
+        project.remember_path(target)
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value
+    env = CFG["env"].value
 
-    bin_path = list_to_path(env.get('PATH', []))
+    bin_path = list_to_path(env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
+    bin_lib_path = list_to_path(env.get("LD_LIBRARY_PATH", []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
     home = env.get("HOME", os.getenv("HOME", ""))
 
-    with open(name_absolute, 'w') as wrapper:
+    with target.open("w") as wrapper:
         wrapper.write(
             template.render(
-                runf=strip_path_prefix(real_f, sprefix),
-                project_file=strip_path_prefix(project_file, sprefix),
+                runf=strip_path_prefix(real_path, prefix),
+                project_file=strip_path_prefix(project_file, prefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
@@ -153,16 +157,17 @@ def wrap(
         )
 
     _chmod = run.watch(chmod)
-    _chmod("+x", name_absolute)
-    return local[name_absolute]
+    _chmod("+x", str(target))
+    return local[str(target)]
 
 
 def wrap_dynamic(
-    project: 'Project',
+    project: "benchbuild.project.Project",
     name: str,
-    sprefix: str = '',
+    sprefix: Path(),
     python: str = sys.executable,
-    name_filters: tp.Optional[tp.List[str]] = None
+    name_filters: tp.Optional[tp.List[str]] = None,
+    bin_ext: str = ".bin",
 ) -> BoundCommand:
     """
     Wrap the binary :name with the function :runner.
@@ -189,47 +194,55 @@ def wrap_dynamic(
 
     """
     env = __create_jinja_env()
-    template = env.get_template('wrapping/run_dynamic.py.inc')
+    template = env.get_template("wrapping/run_dynamic.py.inc")
 
-    name_absolute = os.path.abspath(name)
-    real_f = name_absolute + PROJECT_BIN_F_EXT
+    prefix = Path(sprefix)
+    target = Path(name).absolute()
+    if prefix in target.parents:
+        _mv = run.watch(uchroot()["/bin/mv"])
+    else:
+        _mv = run.watch(mv)
+
+    target = strip_path_prefix(target, prefix)
+    real_path = strip_path_prefix(target.with_suffix(bin_ext), prefix)
+
+    if target not in project:
+        _mv(target, real_path)
 
     project_file = persist(project, suffix=".project")
 
-    cfg_env = CFG['env'].value
+    cfg_env = CFG["env"].value
 
-    bin_path = list_to_path(cfg_env.get('PATH', []))
+    bin_path = list_to_path(cfg_env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = \
-        list_to_path(cfg_env.get('LD_LIBRARY_PATH', []))
-    bin_lib_path = \
-        list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
+    bin_lib_path = list_to_path(cfg_env.get("LD_LIBRARY_PATH", []))
+    bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
     home = cfg_env.get("HOME", os.getenv("HOME", ""))
 
-    with open(name_absolute, 'w') as wrapper:
+    with target.open("w") as wrapper:
         wrapper.write(
             template.render(
-                runf=strip_path_prefix(real_f, sprefix),
-                project_file=strip_path_prefix(project_file, sprefix),
+                runf=strip_path_prefix(real_path, prefix),
+                project_file=strip_path_prefix(project_file, prefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
                 python=python,
-                name_filters=name_filters
+                name_filters=name_filters,
             )
         )
 
-    chmod("+x", name_absolute)
-    return local[name_absolute]
+    chmod("+x", str(target))
+    return local[str(target)]
 
 
 def wrap_cc(
     filepath: str,
     compiler: BoundCommand,
-    project: 'Project',
+    project: "Project",
     python: str = sys.executable,
-    detect_project: bool = False
+    detect_project: bool = False,
 ) -> BoundCommand:
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
@@ -250,30 +263,27 @@ def wrap_cc(
         Command of the new compiler we can call.
     """
     env = __create_jinja_env()
-    template = env.get_template('wrapping/run_compiler.py.inc')
+    template = env.get_template("wrapping/run_compiler.py.inc")
 
-    cc_fname = local.path(filepath).with_suffix(".benchbuild.cc", depth=0)
+    cc_fname = Path(filepath).with_suffix(".benchbuild.cc")
     cc_f = persist(compiler, filename=cc_fname)
 
     project_file = persist(project, suffix=".project")
 
-    with open(filepath, 'w') as wrapper:
+    with open(filepath, "w") as wrapper:
         wrapper.write(
             template.render(
-                cc_f=cc_f,
-                project_file=project_file,
+                cc_f=str(cc_f),
+                project_file=str(project_file),
                 python=python,
-                detect_project=detect_project
+                detect_project=detect_project,
             )
         )
 
     chmod("+x", filepath)
-    LOG.debug(
-        "Placed wrapper in: %s for compiler %s", local.path(filepath),
-        str(compiler)
-    )
-    LOG.debug("Placed project in: %s", local.path(project_file))
-    LOG.debug("Placed compiler command in: %s", local.path(cc_f))
+    LOG.debug("Placed wrapper in: %s for compiler %s", filepath, str(compiler))
+    LOG.debug("Placed project in: %s", project_file)
+    LOG.debug("Placed compiler command in: %s", cc_f)
     return local[filepath]
 
 
@@ -294,17 +304,17 @@ def persist(id_obj, filename=None, suffix=None):
     """
     if suffix is None:
         suffix = ".pickle"
-    if hasattr(id_obj, 'run_uuid'):
+    if hasattr(id_obj, "run_uuid"):
         ident = id_obj.run_uuid
     else:
         ident = str(id(id_obj))
 
     if filename is None:
-        filename = "{obj_id}{suffix}".format(obj_id=ident, suffix=suffix)
+        filename = f"{ident}{suffix}"
 
-    with open(filename, 'wb') as obj_file:
+    with open(filename, "wb") as obj_file:
         dill.dump(id_obj, obj_file)
-    return os.path.abspath(filename)
+    return Path(filename).absolute()
 
 
 def load(filename: str) -> tp.Optional[tp.Any]:
@@ -324,6 +334,6 @@ def load(filename: str) -> tp.Optional[tp.Any]:
         return None
 
     obj = None
-    with open(filename, 'rb') as obj_file:
+    with open(filename, "rb") as obj_file:
         obj = dill.load(obj_file)
     return obj

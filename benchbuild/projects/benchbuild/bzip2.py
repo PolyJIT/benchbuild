@@ -28,9 +28,6 @@ class Bzip2(bb.Project):
     ]
 
     CONTAINER = ContainerImage().from_("benchbuild:alpine").run("apk", "add", "make")
-
-    STAGES = ["compression", "decompression"]
-
     JOBS = {
         "compression": [
             Command(

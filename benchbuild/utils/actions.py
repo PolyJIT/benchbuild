@@ -755,6 +755,8 @@ class ProjectEnvironment(ProjectStep):
     @notify_step_begin_end
     def __call__(self) -> StepResult:
         project = self.project
+        project.clear_paths()
+
         prj_vars = project.variant
 
         for name, variant in prj_vars.items():

@@ -139,6 +139,9 @@ class PathTracker:
     def __contains__(self, path: Path) -> bool:
         return path in self._tracked_paths
 
+    def clear_paths(self) -> None:
+        self._tracked_paths.clear()
+
 
 @attr.s
 class Project(

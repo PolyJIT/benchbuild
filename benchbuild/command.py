@@ -11,10 +11,16 @@ from benchbuild.utils.wrapping import wrap
 
 
 class SourceRoot(PosixPath):
-    pass
+    """
+    Named wrapper around PosixPath.
+    """
 
 
 class Command:
+    """
+    A command wrapper for benchbuild's commands.
+    """
+
     _path: Path
     _output: Path
     _output_param: tp.List[str]
@@ -67,9 +73,11 @@ class Command:
         return Command(self._path, *self._args, *args, output=self._output, **self._env)
 
     def __call__(self, *args: tp.Any) -> tp.Any:
+        """
+        Run the command in foreground.
+        """
         assert self.exists()
         cmd_w_output = self.as_plumbum()
-        c = watch(cmd_w_output[args])
         return watch(cmd_w_output)(*args)
 
     def as_plumbum(self) -> BoundEnvCommand:
@@ -105,6 +113,23 @@ class Command:
 
 
 class ProjectCommand:
+    """
+    ProjectCommands associate a command to a benchbuild project.
+
+    A project command can wrap the given command with the assigned
+    runtime extension.
+    If the binary is located inside a subdirectory relative to one of the
+    project's sources, you can provide a path relative to it's local
+    directory.
+    A project command will always try to resolve any reference to a local
+    source directory in a command's path.
+
+    A call to a project command will drop the current configuration inside
+    the project's build directory and confine the run into the project's
+    build directory. The binary will be replaced with a wrapper that
+    calls the project's runtime_extension.
+    """
+
     project: "benchbuild.project.Project"
     command: Command
 

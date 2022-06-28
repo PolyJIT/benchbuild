@@ -2,14 +2,14 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import workload
-from benchbuild.command import Command, SourceRoot
+from benchbuild.command import Command, SourceRoot, WorkloadSet
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
 
 
 class Bzip2(bb.Project):
-    """Bzip2"""
+    """Bzip2."""
 
     NAME = "bzip2"
     DOMAIN = "compression"
@@ -29,7 +29,7 @@ class Bzip2(bb.Project):
 
     CONTAINER = ContainerImage().from_("benchbuild:alpine").run("apk", "add", "make")
     JOBS = {
-        "compression": [
+        WorkloadSet(name="compression"): [
             Command(
                 SourceRoot("bzip2.git") / "bzip2",
                 "-f",
@@ -71,8 +71,7 @@ class Bzip2(bb.Project):
                 "compression/liberty.jpg",
             ),
         ],
-        # WorkloadSet(name="decompression", tags={Size.Large}): [
-        "decompression": [
+        WorkloadSet(name="decompression"): [
             Command(
                 SourceRoot("bzip2.git") / "bzip2",
                 "-f",

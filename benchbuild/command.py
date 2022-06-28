@@ -1,4 +1,5 @@
 import typing as tp
+from collections.abc import Mapping
 from pathlib import Path, PosixPath
 
 from plumbum import local
@@ -11,15 +12,73 @@ from benchbuild.utils.wrapping import wrap
 
 
 class SourceRoot(PosixPath):
+    """Named wrapper around PosixPath."""
+
+
+class WorkloadSet(Mapping):
+    """An immutable set of workload descriptors.
+
+    A WorkloadSet is immutable and usable as a key in a job mapping.
+    WorkloadSets support composition through intersection and union.
+
+    Example:
+    >>> WorkloadSet(a=1, b=0) & WorkloadSet(a=1)
+    WorkloadSet({a=1})
+    >>> WorkloadSet(a=1, b=0) & WorkloadSet(c=1)
+    WorkloadSet({})
+    >>> WorkloadSet(a=1, b=0) | WorkloadSet(c=1)
+    WorkloadSet(c=1, a=1, b=0)
+
+    Warning:
+    >>> WorkloadSet(a=1) | WorkloadSet(a=2)
+    WorkloadSet({a=1, a=2})
     """
-    Named wrapper around PosixPath.
-    """
+
+    _tags: tp.FrozenSet[tp.Tuple[str, tp.Any]]
+
+    def __init__(self, **kwargs: tp.Any) -> None:
+        self._tags = frozenset((k, v) for k, v in kwargs.items())
+
+    def __getitem__(self, key: str) -> tp.Any:
+        for k, v in self._tags:
+            if k == key:
+                return v
+        raise KeyError()
+
+    def __iter__(self) -> tp.Iterator[tp.Tuple[str, tp.Any]]:
+        return [k for k, _ in self._tags].__iter__()
+
+    def __len__(self) -> int:
+        return len(self._tags)
+
+    def __and__(self, rhs: "WorkloadSet") -> "WorkloadSet":
+        lhs_t = self._tags
+        rhs_t = rhs._tags
+
+        ret = WorkloadSet()
+        ret._tags = lhs_t & rhs_t
+        return ret
+
+    def __or__(self, rhs: "WorkloadSet") -> "WorkloadSet":
+        lhs_t = self._tags
+        rhs_t = rhs._tags
+
+        ret = WorkloadSet()
+        ret._tags = lhs_t | rhs_t
+        return ret
+
+    def __hash__(self) -> bool:
+        return hash(self._tags)
+
+    def __repr__(self) -> str:
+        repr_str = [f"{k}={v}" for k, v in sorted(self._tags)]
+        repr_str = ", ".join(repr_str)
+
+        return f"WorkloadSet({{{repr_str}}})"
 
 
 class Command:
-    """
-    A command wrapper for benchbuild's commands.
-    """
+    """A command wrapper for benchbuild's commands."""
 
     _path: Path
     _output: Path
@@ -73,9 +132,7 @@ class Command:
         return Command(self._path, *self._args, *args, output=self._output, **self._env)
 
     def __call__(self, *args: tp.Any) -> tp.Any:
-        """
-        Run the command in foreground.
-        """
+        """Run the command in foreground."""
         assert self.exists()
         cmd_w_output = self.as_plumbum()
         return watch(cmd_w_output)(*args)
@@ -113,8 +170,7 @@ class Command:
 
 
 class ProjectCommand:
-    """
-    ProjectCommands associate a command to a benchbuild project.
+    """ProjectCommands associate a command to a benchbuild project.
 
     A project command can wrap the given command with the assigned
     runtime extension.
@@ -165,3 +221,16 @@ class ProjectCommand:
 
     def __str__(self) -> str:
         return str(self.command)
+
+
+JobIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
+
+
+def filter_job_index(
+    only: WorkloadSet, index: JobIndex
+) -> tp.Generator[Command, None, None]:
+    keys = {k for k in index if k & only}
+
+    for k in keys:
+        for job in index[k]:
+            yield job

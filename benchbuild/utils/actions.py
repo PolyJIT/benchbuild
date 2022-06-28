@@ -681,18 +681,20 @@ class RunJobs(MultiStep):
         self,
         project: "benchbuild.project.Project",
         experiment: "benchbuild.experiment.Experiment",
+        run_only: tp.Optional[WorkloadSet] = None,
     ) -> None:
         super().__init__()
 
         self.project = project
         self.experiment = experiment
 
-        # FIXME: Provide API by Jobs / Remember: WorkloadSet as Jobs key
-        for _, jobs in project.jobs.items():
-            for job in jobs:
-                self.actions.append(
-                    RunJob(project, command.ProjectCommand(project, job))
-                )
+        if run_only is None:
+            jobs = itertools.chain(*project.jobs.values())
+        else:
+            jobs = command.filter_job_index(run_only, project.jobs)
+
+        for job in jobs:
+            self.actions.append(RunJob(project, command.ProjectCommand(project, job)))
 
     @notify_step_begin_end
     def __call__(self) -> StepResult:

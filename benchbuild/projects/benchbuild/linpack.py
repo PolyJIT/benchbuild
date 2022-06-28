@@ -1,6 +1,7 @@
 import logging
 
 import benchbuild as bb
+from benchbuild.command import Command, WorkloadSet, SourceRoot
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils import path
@@ -23,6 +24,8 @@ class Linpack(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
+    JOBS = {WorkloadSet(): [Command(SourceRoot(".") / "linpack")]}
+
     def compile(self) -> None:
         lp_patch = path.template_path("patches/linpack.patch")
         (patch["-p0"] < lp_patch)()
@@ -31,8 +34,3 @@ class Linpack(bb.Project):
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
         _clang("-o", 'linpack', "linpack.c")
-
-    def run_tests(self) -> None:
-        linpack = bb.wrap('linpack', self)
-        _linpack = bb.watch(linpack)
-        _linpack()

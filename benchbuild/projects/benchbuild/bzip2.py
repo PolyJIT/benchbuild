@@ -29,87 +29,24 @@ class Bzip2(bb.Project):
 
     CONTAINER = ContainerImage().from_("benchbuild:alpine"
                                       ).run("apk", "add", "make")
+    # yapf: disable
     JOBS = {
         WorkloadSet(name="compression"): [
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-z",
-                "-k",
-                "--best",
-                "compression/text.html",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-z",
-                "-k",
-                "--best",
-                "compression/chicken.jpg",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-z",
-                "-k",
-                "--best",
-                "compression/control",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-z",
-                "-k",
-                "--best",
-                "compression/input.source",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-z",
-                "-k",
-                "--best",
-                "compression/liberty.jpg",
-            ),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/text.html"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/chicken.jpg"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/control"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/input.source"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/liberty.jpg"),
         ],
         WorkloadSet(name="decompression"): [
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-k",
-                "--decompress",
-                "compression/text.html.bz2",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-k",
-                "--decompress",
-                "compression/chicken.jpg.bz2",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-k",
-                "--decompress",
-                "compression/control.bz2",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-k",
-                "--decompress",
-                "compression/input.source.bz2",
-            ),
-            Command(
-                SourceRoot("bzip2.git") / "bzip2",
-                "-f",
-                "-k",
-                "--decompress",
-                "compression/liberty.jpg.bz2",
-            ),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-k", "--decompress", "compression/text.html.bz2"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-k", "--decompress", "compression/chicken.jpg.bz2"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-k", "--decompress", "compression/control.bz2"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-k", "--decompress", "compression/input.source.bz2"),
+            Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-k", "--decompress", "compression/liberty.jpg.bz2"),
         ],
     }
+    # yapf: enable
 
     @workload.define(workload.COMPILE)
     def compile_project(self):

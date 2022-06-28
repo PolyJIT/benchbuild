@@ -2,6 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import CFG, workload
+from benchbuild.command import WorkloadSet, Command, SourceRoot
 from benchbuild.environments.domain import declarative
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make
@@ -34,6 +35,47 @@ class X264(bb.Project):
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
+    # yapf: disable
+    JOBS = {
+        WorkloadSet(inputfile="tbbt-small.y4m"): [
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--crf", "30", "-b1", "-m1", "-r1", "--me", "dia" "--no-cabac", "--direct temporal", "--ssim", "--no-weightb"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--crf", "16", "-b2", "-m3", "-r3", "--me", "hex", "--no-8x8dct", "--direct", "spatial", "--no-dct-decimate", "-t0", "", "--slice-max-mbs", "50"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--cr", "2", "-b", "-m", "-r", "--m", "he", "--cq", "jv", "--n", "10", "--psn", "--no-mixed-ref", "--b-adap", "", "--slice-max-siz", "1500"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--cr", "1", "-b", "-m", "-r", "--m", "um", "-t", "-", "al", "--b-pyrami", "norma", "--direc", "aut", "--no-fast-pski", "--no-mbtree"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--cr", "2", "-b", "-m", "-r", "--m", "es", "-t", "-", "al", "--psy-r", "1.0:1.", "--slice", "4"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--frame", "5", "--cr", "2", "-b", "-m1", "-r", "--m", "tes", "-t2"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--frame", "5", "-q", "-m", "-r", "--m", "he", "-Aall"),
+            Command(SourceRoot("x264.git") / "x264",
+                "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--frame", "5", "-q", "-m", "-r", "--m", "he", "--no-cabac")
+        ],
+        WorkloadSet(inputfile="sintel.raw"): [
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--crf", "30", "-b1", "-m1", "-r1", "--me", "dia" "--no-cabac", "--direct temporal", "--ssim", "--no-weightb"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--crf", "16", "-b2", "-m3", "-r3", "--me", "hex", "--no-8x8dct", "--direct", "spatial", "--no-dct-decimate", "-t0", "", "--slice-max-mbs", "50"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--cr", "2", "-b", "-m", "-r", "--m", "he", "--cq", "jv", "--n", "10", "--psn", "--no-mixed-ref", "--b-adap", "", "--slice-max-siz", "1500"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--cr", "1", "-b", "-m", "-r", "--m", "um", "-t", "-", "al", "--b-pyrami", "norma", "--direc", "aut", "--no-fast-pski", "--no-mbtree"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--cr", "2", "-b", "-m", "-r", "--m", "es", "-t", "-", "al", "--psy-r", "1.0:1.", "--slice", "4"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--frame", "5", "--cr", "2", "-b", "-m1", "-r", "--m", "tes", "-t2"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--frame", "5", "-q", "-m", "-r", "--m", "he", "-Aall"),
+            Command(SourceRoot("x264.git") / "x264",
+                "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--frame", "5", "-q", "-m", "-r", "--m", "he", "--no-cabac")
+        ]
+    }
+    # yapf: enable
+
     @workload.define(workload.COMPILE)
     def compile(self):
         x264_repo = local.path(self.source_of('x264.git'))
@@ -50,48 +92,3 @@ class X264(bb.Project):
 
             _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
-
-    @workload.define(workload.RUN)
-    def run_tests(self):
-        x264_repo = local.path(self.source_of('x264.git'))
-        inputfiles = [
-            self.source_of('tbbt-small.y4m'),
-            self.source_of('sintel.raw')
-        ]
-
-        x264 = bb.wrap(x264_repo / "x264", self)
-        tests = [
-            (
-                '--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal '
-                '--ssim --no-weightb'
-            ),
-            (
-                '--crf 16 -b2 -m3 -r3 --me hex --no-8x8dct --direct spatial '
-                '--no-dct-decimate -t0  --slice-max-mbs 50'
-            ),
-            (
-                '--crf 26 -b4 -m5 -r2 --me hex --cqm jvt --nr 100 --psnr '
-                '--no-mixed-refs --b-adapt 2 --slice-max-size 1500'
-            ),
-            (
-                '--crf 18 -b3 -m9 -r5 --me umh -t1 -A all --b-pyramid normal '
-                '--direct auto --no-fast-pskip --no-mbtree'
-            ),
-            (
-                '--crf 22 -b3 -m7 -r4 --me esa -t2 -A all --psy-rd 1.0:1.0 '
-                '--slices 4'
-            ),
-            ('--frames 50 --crf 24 -b3 -m10 -r3 --me tesa -t2'),
-            ('--frames 50 -q0 -m9 -r2 --me hex -Aall'),
-            ('--frames 50 -q0 -m2 -r1 --me hex --no-cabac'),
-        ]
-
-        for testfile in inputfiles:
-            for _, test in enumerate(tests):
-                _x264 = x264[testfile]
-                if testfile in self.CONFIG:
-                    _x264 = _x264[self.CONFIG[testfile]]
-                _x264 = _x264["--threads", "1", "-o", "/dev/null"]
-                _x264 = _x264[test.split(" ")]
-                _x264 = bb.watch(_x264)
-                _x264()

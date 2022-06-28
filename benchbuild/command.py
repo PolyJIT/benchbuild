@@ -96,7 +96,10 @@ class Command:
     ) -> None:
 
         self._path = path
-        self._args = args if args is not None else []
+        if args is None:
+            self._args = []
+        else:
+            self._args = [str(arg) for arg in args]
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
@@ -167,7 +170,7 @@ class Command:
         return f"Command({repr_str})"
 
     def __str__(self) -> str:
-        env_str = " ".join([f"{k}={v}" for k, v in self._env.items()])
+        env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
         args_str = " ".join(self._args)
 
         return f"{env_str} {self._path} {args_str}"
@@ -208,6 +211,11 @@ class ProjectCommand:
                 new_parts.append(self.project.source_of(part))
             else:
                 new_parts.append(part)
+
+        new_path = Path(*new_parts)
+        if not new_path.is_absolute():
+            new_path = Path(str(self.project.builddir)) / new_path
+
         return Path(*new_parts)
 
     @property

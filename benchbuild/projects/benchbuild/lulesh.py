@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.command import WorkloadSet, Command, SourceRoot
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import Git
 
@@ -20,6 +21,25 @@ class Lulesh(bb.Project):
         )
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    JOBS = {
+        WorkloadSet(): [
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 2),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 3),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 4),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 5),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 6),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 7),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 8),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 9),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 10),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 11),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 12),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 13),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 14),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15)
+        ]
+    }
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))
@@ -33,14 +53,7 @@ class Lulesh(bb.Project):
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
         with local.cwd(lulesh_repo):
-            clang(obj_files, "-lm", "-o", "../lulesh")
-
-    def run_tests(self):
-        lulesh = bb.wrap("lulesh", self)
-        _lulesh = bb.watch(lulesh)
-
-        for i in range(1, 15):
-            _lulesh("-i", i)
+            clang(obj_files, "-lm", "-o", "lulesh")
 
 
 class LuleshOMP(bb.Project):
@@ -58,6 +71,25 @@ class LuleshOMP(bb.Project):
         )
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    JOBS = {
+        WorkloadSet(): [
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 2),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 3),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 4),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 5),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 6),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 7),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 8),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 9),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 10),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 11),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 12),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 13),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 14),
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15)
+        ]
+    }
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))
@@ -71,10 +103,4 @@ class LuleshOMP(bb.Project):
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
         with local.cwd(lulesh_repo):
-            clang(obj_files, "-lm", "-o", "../lulesh")
-
-    def run_tests(self):
-        lulesh = bb.wrap("lulesh", self)
-        _lulesh = bb.watch(lulesh)
-        for i in range(1, 15):
-            _lulesh("-i", i)
+            clang(obj_files, "-lm", "-o", "lulesh")

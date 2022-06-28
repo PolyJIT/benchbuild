@@ -27,7 +27,7 @@ class WorkloadSet(Mapping):
     >>> WorkloadSet(a=1, b=0) & WorkloadSet(c=1)
     WorkloadSet({})
     >>> WorkloadSet(a=1, b=0) | WorkloadSet(c=1)
-    WorkloadSet(c=1, a=1, b=0)
+    WorkloadSet({a=1, b=0, c=1})
 
     Warning:
     >>> WorkloadSet(a=1) | WorkloadSet(a=2)

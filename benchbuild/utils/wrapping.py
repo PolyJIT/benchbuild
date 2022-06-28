@@ -58,13 +58,13 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
 
     Examples:
         >>> strip_path_prefix(Path("/foo/bar"), Path("/bar"))
-        '/foo/bar'
+        PosixPath('/foo/bar')
         >>> strip_path_prefix(Path("/foo/bar"), Path("/"))
-        'foo/bar'
+        PosixPath('/foo/bar')
         >>> strip_path_prefix(Path("/foo/bar"), Path("/foo"))
-        '/bar'
+        PosixPath('/bar')
         >>> strip_path_prefix(Path("/foo/bar"), Path("None"))
-        '/foo/bar'
+        PosixPath('/foo/bar')
 
     """
     if prefix in ipath.parents:

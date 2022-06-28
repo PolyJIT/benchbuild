@@ -129,7 +129,9 @@ class Command:
         self._env.update(kwargs)
 
     def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
-        return Command(self._path, *self._args, *args, output=self._output, **self._env)
+        return Command(
+            self._path, *self._args, *args, output=self._output, **self._env
+        )
 
     def __call__(self, *args: tp.Any) -> tp.Any:
         """Run the command in foreground."""
@@ -142,7 +144,9 @@ class Command:
 
         cmd = local[str(self.path)]
         cmd_w_args = cmd[self._args]
-        output_params = [arg.format(output=self.output) for arg in self._output_param]
+        output_params = [
+            arg.format(output=self.output) for arg in self._output_param
+        ]
         cmd_w_output = cmd_w_args[output_params]
         cmd_w_env = cmd_w_output.with_env(**self._env)
 
@@ -189,7 +193,9 @@ class ProjectCommand:
     project: "benchbuild.project.Project"
     command: Command
 
-    def __init__(self, project: "benchbuild.project.Project", command: Command) -> None:
+    def __init__(
+        self, project: "benchbuild.project.Project", command: Command
+    ) -> None:
         self.project = project
         self.command = command
         self.command.path = self._create_project_path(self.command.path)
@@ -226,9 +232,8 @@ class ProjectCommand:
 JobIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
 
 
-def filter_job_index(
-    only: WorkloadSet, index: JobIndex
-) -> tp.Generator[Command, None, None]:
+def filter_job_index(only: WorkloadSet,
+                     index: JobIndex) -> tp.Generator[Command, None, None]:
     keys = {k for k in index if k & only}
 
     for k in keys:

@@ -27,7 +27,8 @@ class Bzip2(bb.Project):
         ),
     ]
 
-    CONTAINER = ContainerImage().from_("benchbuild:alpine").run("apk", "add", "make")
+    CONTAINER = ContainerImage().from_("benchbuild:alpine"
+                                      ).run("apk", "add", "make")
     JOBS = {
         WorkloadSet(name="compression"): [
             Command(

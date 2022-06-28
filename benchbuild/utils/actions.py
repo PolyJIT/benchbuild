@@ -28,7 +28,7 @@ import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals, source, workload, command
+from benchbuild import command, signals, source, workload
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -39,9 +39,8 @@ ReturnType = tp.TypeVar("ReturnType")
 ReturnTypeA = tp.TypeVar("ReturnTypeA")
 ReturnTypeB = tp.TypeVar("ReturnTypeB")
 DecoratedFunction = tp.Callable[..., ReturnType]
-FunctionDecorator = tp.Callable[
-    [DecoratedFunction[ReturnTypeA]], DecoratedFunction[ReturnTypeB]
-]
+FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
+                                DecoratedFunction[ReturnTypeB]]
 
 if tp.TYPE_CHECKING:
     import benchbuild.experiment.Experiment  # pylint: disable=unused-import
@@ -63,7 +62,8 @@ StepResultList = tp.List[StepResult]
 
 
 def step_has_failed(
-    result: StepResult, error_status: tp.Optional[tp.List[StepResult]] = None
+    result: StepResult,
+    error_status: tp.Optional[tp.List[StepResult]] = None
 ) -> bool:
     if not error_status:
         error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
@@ -117,7 +117,8 @@ def notify_step_begin_end(
     return wrapper
 
 
-def log_before_after(name: str, desc: str) -> FunctionDecorator[StepResult, StepResult]:
+def log_before_after(name: str,
+                     desc: str) -> FunctionDecorator[StepResult, StepResult]:
     """Log customized string before & after running func."""
 
     def func_decorator(
@@ -152,7 +153,9 @@ class StepClass(type):
         attrs: tp.Dict[str, tp.Any],
     ) -> tp.Any:
         if not "NAME" in attrs:
-            raise AttributeError(f"{name} does not define a NAME class attribute.")
+            raise AttributeError(
+                f"{name} does not define a NAME class attribute."
+            )
 
         if not "DESCRIPTION" in attrs:
             raise AttributeError(
@@ -172,16 +175,19 @@ class StepClass(type):
 
         def base_attr(name: str) -> tp.Any:
             return (
-                attrs[name]
-                if name in attrs
-                else [base.__dict__[name] for base in bases if name in base.__dict__][0]
+                attrs[name] if name in attrs else [
+                    base.__dict__[name]
+                    for base in bases
+                    if name in base.__dict__
+                ][0]
             )
 
         original_call = base_attr("__call__")
         original_str = base_attr("__str__")
 
         if name_ and description_:
-            attrs["__call__"] = log_before_after(name_, description_)(original_call)
+            attrs["__call__"] = log_before_after(name_,
+                                                 description_)(original_call)
         else:
             original_call = attrs["__call__"]
             attrs["__call__"] = original_call
@@ -298,7 +304,9 @@ class Clean(ProjectStep):
     DESCRIPTION = "Cleans the build directory"
 
     def __init__(
-        self, project: "benchbuild.project.Project", check_empty: bool = False
+        self,
+        project: "benchbuild.project.Project",
+        check_empty: bool = False
     ) -> None:
         super().__init__(project)
         self.check_empty = check_empty
@@ -346,7 +354,8 @@ class Clean(ProjectStep):
     def __str__(self, indent: int = 0) -> str:
         project = self.project
         return textwrap.indent(
-            f"* {project.name}: Clean the directory: {project.builddir}", indent * " "
+            f"* {project.name}: Clean the directory: {project.builddir}",
+            indent * " "
         )
 
 
@@ -511,9 +520,9 @@ class Experiment(Any):
         actions: tp.Optional[tp.List[Step]],
     ) -> None:
         _actions: tp.List[Step] = (
-            [Echo(message=f"Start experiment: {experiment.name}")] + actions
-            if actions
-            else [] + [Echo(message=f"Completed experiment: {experiment.name}")]
+            [Echo(message=f"Start experiment: {experiment.name}")] +
+            actions if actions else [] +
+            [Echo(message=f"Completed experiment: {experiment.name}")]
         )
 
         super().__init__(_actions)
@@ -535,7 +544,9 @@ class Experiment(Any):
             LOG.error("Transaction isolation level caused a StaleDataError")
 
         # React to external signals
-        signals.handlers.register(Experiment.end_transaction, experiment, session)
+        signals.handlers.register(
+            Experiment.end_transaction, experiment, session
+        )
 
         return experiment, session
 
@@ -561,7 +572,8 @@ class Experiment(Any):
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
         except Exception:
-            LOG.error("Experiment terminates " "because we got an exception:")
+            LOG.error("Experiment terminates "
+                      "because we got an exception:")
             e_type, e_value, e_traceb = sys.exc_info()
             lines = traceback.format_exception(e_type, e_value, e_traceb)
             LOG.error("".join(lines))
@@ -607,7 +619,9 @@ class RequireAll(MultiStep):
                 result = action()
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
-                LOG.error("Execution of a binary failed in step: %s", str(action))
+                LOG.error(
+                    "Execution of a binary failed in step: %s", str(action)
+                )
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
                 result = StepResult.ERROR
@@ -649,7 +663,8 @@ class RunJob(ProjectStep):
     job: "benchbuild.command.Command"
 
     def __init__(
-        self, project: "benchbuild.project.Project", job: "benchbuild.command.Command"
+        self, project: "benchbuild.project.Project",
+        job: "benchbuild.command.Command"
     ) -> None:
         super().__init__(project)
         self.job = job
@@ -694,7 +709,9 @@ class RunJobs(MultiStep):
             jobs = command.filter_job_index(run_only, project.jobs)
 
         for job in jobs:
-            self.actions.append(RunJob(project, command.ProjectCommand(project, job)))
+            self.actions.append(
+                RunJob(project, command.ProjectCommand(project, job))
+            )
 
     @notify_step_begin_end
     def __call__(self) -> StepResult:
@@ -719,7 +736,8 @@ class RunJobs(MultiStep):
     def __str__(self, indent: int = 0) -> str:
         sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent(
-            f"* Require all of {self.project.name}'s jobs:\n{sub_actns}", indent * " "
+            f"* Require all of {self.project.name}'s jobs:\n{sub_actns}",
+            indent * " "
         )
 
 
@@ -746,7 +764,9 @@ class CleanExtra(Step):
         paths = CFG["cleanup_paths"].value
         lines = []
         for p in paths:
-            lines.append(textwrap.indent(f"* Clean the directory: {p}", indent * " "))
+            lines.append(
+                textwrap.indent(f"* Clean the directory: {p}", indent * " ")
+            )
         return "\n".join(lines)
 
 
@@ -775,7 +795,8 @@ class ProjectEnvironment(ProjectStep):
         version_str = source.to_str(*tuple(variant.values()))
 
         return textwrap.indent(
-            f"* Project environment for: {project.name} @ {version_str}", indent * " "
+            f"* Project environment for: {project.name} @ {version_str}",
+            indent * " "
         )
 
 
@@ -816,5 +837,6 @@ class SetProjectVersion(ProjectStep):
         version_str = source.to_str(*tuple(self.variant.values()))
 
         return textwrap.indent(
-            f"* Add project version {version_str} for: {project.name}", indent * " "
+            f"* Add project version {version_str} for: {project.name}",
+            indent * " "
         )

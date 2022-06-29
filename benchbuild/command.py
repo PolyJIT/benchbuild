@@ -97,9 +97,9 @@ class Command:
 
         self._path = path
         if args is None:
-            self._args = []
+            self._args = tuple()
         else:
-            self._args = [str(arg) for arg in args]
+            self._args = tuple(str(arg) for arg in args)
         self._output = output
 
         self._output_param = output_param if output_param is not None else []

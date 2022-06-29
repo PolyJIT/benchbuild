@@ -19,7 +19,7 @@ def test_basic_command_exists():
 
 
 def test_basic_command_args():
-    expected_str = "Command(path=ignore args=(1, '2', 'three'))"
+    expected_str = "Command(path=ignore args=('1', '2', 'three'))"
     cmd = Command(Path("ignore"), 1, "2", "three")
     assert repr(cmd) == expected_str
 

@@ -43,9 +43,8 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 
 LOG = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
-    from benchbuild.experiment import Experiment
-    from benchbuild.project import Project
+if tp.TYPE_CHECKING:
+    import benchbuild.project.Project  # pylint: disable=unused-import
 
 
 def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
@@ -93,7 +92,7 @@ def __create_jinja_env() -> jinja2.Environment:
 def wrap(
     name: str,
     project: "benchbuild.project.Project",
-    sprefix: str = Path(),
+    sprefix: Path = Path(),
     python: str = sys.executable,
     bin_ext: str = ".bin",
 ) -> pb.commands.ConcreteCommand:
@@ -240,7 +239,7 @@ def wrap_dynamic(
 def wrap_cc(
     filepath: str,
     compiler: BoundCommand,
-    project: "Project",
+    project: "benchbuild.project.Project",
     python: str = sys.executable,
     detect_project: bool = False,
 ) -> BoundCommand:

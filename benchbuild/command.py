@@ -10,6 +10,9 @@ from benchbuild.settings import CFG
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
 
+if tp.TYPE_CHECKING:
+    import benchbuild.project.Project  # pylint: disable=unused-import
+
 
 class SourceRoot(PosixPath):
     """Named wrapper around PosixPath."""
@@ -45,7 +48,7 @@ class WorkloadSet(Mapping):
                 return v
         raise KeyError()
 
-    def __iter__(self) -> tp.Iterator[tp.Tuple[str, tp.Any]]:
+    def __iter__(self) -> tp.Iterator[str]:
         return [k for k, _ in self._tags].__iter__()
 
     def __len__(self) -> int:
@@ -67,12 +70,11 @@ class WorkloadSet(Mapping):
         ret._tags = lhs_t | rhs_t
         return ret
 
-    def __hash__(self) -> bool:
+    def __hash__(self) -> int:
         return hash(self._tags)
 
     def __repr__(self) -> str:
-        repr_str = [f"{k}={v}" for k, v in sorted(self._tags)]
-        repr_str = ", ".join(repr_str)
+        repr_str = ", ".join([f"{k}={v}" for k, v in sorted(self._tags)])
 
         return f"WorkloadSet({{{repr_str}}})"
 
@@ -81,7 +83,7 @@ class Command:
     """A command wrapper for benchbuild's commands."""
 
     _path: Path
-    _output: Path
+    _output: tp.Optional[Path]
     _output_param: tp.List[str]
     _args: tp.Tuple[tp.Any, ...]
     _env: tp.Dict[str, str]
@@ -90,16 +92,13 @@ class Command:
         self,
         path: Path,
         *args: tp.Any,
-        output: Path = None,
-        output_param: tp.List[str] = None,
+        output: tp.Optional[Path] = None,
+        output_param: tp.Optional[tp.List[str]] = None,
         **kwargs: str,
     ) -> None:
 
         self._path = path
-        if args is None:
-            self._args = tuple()
-        else:
-            self._args = tuple(str(arg) for arg in args)
+        self._args = tuple(str(arg) for arg in args)
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
@@ -122,7 +121,7 @@ class Command:
         return self._path.parent
 
     @property
-    def output(self) -> Path:
+    def output(self) -> tp.Optional[Path]:
         return self._output
 
     def exists(self) -> bool:
@@ -133,7 +132,12 @@ class Command:
 
     def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
         return Command(
-            self._path, *self._args, *args, output=self._output, **self._env
+            self._path,
+            *self._args,
+            *args,
+            output=self._output,
+            output_param=self._output_param,
+            **self._env
         )
 
     def __call__(self, *args: tp.Any) -> tp.Any:
@@ -207,10 +211,12 @@ class ProjectCommand:
         all_sources = source.sources_as_dict(*self.project.source)
         new_parts = []
         for part in path.parts:
+            new_part = part
             if part in all_sources:
-                new_parts.append(self.project.source_of(part))
-            else:
-                new_parts.append(part)
+                source_dir = self.project.source_of(part)
+                if source_dir:
+                    new_part = str(source_dir)
+            new_parts.append(new_part)
 
         new_path = Path(*new_parts)
         if not new_path.is_absolute():
@@ -227,7 +233,7 @@ class ProjectCommand:
 
         CFG.store(Path(build_dir) / ".benchbuild.yml")
         with local.cwd(build_dir):
-            wrap(self.command.path, self.project)
+            wrap(str(self.command.path), self.project)
             return self.command.__call__(*args)
 
     def __repr__(self) -> str:

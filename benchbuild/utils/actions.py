@@ -656,22 +656,33 @@ class RequireAll(MultiStep):
         return textwrap.indent(f"* All required:\n{sub_actns}", indent * " ")
 
 
+JobTy = tp.Callable[[], tp.Any]
+
+
 class RunJob(ProjectStep):
     NAME = "RUN JOB"
     DESCRIPTION = "Run a project's job"
 
-    job: "benchbuild.command.Command"
+    _job: tp.Optional[JobTy]
+
+    @property
+    def job_ref(self) -> JobTy:
+        # Workaround for MyPy...
+        assert self._job is not None, "non-optional optional triggered"
+        return self._job
 
     def __init__(
-        self, project: "benchbuild.project.Project",
-        job: "benchbuild.command.Command"
+        self,
+        project: "benchbuild.project.Project",
+        job: tp.Optional[JobTy] = None
     ) -> None:
         super().__init__(project)
-        self.job = job
+
+        self._job = job
 
     def __call__(self) -> StepResult:
         try:
-            self.job()
+            self.job_ref()
             self.status = StepResult.OK
         except ProcessExecutionError:
             self.status = StepResult.ERROR
@@ -682,7 +693,7 @@ class RunJob(ProjectStep):
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(f"* Run: {str(self.job)}", indent * " ")
+        return textwrap.indent(f"* Run: {str(self.job_ref)}", indent * " ")
 
 
 class RunJobs(MultiStep):
@@ -696,13 +707,14 @@ class RunJobs(MultiStep):
         self,
         project: "benchbuild.project.Project",
         experiment: "benchbuild.experiment.Experiment",
-        run_only: tp.Optional[WorkloadSet] = None,
+        run_only: tp.Optional[command.WorkloadSet] = None,
     ) -> None:
         super().__init__()
 
         self.project = project
         self.experiment = experiment
 
+        jobs: tp.Iterable[command.Command]
         if run_only is None:
             jobs = itertools.chain(*project.jobs.values())
         else:

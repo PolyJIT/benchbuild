@@ -718,7 +718,8 @@ class RunJobs(MultiStep):
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            self.status = max(job() for job in self.actions)
+            self.status = max([job() for job in self.actions],
+                              default=StepResult.OK)
             run.end_run_group(group, session)
         except ProcessExecutionError:
             run.fail_run_group(group, session)

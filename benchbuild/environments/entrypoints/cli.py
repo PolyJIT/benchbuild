@@ -322,7 +322,7 @@ def make_version_tag(*versions: source.Variant) -> str:
 
 
 def make_image_name(name: str, tag: str) -> str:
-    return f'{name}:{tag}'
+    return commands.oci_compliant_name(f'{name}:{tag}')
 
 
 def export_image(image_name: str) -> None:

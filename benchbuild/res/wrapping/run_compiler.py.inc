@@ -2,6 +2,7 @@
 #
 import os
 import sys
+os.environ["OPENBLAS_NUM_THREADS"] = "4"
 
 from plumbum import TEE, local
 

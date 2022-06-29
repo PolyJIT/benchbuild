@@ -323,7 +323,9 @@ class Project(
                     "primary source is a git repository."
                 )
             version = self.version_of_primary
+            cache_path = str(primary(*self.SOURCE).fetch())
             for rev_range, image in type(self).CONTAINER:
+                rev_range.init_cache(cache_path)
                 if version in rev_range:
                     self.container = copy.deepcopy(image)
                     break

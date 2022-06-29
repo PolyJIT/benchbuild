@@ -164,7 +164,7 @@ def wrap(
 def wrap_dynamic(
     project: "benchbuild.project.Project",
     name: str,
-    sprefix: Path(),
+    sprefix: Path = Path('.'),
     python: str = sys.executable,
     name_filters: tp.Optional[tp.List[str]] = None,
     bin_ext: str = ".bin",

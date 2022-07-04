@@ -1,7 +1,6 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.command import WorkloadSet, Command, SourceRoot
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar

@@ -1,7 +1,6 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild import workload
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
@@ -27,7 +26,6 @@ class Gzip(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
-    @workload.define(workload.RUN)
     def compression_test(self):
         gzip_version = self.version_of('gzip.tar.xz')
         unpack_dir = local.path(f'gzip-{gzip_version}.tar.xz')
@@ -47,7 +45,6 @@ class Gzip(bb.Project):
         _gzip("-f", "-k", "--decompress", "compression/input.source.gz")
         _gzip("-f", "-k", "--decompress", "compression/liberty.jpg.gz")
 
-    @workload.define(workload.COMPILE)
     def compile_project(self):
         gzip_source = local.path(self.source_of('gzip.tar.xz'))
         compression_source = local.path(self.source_of('compression.tar.gz'))

@@ -28,7 +28,7 @@ import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import command, signals, source, workload
+from benchbuild import command, signals, source
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -382,21 +382,15 @@ class Compile(ProjectStep):
     NAME = "COMPILE"
     DESCRIPTION = "Compile the project"
 
-    def run_workload(self, work: workload.Workload) -> StepResult:
+    @notify_step_begin_end
+    def __call__(self) -> StepResult:
         try:
-            work()
+            self.project.compile()
+
         except ProcessExecutionError:
             self.status = StepResult.ERROR
         self.status = StepResult.OK
-        return self.status
 
-    @notify_step_begin_end
-    def __call__(self) -> StepResult:
-        workloads = self.project.workloads(workload.COMPILE)
-        if workloads:
-            self.status = max([self.run_workload(work) for work in workloads])
-        else:
-            LOG.warning("No workload found.")
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
@@ -418,11 +412,12 @@ class Run(ProjectStep):
 
         self.experiment = experiment
 
-    def run_workload(self, work: workload.Workload) -> StepResult:
+    @notify_step_begin_end
+    def __call__(self) -> StepResult:
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            work()
+            self.project.run_tests()
             run.end_run_group(group, session)
             self.status = StepResult.OK
         except ProcessExecutionError:
@@ -436,15 +431,6 @@ class Run(ProjectStep):
         finally:
             signals.handlers.deregister(run.fail_run_group)
 
-        return self.status
-
-    @notify_step_begin_end
-    def __call__(self) -> StepResult:
-        workloads = self.project.workloads(workload.RUN)
-        if workloads:
-            self.status = max([self.run_workload(work) for work in workloads])
-        else:
-            LOG.warning("No workload found.")
         return self.status
 
     def __str__(self, indent: int = 0) -> str:

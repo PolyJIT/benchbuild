@@ -20,7 +20,6 @@ import logging
 import typing as tp
 import uuid
 from abc import abstractmethod
-from functools import partial
 from os import getenv
 from pathlib import Path
 
@@ -30,12 +29,12 @@ from plumbum import local
 from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import extensions, source, workload
+from benchbuild import extensions, source
 from benchbuild.command import Command, WorkloadSet
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import primary, Git
-from benchbuild.utils import db, run, unionfs
+from benchbuild.utils import db, run
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange
 
@@ -145,12 +144,31 @@ class PathTracker:
         self._tracked_paths.clear()
 
 
+class ProjectRunnables:
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        if hasattr(cls, 'run_tests'):
+            f_run_tests = run.in_builddir()(run.store_config(cls.run_tests))
+            setattr(cls, 'run_tests', f_run_tests)
+
+        if hasattr(cls, 'compile'):
+            f_compile = run.in_builddir()(run.store_config(cls.run_tests))
+            setattr(cls, 'compile', f_compile)
+
+    @abstractmethod
+    def compile(self) -> None:
+        """Compile the project."""
+
+    @abstractmethod
+    def run_tests(self) -> None:
+        """Run the project."""
+
+
 @attr.s
 class Project(
-    PathTracker,
-    MultiVersioned,
-    workload.WorkloadMixin,
-    metaclass=ProjectRegistry
+    PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry
 ):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 

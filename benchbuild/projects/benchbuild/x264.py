@@ -1,7 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild import CFG, workload
+from benchbuild import CFG
 from benchbuild.command import WorkloadSet, Command, SourceRoot
 from benchbuild.environments.domain import declarative
 from benchbuild.source import HTTP, Git
@@ -76,7 +76,6 @@ class X264(bb.Project):
     }
     # yapf: enable
 
-    @workload.define(workload.COMPILE)
     def compile(self):
         x264_repo = local.path(self.source_of('x264.git'))
         clang = bb.compiler.cc(self)

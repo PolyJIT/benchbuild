@@ -18,7 +18,7 @@ class SourceRoot(PosixPath):
     """Named wrapper around PosixPath."""
 
 
-class WorkloadSet(Mapping[str, tp.Any]):
+class WorkloadSet(Mapping):
     """An immutable set of workload descriptors.
 
     A WorkloadSet is immutable and usable as a key in a job mapping.

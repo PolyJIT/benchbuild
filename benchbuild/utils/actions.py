@@ -642,33 +642,33 @@ class RequireAll(MultiStep):
         return textwrap.indent(f"* All required:\n{sub_actns}", indent * " ")
 
 
-JobTy = tp.Callable[[], tp.Any]
+WorkloadTy = tp.Callable[[], tp.Any]
 
 
-class RunJob(ProjectStep):
-    NAME = "RUN JOB"
-    DESCRIPTION = "Run a project's job"
+class RunWorkload(ProjectStep):
+    NAME = "RUN WORKLOAD"
+    DESCRIPTION = "Run a project's workload"
 
-    _job: tp.Optional[JobTy]
+    _workload: tp.Optional[WorkloadTy]
 
     @property
-    def job_ref(self) -> JobTy:
+    def workload_ref(self) -> WorkloadTy:
         # Workaround for MyPy...
-        assert self._job is not None, "non-optional optional triggered"
-        return self._job
+        assert self._workload is not None, "non-optional optional triggered"
+        return self._workload
 
     def __init__(
         self,
         project: "benchbuild.project.Project",
-        job: tp.Optional[JobTy] = None
+        workload: tp.Optional[WorkloadTy] = None
     ) -> None:
         super().__init__(project)
 
-        self._job = job
+        self._workload = workload
 
     def __call__(self) -> StepResult:
         try:
-            self.job_ref()
+            self.workload_ref
             self.status = StepResult.OK
         except ProcessExecutionError:
             self.status = StepResult.ERROR
@@ -679,12 +679,12 @@ class RunJob(ProjectStep):
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(f"* Run: {str(self.job_ref)}", indent * " ")
+        return textwrap.indent(f"* Run: {str(self.workload_ref)}", indent * " ")
 
 
-class RunJobs(MultiStep):
-    NAME = "RUN JOBS"
-    DESCRIPTION = "Generic run all project jobs"
+class RunWorkloads(MultiStep):
+    NAME = "RUN WORKLOADS"
+    DESCRIPTION = "Generic run all project workloads"
 
     project: "benchbuild.project.Project"
     experiment: "benchbuild.experiment.Experiment"
@@ -700,15 +700,17 @@ class RunJobs(MultiStep):
         self.project = project
         self.experiment = experiment
 
-        jobs: tp.Iterable[command.Command]
+        workloads: tp.Iterable[command.Command]
         if run_only is None:
-            jobs = itertools.chain(*project.jobs.values())
+            workloads = itertools.chain(*project.workloads.values())
         else:
-            jobs = command.filter_job_index(run_only, project.jobs)
+            workloads = command.filter_workload_index(
+                run_only, project.workloads
+            )
 
-        for job in jobs:
+        for workload in workloads:
             self.actions.append(
-                RunJob(project, command.ProjectCommand(project, job))
+                RunWorkload(project, command.ProjectCommand(project, workload))
             )
 
     @notify_step_begin_end
@@ -716,7 +718,7 @@ class RunJobs(MultiStep):
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            self.status = max([job() for job in self.actions],
+            self.status = max([workload() for workload in self.actions],
                               default=StepResult.OK)
             run.end_run_group(group, session)
         except ProcessExecutionError:
@@ -735,7 +737,7 @@ class RunJobs(MultiStep):
     def __str__(self, indent: int = 0) -> str:
         sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent(
-            f"* Require all of {self.project.name}'s jobs:\n{sub_actns}",
+            f"* Require all of {self.project.name}'s workloads:\n{sub_actns}",
             indent * " "
         )
 

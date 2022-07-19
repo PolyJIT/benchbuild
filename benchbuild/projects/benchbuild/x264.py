@@ -36,7 +36,7 @@ class X264(bb.Project):
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     # yapf: disable
-    JOBS = {
+    WORKLOADS = {
         WorkloadSet(inputfile="tbbt-small.y4m"): [
             Command(SourceRoot("x264.git") / "x264",
                 "tbbt-small.raw", "--threads", "1", "-o", "/dev/null", "--crf", "30", "-b1", "-m1", "-r1", "--me", "dia" "--no-cabac", "--direct temporal", "--ssim", "--no-weightb"),

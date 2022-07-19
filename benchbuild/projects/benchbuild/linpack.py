@@ -24,7 +24,7 @@ class Linpack(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
-    JOBS = {WorkloadSet(): [Command(SourceRoot(".") / "linpack")]}
+    WORKLOADS = {WorkloadSet(): [Command(SourceRoot(".") / "linpack")]}
 
     def compile(self) -> None:
         lp_patch = path.template_path("patches/linpack.patch")

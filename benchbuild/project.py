@@ -47,7 +47,7 @@ Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
-Jobs = tp.MutableMapping[WorkloadSet, tp.List[Command]]
+Workloads = tp.MutableMapping[WorkloadSet, tp.List[Command]]
 
 __REGISTRATION_SEPARATOR = "/"
 __REGISTRATION_OPTIONALS = ["/", "-"]
@@ -237,7 +237,7 @@ class Project(
     NAME: tp.ClassVar[str] = ""
     REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
     SOURCE: tp.ClassVar[Sources] = []
-    JOBS: tp.ClassVar[Jobs] = {}
+    WORKLOADS: tp.ClassVar[Workloads] = {}
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -310,8 +310,9 @@ class Project(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True)
     )
 
-    jobs: Jobs = attr.ib(
-        default=attr.Factory(lambda self: type(self).JOBS, takes_self=True)
+    workloads: Workloads = attr.ib(
+        default=attr.
+        Factory(lambda self: type(self).WORKLOADS, takes_self=True)
     )
 
     primary_source: str = attr.ib()

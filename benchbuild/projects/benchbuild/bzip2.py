@@ -29,7 +29,7 @@ class Bzip2(bb.Project):
     CONTAINER = ContainerImage().from_("benchbuild:alpine"
                                       ).run("apk", "add", "make")
     # yapf: disable
-    JOBS = {
+    WORKLOADS = {
         WorkloadSet(name="compression"): [
             Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/text.html"),
             Command(SourceRoot("bzip2.git") / "bzip2", "-f", "-z", "-k", "--best", "compression/chicken.jpg"),

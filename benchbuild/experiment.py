@@ -51,17 +51,12 @@ class ExperimentRegistry(type):
     experiments = {}
 
     def __new__(
-        mcs: tp.Type[tp.Any],
-        name: str,
-        bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any],
-        *args: tp.Any,
-        **kwargs: tp.Any
+        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any], *args: tp.Any, **kwargs: tp.Any
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ExperimentRegistry, mcs).__new__(
-            mcs, name, bases, attrs, *args, **kwargs
-        )
+        cls = super(ExperimentRegistry,
+                    mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
         if bases and "NAME" in attrs:
             ExperimentRegistry.experiments[attrs["NAME"]] = cls
         return cls
@@ -96,7 +91,8 @@ class Experiment(metaclass=ExperimentRegistry):
     NAME: tp.ClassVar[str] = ""
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
-    CONTAINER: tp.ClassVar[declarative.ContainerImage] = declarative.ContainerImage()
+    CONTAINER: tp.ClassVar[declarative.ContainerImage
+                          ] = declarative.ContainerImage()
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -133,8 +129,8 @@ class Experiment(metaclass=ExperimentRegistry):
     def validate_id(self, _: tp.Any, new_id: uuid.UUID) -> None:
         if not isinstance(new_id, uuid.UUID):
             raise TypeError(
-                "%s expected to be '%s' but got '%s'"
-                % (str(new_id), str(uuid.UUID), str(type(new_id)))
+                "%s expected to be '%s' but got '%s'" %
+                (str(new_id), str(uuid.UUID), str(type(new_id)))
             )
 
     schema = attr.ib()
@@ -184,9 +180,8 @@ class Experiment(metaclass=ExperimentRegistry):
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
                     actns.Echo(
-                        message="Selected {0} with version {1}".format(
-                            p.name, version_str
-                        )
+                        message="Selected {0} with version {1}".
+                        format(p.name, version_str)
                     ),
                     actns.ProjectEnvironment(p),
                 ]
@@ -224,7 +219,7 @@ class Experiment(metaclass=ExperimentRegistry):
         """Return a series of actions for a run time experiment."""
         return [
             actns.Compile(project),
-            actns.RunJobs(project, experiment=self),
+            actns.RunWorkloads(project, experiment=self),
             # actns.Run(project, experiment=self),
             actns.Clean(project),
         ]

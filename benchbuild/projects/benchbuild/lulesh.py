@@ -21,7 +21,7 @@ class Lulesh(bb.Project):
         )
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
-    JOBS = {
+    WORKLOADS = {
         WorkloadSet(): [
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 2),
@@ -71,7 +71,7 @@ class LuleshOMP(bb.Project):
         )
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
-    JOBS = {
+    WORKLOADS = {
         WorkloadSet(): [
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 2),

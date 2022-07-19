@@ -22,7 +22,7 @@ class SciMark(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
-    JOBS = {WorkloadSet(): [Command(SourceRoot(".") / "scimark2")]}
+    WORKLOADS = {WorkloadSet(): [Command(SourceRoot(".") / "scimark2")]}
 
     def compile(self):
         scimark_source = local.path(self.source_of('scimark.zip'))

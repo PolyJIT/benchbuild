@@ -350,8 +350,9 @@ class ProjectCommand:
 WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
 
 
-def filter_job_index(only: WorkloadSet,
-                     index: WorkloadIndex) -> tp.Generator[Command, None, None]:
+def filter_workload_index(
+    only: WorkloadSet, index: WorkloadIndex
+) -> tp.Generator[Command, None, None]:
     keys = {k for k in index if k & only}
 
     for k in keys:

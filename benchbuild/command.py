@@ -18,6 +18,110 @@ class SourceRoot(PosixPath):
     """Named wrapper around PosixPath."""
 
 
+@tp.runtime_checkable
+class RenderablePath(tp.Protocol):
+
+    def render(self) -> str:
+        ...
+
+    def __truediv__(self, rhs: tp.Union[str, 'RenderablePath']) -> 'PathToken':
+        ...
+
+
+@tp.runtime_checkable
+class PathRenderStrategy(tp.Protocol):
+
+    def __call__(self) -> Path:
+        ...
+
+
+class NullRenderer:
+
+    def __call__(self) -> Path:
+        return Path()
+
+    def __str__(self) -> str:
+        return str(Path())
+
+    def __repr__(self) -> str:
+        return str(self)
+
+
+class ConstStrRenderer:
+    value: str
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def __call__(self) -> Path:
+        return Path(self.value)
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __repr__(self) -> str:
+        return str(self)
+
+
+class PathToken:
+    """Base class used for command token substitution."""
+    renderer: PathRenderStrategy
+
+    left: tp.Optional['PathToken']
+    right: tp.Optional['PathToken']
+
+    @classmethod
+    def make_token(
+        cls, renderer: tp.Optional[PathRenderStrategy] = None
+    ) -> 'PathToken':
+        if renderer:
+            return PathToken(renderer)
+        return PathToken(NullRenderer())
+
+    def __init__(
+        self,
+        renderer: PathRenderStrategy,
+        left: tp.Optional['PathToken'] = None,
+        right: tp.Optional['PathToken'] = None
+    ) -> None:
+
+        self.renderer = renderer
+        self.left = left
+        self.right = right
+
+    def render(self) -> Path:
+        token = self.renderer()
+        p = Path()
+
+        if self.left:
+            p = self.left.render()
+
+        p = p / token
+
+        if self.right:
+            p = p / self.right.render()
+
+        return p
+
+    def __truediv__(self, rhs: tp.Union[str, 'PathToken']) -> 'PathToken':
+        if isinstance(rhs, str):
+            render_str = ConstStrRenderer(rhs)
+            rhs_token = PathToken(render_str)
+        else:
+            rhs_token = rhs
+
+        if self.right is None:
+            return PathToken(self.renderer, self.left, rhs_token)
+        return PathToken(self.renderer, self.left, self.right / rhs_token)
+
+    def __str__(self) -> str:
+        parts = [self.left, str(self.renderer), self.right]
+        return '/'.join([str(part) for part in parts if part is not None])
+
+    def __repr__(self) -> str:
+        return str(self)
+
+
 class WorkloadSet(Mapping):
     """An immutable set of workload descriptors.
 

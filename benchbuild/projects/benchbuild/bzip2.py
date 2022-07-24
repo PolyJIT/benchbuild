@@ -47,7 +47,7 @@ class Bzip2(bb.Project):
     }
     # yapf: enable
 
-    def compile_project(self):
+    def compile(self):
         bzip2_repo = local.path(self.source_of("bzip2.git"))
         compression_source = local.path(self.source_of("compression.tar.gz"))
         tar("xf", compression_source)

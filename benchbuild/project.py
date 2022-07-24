@@ -154,7 +154,7 @@ class ProjectRunnables:
             setattr(cls, 'run_tests', f_run_tests)
 
         if hasattr(cls, 'compile'):
-            f_compile = run.in_builddir()(run.store_config(cls.run_tests))
+            f_compile = run.in_builddir()(run.store_config(cls.compile))
             setattr(cls, 'compile', f_compile)
 
     @abstractmethod

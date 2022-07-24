@@ -43,11 +43,11 @@ class PathRenderStrategy(Protocol):
 
 class NullRenderer:
 
-    def __call__(self) -> Path:
-        return Path()
+    def __call__(self, **kwargs: tp.Any) -> Path:
+        return Path("/")
 
     def __str__(self) -> str:
-        return str(Path())
+        return str(Path("/"))
 
     def __repr__(self) -> str:
         return str(self)
@@ -59,7 +59,7 @@ class ConstStrRenderer:
     def __init__(self, value: str) -> None:
         self.value = value
 
-    def __call__(self) -> Path:
+    def __call__(self, **kwargs: tp.Any) -> Path:
         return Path(self.value)
 
     def __str__(self) -> str:
@@ -67,6 +67,39 @@ class ConstStrRenderer:
 
     def __repr__(self) -> str:
         return str(self)
+
+
+class BuilddirRenderer:
+
+    def __call__(
+        self,
+        project: 'benchbuild.project.Project' = None,
+        **kwargs: tp.Any
+    ) -> Path:
+        assert project is not None
+        return Path(project.builddir)
+
+    def __str__(self) -> str:
+        return '<BUILD_DIR>'
+
+
+class SourceRootRenderer:
+    local: str
+
+    def __init__(self, local: str) -> None:
+        self.local = local
+
+    def __call__(
+        self,
+        project: 'benchbuild.project.Project' = None,
+        **kwargs: tp.Any
+    ) -> Path:
+        assert project is not None
+
+        src_path = project.source_of(self.local)
+        if src_path:
+            return Path(src_path)
+        return Path(project.build_dir) / self.local
 
 
 class PathToken:
@@ -86,7 +119,7 @@ class PathToken:
 
     def __init__(
         self,
-        renderer: PathRenderStrategy,
+        renderer: PathRenderStrategy = None,
         left: tp.Optional['PathToken'] = None,
         right: tp.Optional['PathToken'] = None
     ) -> None:
@@ -95,17 +128,28 @@ class PathToken:
         self.left = left
         self.right = right
 
-    def render(self) -> Path:
-        token = self.renderer()
+    @property
+    def name(self) -> str:
+        return Path(str(self)).name
+
+    @property
+    def dirname(self) -> str:
+        return Path(str(self)).parent
+
+    def exists(self) -> bool:
+        return Path(str(self)).exists()
+
+    def render(self, **kwargs: tp.Any) -> Path:
+        token = self.renderer(**kwargs)
         p = Path()
 
         if self.left:
-            p = self.left.render()
+            p = self.left.render(**kwargs)
 
         p = p / token
 
         if self.right:
-            p = p / self.right.render()
+            p = p / self.right.render(**kwargs)
 
         return p
 
@@ -122,10 +166,24 @@ class PathToken:
 
     def __str__(self) -> str:
         parts = [self.left, str(self.renderer), self.right]
-        return '/'.join([str(part) for part in parts if part is not None])
+        return str(Path(*[str(part) for part in parts if part is not None]))
 
     def __repr__(self) -> str:
         return str(self)
+
+
+def source_root(local: str) -> PathToken:
+    return PathToken.make_token(SourceRootRenderer(local))
+
+
+SourceRoot = source_root
+
+
+def project_root() -> PathToken:
+    return PathToken.make_token(BuilddirRenderer())
+
+
+ProjectRoot = project_root
 
 
 class WorkloadSet(Mapping):
@@ -192,17 +250,17 @@ class WorkloadSet(Mapping):
 class Command:
     """A command wrapper for benchbuild's commands."""
 
-    _path: Path
-    _output: tp.Optional[Path]
+    _path: PathToken
+    _output: tp.Optional[PathToken]
     _output_param: tp.List[str]
     _args: tp.Tuple[tp.Any, ...]
     _env: tp.Dict[str, str]
 
     def __init__(
         self,
-        path: Path,
+        path: PathToken,
         *args: tp.Any,
-        output: tp.Optional[Path] = None,
+        output: tp.Optional[PathToken] = None,
         output_param: tp.Optional[tp.List[str]] = None,
         **kwargs: str,
     ) -> None:
@@ -219,19 +277,19 @@ class Command:
         return self._path.name
 
     @property
-    def path(self) -> Path:
+    def path(self) -> PathToken:
         return self._path
 
     @path.setter
-    def path(self, new_path: Path) -> None:
+    def path(self, new_path: PathToken) -> None:
         self._path = new_path
 
     @property
-    def dirname(self) -> Path:
-        return self._path.parent
+    def dirname(self) -> PathToken:
+        return self._path.dirname
 
     @property
-    def output(self) -> tp.Optional[Path]:
+    def output(self) -> tp.Optional[PathToken]:
         return self._output
 
     def exists(self) -> bool:
@@ -250,21 +308,25 @@ class Command:
             **self._env
         )
 
-    def __call__(self, *args: tp.Any) -> tp.Any:
+    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> tp.Any:
         """Run the command in foreground."""
         assert self.exists()
-        cmd_w_output = self.as_plumbum()
+        cmd_w_output = self.as_plumbum(context)
         return watch(cmd_w_output)(*args)
 
-    def as_plumbum(self) -> BoundEnvCommand:
+    def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:
         assert self.exists()
+        cmd_path = self.path.render(**kwargs)
 
-        cmd = local[str(self.path)]
+        cmd = local[str(cmd_path)]
         cmd_w_args = cmd[self._args]
-        output_params = [
-            arg.format(output=self.output) for arg in self._output_param
-        ]
-        cmd_w_output = cmd_w_args[output_params]
+        cmd_w_output = cmd_w_args
+        if self.output:
+            output_path = self.output.render(**kwargs)
+            output_params = [
+                arg.format(output=output_path) for arg in self._output_param
+            ]
+            cmd_w_output = cmd_w_args[output_params]
         cmd_w_env = cmd_w_output.with_env(**self._env)
 
         return cmd_w_env
@@ -315,27 +377,9 @@ class ProjectCommand:
     ) -> None:
         self.project = project
         self.command = command
-        self.command.path = self._create_project_path(self.command.path)
-
-    def _create_project_path(self, path: Path) -> Path:
-        all_sources = source.sources_as_dict(*self.project.source)
-        new_parts = []
-        for part in path.parts:
-            new_part = part
-            if part in all_sources:
-                source_dir = self.project.source_of(part)
-                if source_dir:
-                    new_part = str(source_dir)
-            new_parts.append(new_part)
-
-        new_path = Path(*new_parts)
-        if not new_path.is_absolute():
-            new_path = Path(str(self.project.builddir)) / new_path
-
-        return Path(*new_parts)
 
     @property
-    def path(self) -> Path:
+    def path(self) -> PathToken:
         return self.command.path
 
     def __call__(self, *args: tp.Any):
@@ -343,11 +387,15 @@ class ProjectCommand:
 
         CFG.store(Path(build_dir) / ".benchbuild.yml")
         with local.cwd(build_dir):
-            wrap(str(self.command.path), self.project)
-            return self.command.__call__(*args)
+            cmd_path = self.command.path.render(project=self.project)
+
+            wrap(str(cmd_path), self.project)
+            return self.command.__call__(*args, project=self.project)
 
     def __repr__(self) -> str:
-        return f"ProjectCommand({self.project.name}, {repr(self.command)})"
+        cmd_path = self.command.path.render(project=self.project)
+
+        return f"ProjectCommand({self.project.name}, {cmd_path})"
 
     def __str__(self) -> str:
         return str(self.command)

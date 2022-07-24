@@ -1,11 +1,11 @@
 from pathlib import PosixPath
 
-from benchbuild.command import Command, PathToken, ProjectCommand, NullRenderer
+from benchbuild.command import Command, PathToken, ProjectCommand, RootRenderer
 from benchbuild.project import Project
 
 from .project import test_project as tp
 
-TT = PathToken.make_token(NullRenderer())
+TT = PathToken.make_token(RootRenderer())
 
 
 def test_basic_command():

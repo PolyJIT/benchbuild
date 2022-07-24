@@ -27,7 +27,10 @@ class PathRenderStrategy(Protocol):
         ...
 
 
-class NullRenderer:
+class RootRenderer:
+    """
+    Renders the root directory.
+    """
 
     def __call__(self, **kwargs: tp.Any) -> Path:
         return Path("/")
@@ -101,7 +104,7 @@ class PathToken:
     ) -> 'PathToken':
         if renderer:
             return PathToken(renderer)
-        return PathToken(NullRenderer())
+        return PathToken(RootRenderer())
 
     def __init__(
         self,

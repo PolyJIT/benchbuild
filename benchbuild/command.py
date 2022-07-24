@@ -75,7 +75,7 @@ class BuilddirRenderer:
         return Path(project.builddir)
 
     def __str__(self) -> str:
-        return '<BUILD_DIR>'
+        return "<builddir>"
 
 
 class SourceRootRenderer:
@@ -103,6 +103,9 @@ class SourceRootRenderer:
         if src_path:
             return Path(src_path)
         return Path(project.build_dir) / self.local
+
+    def __str__(self) -> str:
+        return f"<source_of({self.local})>"
 
 
 class PathToken:

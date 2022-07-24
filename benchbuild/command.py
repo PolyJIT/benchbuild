@@ -309,9 +309,6 @@ class Command:
     def output(self) -> tp.Optional[PathToken]:
         return self._output
 
-    def exists(self) -> bool:
-        return self._path.exists()
-
     def env(self, **kwargs: str) -> None:
         self._env.update(kwargs)
 
@@ -327,13 +324,12 @@ class Command:
 
     def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> tp.Any:
         """Run the command in foreground."""
-        assert self.exists()
         cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
     def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:
-        assert self.exists()
         cmd_path = self.path.render(**kwargs)
+        assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
 
         cmd = local[str(cmd_path)]
         cmd_w_args = cmd[self._args]

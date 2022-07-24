@@ -311,7 +311,7 @@ class Command:
     def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> tp.Any:
         """Run the command in foreground."""
         assert self.exists()
-        cmd_w_output = self.as_plumbum(context)
+        cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
     def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:

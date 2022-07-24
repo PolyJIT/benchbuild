@@ -1,3 +1,4 @@
+import sys
 import typing as tp
 from collections.abc import Mapping
 from pathlib import Path, PosixPath
@@ -13,25 +14,30 @@ from benchbuild.utils.wrapping import wrap
 if tp.TYPE_CHECKING:
     import benchbuild.project.Project  # pylint: disable=unused-import
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol, runtime_checkable
+else:
+    from typing import Protocol, runtime_checkable
+
 
 class SourceRoot(PosixPath):
     """Named wrapper around PosixPath."""
 
 
-@tp.runtime_checkable
-class RenderablePath(tp.Protocol):
+@runtime_checkable
+class RenderablePath(Protocol):
 
-    def render(self) -> str:
+    def render(self, **kwargs: tp.Any) -> str:
         ...
 
     def __truediv__(self, rhs: tp.Union[str, 'RenderablePath']) -> 'PathToken':
         ...
 
 
-@tp.runtime_checkable
-class PathRenderStrategy(tp.Protocol):
+@runtime_checkable
+class PathRenderStrategy(Protocol):
 
-    def __call__(self) -> Path:
+    def __call__(self, **kwargs: tp.Any) -> Path:
         ...
 
 

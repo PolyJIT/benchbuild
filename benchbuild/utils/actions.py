@@ -668,7 +668,7 @@ class RunWorkload(ProjectStep):
 
     def __call__(self) -> StepResult:
         try:
-            self.workload_ref
+            self.workload_ref()
             self.status = StepResult.OK
         except ProcessExecutionError:
             self.status = StepResult.ERROR

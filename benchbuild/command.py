@@ -43,6 +43,9 @@ class RootRenderer:
 
 
 class ConstStrRenderer:
+    """
+    Renders a constant string defined by the user.
+    """
     value: str
 
     def __init__(self, value: str) -> None:
@@ -59,6 +62,9 @@ class ConstStrRenderer:
 
 
 class BuilddirRenderer:
+    """
+    Renders the build directory of the assigned project.
+    """
 
     def __call__(
         self,
@@ -73,10 +79,18 @@ class BuilddirRenderer:
 
 
 class SourceRootRenderer:
+    """
+    Renders the source root of the given local source name.
+
+    The attribute 'local' refers to the local attribute in a project's
+    source definition.
+    If the local name cannot be found inside the project's source definition,
+    it will concatenate the project's builddir with the given name.
+    """
     local: str
 
-    def __init__(self, local: str) -> None:
-        self.local = local
+    def __init__(self, local_name: str) -> None:
+        self.local = local_name
 
     def __call__(
         self,
@@ -92,7 +106,12 @@ class SourceRootRenderer:
 
 
 class PathToken:
-    """Base class used for command token substitution."""
+    """
+    Base class used for command token substitution.
+
+    A path token can use similar to pathlib's Path components. However, each
+    token can render dynamically based on the given render context.
+    """
     renderer: PathRenderStrategy
 
     left: tp.Optional['PathToken']
@@ -161,8 +180,14 @@ class PathToken:
         return str(self)
 
 
-def source_root(local: str) -> PathToken:
-    return PathToken.make_token(SourceRootRenderer(local))
+def source_root(local_name: str) -> PathToken:
+    """
+    Create a SourceRoot token for the given name.
+
+    Args:
+        local_name (str): The source's local name to access.
+    """
+    return PathToken.make_token(SourceRootRenderer(local_name))
 
 
 SourceRoot = source_root

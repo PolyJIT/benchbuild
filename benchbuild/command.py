@@ -20,20 +20,6 @@ else:
     from typing import Protocol, runtime_checkable
 
 
-class SourceRoot(PosixPath):
-    """Named wrapper around PosixPath."""
-
-
-@runtime_checkable
-class RenderablePath(Protocol):
-
-    def render(self, **kwargs: tp.Any) -> str:
-        ...
-
-    def __truediv__(self, rhs: tp.Union[str, 'RenderablePath']) -> 'PathToken':
-        ...
-
-
 @runtime_checkable
 class PathRenderStrategy(Protocol):
 

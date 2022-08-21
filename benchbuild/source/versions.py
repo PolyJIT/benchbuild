@@ -108,3 +108,6 @@ class SingleVersionFilter(BaseVersionFilter):
         return [
             v for v in self.child.versions() if str(v) == self.filter_version
         ]
+
+    def explore(self) -> tp.List[base.Variant]:
+        return list(self.child.explore())

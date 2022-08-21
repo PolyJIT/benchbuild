@@ -1,12 +1,11 @@
 import sys
 import typing as tp
 from collections.abc import Mapping
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
 
-from benchbuild import source
 from benchbuild.settings import CFG
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap

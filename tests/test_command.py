@@ -1,9 +1,6 @@
 from pathlib import PosixPath
 
-from benchbuild.command import Command, PathToken, ProjectCommand, RootRenderer
-from benchbuild.project import Project
-
-from .project import test_project as tp
+from benchbuild.command import Command, PathToken, RootRenderer
 
 TT = PathToken.make_token(RootRenderer())
 
@@ -12,12 +9,16 @@ def test_basic_command():
     cmd = Command(TT / "bin" / "true")
     assert cmd.dirname == PosixPath("/bin")
     assert cmd.name == "true"
-    assert cmd.exists()
+
+    cmd_path = cmd.path.render()
+    assert cmd_path.exists()
 
 
 def test_basic_command_exists():
     cmd = Command(TT / ".benchbuild_true_does_not_exist")
-    assert not cmd.exists()
+
+    cmd_path = cmd.path.render()
+    assert not cmd_path.exists()
 
 
 def test_basic_command_args():

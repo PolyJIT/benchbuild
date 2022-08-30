@@ -26,13 +26,10 @@ class PathRenderStrategy(Protocol):
         ...
 
 
-T = tp.TypeVar('T')
-
-
 @runtime_checkable
 class SupportsUnwrap(Protocol):
 
-    def unwrap(self, project: "benchbuild.project.Project") -> T:
+    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
         ...
 
 

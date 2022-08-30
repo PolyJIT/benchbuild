@@ -7,6 +7,7 @@ from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
 
 from benchbuild.settings import CFG
+from benchbuild.source.base import primary
 from benchbuild.utils.revision_ranges import RevisionRange
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
@@ -293,7 +294,8 @@ class OnlyIn:
         """
         Provide the store WorkloadSet only if our revision is in the range.
         """
-        self.rev_range.init_cache(project.source_of_primary)
+        source = primary(*project.source)
+        self.rev_range.init_cache(source.fetch())
 
         revision = project.version_of_primary
         if revision in set(self.rev_range):

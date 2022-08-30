@@ -7,6 +7,7 @@ from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
 
 from benchbuild.settings import CFG
+from benchbuild.utils.revision_ranges import RevisionRange
 from benchbuild.utils.run import watch
 from benchbuild.utils.wrapping import wrap
 
@@ -273,6 +274,31 @@ class WorkloadSet(Mapping):
         """Implement the `SupportsUnwrap` protocol."""
         del project
         return self
+
+
+class OnlyIn:
+    """
+    Provide a filled `WorkloadSet` only if, given revision is inside the range.
+    """
+    rev_range: RevisionRange
+    workload_set: WorkloadSet
+
+    def __init__(
+        self, rev_range: RevisionRange, workload_set: WorkloadSet
+    ) -> None:
+        self.rev_range = rev_range
+        self.workload_set = workload_set
+
+    def unwrap(self, project: "benchbuild.project.Project") -> WorkloadSet:
+        """
+        Provide the store WorkloadSet only if our revision is in the range.
+        """
+        self.rev_range.init_cache(project.source_of_primary)
+
+        revision = project.version_of_primary
+        if revision in set(self.rev_range):
+            return self.workload_set
+        return WorkloadSet()
 
 
 class Command:

@@ -30,7 +30,7 @@ from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
 from benchbuild import extensions, source
-from benchbuild.command import Command, WorkloadSet
+from benchbuild.command import Command, SupportsUnwrap
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import primary, Git
@@ -47,7 +47,7 @@ Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
-Workloads = tp.MutableMapping[WorkloadSet, tp.List[Command]]
+Workloads = tp.MutableMapping[SupportsUnwrap, tp.List[Command]]
 
 __REGISTRATION_SEPARATOR = "/"
 __REGISTRATION_OPTIONALS = ["/", "-"]

@@ -700,13 +700,10 @@ class RunWorkloads(MultiStep):
         self.project = project
         self.experiment = experiment
 
-        workloads: tp.Iterable[command.Command]
-        if run_only is None:
-            workloads = itertools.chain(*project.workloads.values())
-        else:
-            workloads = command.filter_workload_index(
-                run_only, project.workloads
-            )
+        index = command.unwrap(project.workloads, project)
+        workloads = itertools.chain(
+            *command.filter_workload_index(run_only, index)
+        )
 
         for workload in workloads:
             self.actions.append(

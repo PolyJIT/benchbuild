@@ -26,6 +26,16 @@ class PathRenderStrategy(Protocol):
         ...
 
 
+T = tp.TypeVar('T')
+
+
+@runtime_checkable
+class SupportsUnwrap(Protocol):
+
+    def unwrap(self, project: "benchbuild.project.Project") -> T:
+        ...
+
+
 class RootRenderer:
     """
     Renders the root directory.
@@ -262,6 +272,11 @@ class WorkloadSet(Mapping):
 
         return f"WorkloadSet({{{repr_str}}})"
 
+    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
+        """Implement the `SupportsUnwrap` protocol."""
+        del project
+        return self
+
 
 class Command:
     """A command wrapper for benchbuild's commands."""
@@ -416,11 +431,27 @@ class ProjectCommand:
 WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
 
 
+def unwrap(
+    index: WorkloadIndex, project: 'benchbuild.project.Project'
+) -> WorkloadIndex:
+    """
+    Unwrap all keys in a workload index.
+
+    'Empty' WorkloadSets will be removed. A WorkloadSet is empty, if it's
+    boolean representation evaluates to `False`.
+    """
+    return {k: v for k, v in index.items() if bool(k.unwrap(project))}
+
+
 def filter_workload_index(
     only: WorkloadSet, index: WorkloadIndex
-) -> tp.Generator[Command, None, None]:
-    keys = {k for k in index if k & only}
+) -> tp.Generator[tp.List[Command], None, None]:
+    """
+    Yield only commands from the index that match the filter.
 
+    This removes all command lists from the index not matching `only`.
+    """
+
+    keys = {k for k in index if k and ((k & only) or (not only))}
     for k in keys:
-        for job in index[k]:
-            yield job
+        yield index[k]

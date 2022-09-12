@@ -5,5 +5,4 @@ mock
 pytest
 pytest-cov
 pytest-describe
-pytest-git-fixtures
-pytest-gnupg-fixtures
+pytest-git

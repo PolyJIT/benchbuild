@@ -1,6 +1,6 @@
 import sys
 import typing as tp
-from collections.abc import Mapping
+from collections.abc import Set
 from pathlib import Path
 
 from plumbum import local
@@ -211,38 +211,33 @@ def project_root() -> PathToken:
 ProjectRoot = project_root
 
 
-class WorkloadSet(Mapping):
+class WorkloadSet(Set):
     """An immutable set of workload descriptors.
 
     A WorkloadSet is immutable and usable as a key in a job mapping.
     WorkloadSets support composition through intersection and union.
 
     Example:
-    >>> WorkloadSet(a=1, b=0) & WorkloadSet(a=1)
-    WorkloadSet({a=1})
-    >>> WorkloadSet(a=1, b=0) & WorkloadSet(c=1)
+    >>> WorkloadSet(1, 0) & WorkloadSet(1)
+    WorkloadSet({1})
+    >>> WorkloadSet(1, 0) & WorkloadSet(2)
     WorkloadSet({})
-    >>> WorkloadSet(a=1, b=0) | WorkloadSet(c=1)
-    WorkloadSet({a=1, b=0, c=1})
-
-    Warning:
-    >>> WorkloadSet(a=1) | WorkloadSet(a=2)
-    WorkloadSet({a=1, a=2})
+    >>> WorkloadSet(1, 0) | WorkloadSet(2)
+    WorkloadSet({0, 1, 2})
+    >>> WorkloadSet(1, 0) | WorkloadSet("1")
+    WorkloadSet({0, 1, 1})
     """
 
-    _tags: tp.FrozenSet[tp.Tuple[str, tp.Any]]
+    _tags: tp.FrozenSet[tp.Any]
 
-    def __init__(self, **kwargs: tp.Any) -> None:
-        self._tags = frozenset((k, v) for k, v in kwargs.items())
-
-    def __getitem__(self, key: str) -> tp.Any:
-        for k, v in self._tags:
-            if k == key:
-                return v
-        raise KeyError()
+    def __init__(self, *args: tp.Any) -> None:
+        self._tags = frozenset(args)
 
     def __iter__(self) -> tp.Iterator[str]:
         return [k for k, _ in self._tags].__iter__()
+
+    def __contains__(self, v: tp.Any) -> bool:
+        return self._tags.__contains__(v)
 
     def __len__(self) -> int:
         return len(self._tags)
@@ -267,7 +262,7 @@ class WorkloadSet(Mapping):
         return hash(self._tags)
 
     def __repr__(self) -> str:
-        repr_str = ", ".join([f"{k}={v}" for k, v in sorted(self._tags)])
+        repr_str = ", ".join([f"{k}" for k in self._tags])
 
         return f"WorkloadSet({{{repr_str}}})"
 

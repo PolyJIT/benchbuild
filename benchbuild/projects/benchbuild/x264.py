@@ -37,7 +37,7 @@ class X264(bb.Project):
 
     # yapf: disable
     WORKLOADS = {
-        WorkloadSet(inputfile="tbbt-small.y4m"): [
+        WorkloadSet("tbbt-small.y4m"): [
             Command(SourceRoot("x264.git") / "x264",
                 "tbbt-small.y4m", "--threads", "1", "-o", "/dev/null", "--crf", "30", "-b1", "-m1", "-r1", "--me", "dia", "--no-cabac", "--direct", "temporal", "--ssim", "--no-weightb"),
             Command(SourceRoot("x264.git") / "x264",
@@ -55,7 +55,7 @@ class X264(bb.Project):
             Command(SourceRoot("x264.git") / "x264",
                 "tbbt-small.y4m", "--threads", "1", "-o", "/dev/null", "--frames", "50", "-q0", "-m2", "-r1", "--me", "hex", "--no-cabac")
         ],
-        WorkloadSet(inputfile="sintel.raw"): [
+        WorkloadSet("sintel.raw"): [
             Command(SourceRoot("x264.git") / "x264",
                 "sintel.raw", "--input-res", "1280x720", "--threads", "1", "-o", "/dev/null", "--crf", "30", "-b1", "-m1", "-r1", "--me", "dia", "--no-cabac", "--direct", "temporal", "--ssim", "--no-weightb"),
             Command(SourceRoot("x264.git") / "x264",

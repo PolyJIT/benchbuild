@@ -30,7 +30,7 @@ class MyProject(Project):
   ]
 
   WORKLOADS = {
-    WorkloadSet(name="compression"): [
+    WorkloadSet("compression"): [
       Command(SourceRoot("myproject.git") / "myprj")
     ]
   }

@@ -17,7 +17,7 @@ class DefaultWorkloadProject(Project):
     GROUP = "tests"
 
     SOURCE = []
-    WORKLOADS = {WorkloadSet("always"): [Command(SourceRoot() / "true")]}
+    WORKLOADS = {}
 
     def compile(self) -> None:
         pass
@@ -32,12 +32,7 @@ class OnlyInWorkloadProject(Project):
     GROUP = "tests"
 
     SOURCE = []
-    WORKLOADS = {
-        OnlyIn(RevisionRange("HEAD~1", "HEAD"), WorkloadSet("sometimes")): [
-            Command(SourceRoot() / "true")
-        ],
-        WorkloadSet("always"): [Command(SourceRoot() / "true")]
-    }
+    WORKLOADS = {}
 
     def compile(self) -> None:
         pass
@@ -55,6 +50,11 @@ def project(bb_git_repo: GitRepo) -> ProjectT:
             shallow=False
         )
     ]
+    DefaultWorkloadProject.WORKLOADS = {
+        WorkloadSet("always"): [
+            Command(SourceRoot("workload-test.git") / "test")
+        ]
+    }
     return DefaultWorkloadProject
 
 
@@ -67,6 +67,14 @@ def only_in_project(bb_git_repo: GitRepo) -> ProjectT:
             shallow=False
         )
     ]
+    OnlyInWorkloadProject.WORKLOADS = {
+        OnlyIn(RevisionRange("HEAD~1", "HEAD"), WorkloadSet("sometimes")): [
+            Command(SourceRoot("workload-test.git") / "test")
+        ],
+        WorkloadSet("always"): [
+            Command(SourceRoot("workload-test.git") / "test")
+        ]
+    }
     return OnlyInWorkloadProject
 
 

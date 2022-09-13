@@ -348,11 +348,12 @@ class Command:
     '/bin/true --arg1 --arg2'
     """
 
-    _path: PathToken
-    _output: tp.Optional[PathToken]
-    _output_param: tp.List[str]
     _args: tp.Tuple[tp.Any, ...]
     _env: tp.Dict[str, str]
+    _label: tp.Optional[str]
+    _output: tp.Optional[PathToken]
+    _output_param: tp.List[str]
+    _path: PathToken
 
     def __init__(
         self,
@@ -360,6 +361,7 @@ class Command:
         *args: tp.Any,
         output: tp.Optional[PathToken] = None,
         output_param: tp.Optional[tp.List[str]] = None,
+        label: tp.Optional[str] = None,
         **kwargs: str,
     ) -> None:
 
@@ -368,6 +370,7 @@ class Command:
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
+        self._label = label
         self._env = kwargs
 
     @property
@@ -393,6 +396,14 @@ class Command:
     def env(self, **kwargs: str) -> None:
         self._env.update(kwargs)
 
+    @property
+    def label(self) -> str:
+        return self.label
+
+    @label.setter
+    def label(self, new_label: str) -> None:
+        self._label = new_label
+
     def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
         return Command(
             self._path,
@@ -409,6 +420,18 @@ class Command:
         return watch(cmd_w_output)(*args)
 
     def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:
+        """
+        Convert this command into a plumbum compatible command.
+
+        This renders all tokens in the command's path and creates a new
+        plumbum command with the given parameters and environment.
+
+        Args:
+            **kwargs: parameters passed to the path renderers.
+
+        Returns:
+            An executable plumbum command.
+        """
         cmd_path = self.path.render(**kwargs)
         assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
 
@@ -428,6 +451,8 @@ class Command:
     def __repr__(self) -> str:
         repr_str = f"path={self._path}"
 
+        if self._label:
+            repr_str = f"{self._label} {repr_str}"
         if self._args:
             repr_str += f" args={self._args}"
         if self._env:
@@ -448,6 +473,8 @@ class Command:
             command_str = f"{env_str} {command_str}"
         if args_str:
             command_str = f"{command_str} {args_str}"
+        if self._label:
+            command_str = f"{self._label} {command_str}"
         return command_str
 
 

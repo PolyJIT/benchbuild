@@ -1,6 +1,6 @@
 attrs~=22.1
 dill~=0.3
-Jinja2~=3.0
+Jinja2~=3.1
 parse~=1.19
 pathos~=0.2
 plumbum~=1.7

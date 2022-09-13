@@ -23,15 +23,11 @@ else:
 
 @runtime_checkable
 class PathRenderStrategy(Protocol):
+    """
+    Rendering strategy protocol for path components.
+    """
 
     def __call__(self, **kwargs: tp.Any) -> Path:
-        ...
-
-
-@runtime_checkable
-class SupportsUnwrap(Protocol):
-
-    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
         ...
 
 
@@ -211,6 +207,18 @@ def project_root() -> PathToken:
 ProjectRoot = project_root
 
 
+@runtime_checkable
+class SupportsUnwrap(Protocol):
+    """
+    Support unwrapping a WorkloadSet.
+
+    Unwrapping ensures access to a WorkloadSet from any wrapper object.
+    """
+
+    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
+        ...
+
+
 class WorkloadSet(Set):
     """An immutable set of workload descriptors.
 
@@ -226,6 +234,9 @@ class WorkloadSet(Set):
     WorkloadSet({0, 1, 2})
     >>> WorkloadSet(1, 0) | WorkloadSet("1")
     WorkloadSet({0, 1, 1})
+
+    A workload set is not sorted, therefore, requires no comparability between
+    inserted values.
     """
 
     _tags: tp.FrozenSet[tp.Any]
@@ -267,7 +278,11 @@ class WorkloadSet(Set):
         return f"WorkloadSet({{{repr_str}}})"
 
     def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
-        """Implement the `SupportsUnwrap` protocol."""
+        """
+        Implement the `SupportsUnwrap` protocol.
+
+        WorkloadSets only implement identity.
+        """
         del project
         return self
 
@@ -275,6 +290,10 @@ class WorkloadSet(Set):
 class OnlyIn:
     """
     Provide a filled `WorkloadSet` only if, given revision is inside the range.
+
+    This makes use of the unwrap protocol and returns the given WorkloadSet,
+    iff, the Project's revision is included in the range specified by the
+    RevisionRange.
     """
     rev_range: RevisionRange
     workload_set: WorkloadSet
@@ -299,7 +318,35 @@ class OnlyIn:
 
 
 class Command:
-    """A command wrapper for benchbuild's commands."""
+    """
+    A command wrapper for benchbuild's commands.
+
+    Commands are defined by a path to an executable binary and it's arguments.
+    Optional, commands can provide output and output_param parameters to
+    declare the Command's output behavior.
+
+    Base command path:
+    >>> ROOT = PathToken.make_token()
+    >>> base_c = Command(ROOT / "bin" / "true")
+    >>> base_c
+    Command(path=/bin/true)
+    >>> str(base_c)
+    '/bin/true'
+
+    Test environment representations:
+    >>> env_c = Command(ROOT / "bin"/ "true", BB_ENV_TEST=1)
+    >>> env_c
+    Command(path=/bin/true env={'BB_ENV_TEST': 1})
+    >>> str(env_c)
+    'BB_ENV_TEST=1 /bin/true'
+
+    Argument representations:
+    >>> args_c = Command(ROOT / "bin" / "true", "--arg1", "--arg2")
+    >>> args_c
+    Command(path=/bin/true args=('--arg1', '--arg2'))
+    >>> str(args_c)
+    '/bin/true --arg1 --arg2'
+    """
 
     _path: PathToken
     _output: tp.Optional[PathToken]
@@ -396,7 +443,12 @@ class Command:
         env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
         args_str = " ".join(self._args)
 
-        return f"{env_str} {self._path} {args_str}"
+        command_str = f"{self._path}"
+        if env_str:
+            command_str = f"{env_str} {command_str}"
+        if args_str:
+            command_str = f"{command_str} {args_str}"
+        return command_str
 
 
 class ProjectCommand:

@@ -17,8 +17,6 @@ attribute. Let's have a look at the following example:
 from benchbuild import Project
 from benchbuild.command import Command, WorkloadSet, SourceRoot
 
-...
-
 class MyProject(Project):
   ...
   SOURCE = [
@@ -46,3 +44,7 @@ This is done using tokens inside the commands' path representation. One
 example of an available token is the above ``SourceRoot``.
 
 ## Tokens
+
+BenchBuild offers project authors a way to tokenize path components for
+commands. These can be used to refer to a project's root directory or
+source directory in a generic way.

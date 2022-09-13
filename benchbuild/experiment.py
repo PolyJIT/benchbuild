@@ -57,8 +57,8 @@ class ExperimentRegistry(type):
         """Register a project in the registry."""
         cls = super(ExperimentRegistry,
                     mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
-        if bases and 'NAME' in attrs:
-            ExperimentRegistry.experiments[attrs['NAME']] = cls
+        if bases and "NAME" in attrs:
+            ExperimentRegistry.experiments[attrs["NAME"]] = cls
         return cls
 
 
@@ -88,7 +88,7 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME: tp.ClassVar[str] = ''
+    NAME: tp.ClassVar[str] = ""
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
     CONTAINER: tp.ClassVar[declarative.ContainerImage
@@ -110,8 +110,7 @@ class Experiment(metaclass=ExperimentRegistry):
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
     )
 
-    projects: Projects = \
-        attr.ib(default=attr.Factory(list))
+    projects: Projects = attr.ib(default=attr.Factory(list))
 
     id = attr.ib()
 
@@ -192,7 +191,7 @@ class Experiment(metaclass=ExperimentRegistry):
             actions.extend(prj_actions)
 
         if actions:
-            actions.append(actns.CleanExtra(self))
+            actions.append(actns.CleanExtra())
         return actions
 
     @classmethod
@@ -214,14 +213,15 @@ class Experiment(metaclass=ExperimentRegistry):
 
         if len(variants) > 0:
             return [source.context(*variants[0])]
-        raise ValueError('At least one variant is required!')
+        raise ValueError("At least one variant is required!")
 
     def default_runtime_actions(self, project: Project) -> Actions:
         """Return a series of actions for a run time experiment."""
         return [
             actns.Compile(project),
-            actns.Run(project, experiment=self),
-            actns.Clean(project)
+            actns.RunWorkloads(project, experiment=self),
+            # actns.Run(project, experiment=self),
+            actns.Clean(project),
         ]
 
     def default_compiletime_actions(self, project: Project) -> Actions:

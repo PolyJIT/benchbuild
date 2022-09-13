@@ -20,8 +20,8 @@ import logging
 import typing as tp
 import uuid
 from abc import abstractmethod
-from functools import partial
 from os import getenv
+from pathlib import Path
 
 import attr
 import yaml
@@ -30,10 +30,11 @@ from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
 from benchbuild import extensions, source
+from benchbuild.command import Command, SupportsUnwrap
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import primary, Git
-from benchbuild.utils import db, run, unionfs
+from benchbuild.utils import db, run
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange
 
@@ -46,9 +47,10 @@ Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
+Workloads = tp.MutableMapping[SupportsUnwrap, tp.List[Command]]
 
-__REGISTRATION_SEPARATOR = '/'
-__REGISTRATION_OPTIONALS = ['/', '-']
+__REGISTRATION_SEPARATOR = "/"
+__REGISTRATION_OPTIONALS = ["/", "-"]
 
 
 class ProjectRegistry(type):
@@ -57,8 +59,10 @@ class ProjectRegistry(type):
     projects = StringTrie()
 
     def __new__(
-        mcs: tp.Type['Project'], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any]
+        mcs: tp.Type["Project"],
+        name: str,
+        bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any],
     ) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
@@ -69,42 +73,10 @@ class ProjectRegistry(type):
         defined_attrs = all(bool(attr) for attr in [name, domain, group])
 
         if bases and defined_attrs:
-            key = f'{name}/{group}'
+            key = f"{name}/{group}"
             ProjectRegistry.projects[key] = cls
 
         return cls
-
-
-class ProjectDecorator(ProjectRegistry):
-    """
-    Decorate the interface of a project with the in_builddir decorator.
-
-    This is just a small safety net for benchbuild users, because we make
-    sure to run every project method in the project's build directory.
-    """
-
-    decorated_methods = ["redirect", "compile", "run_tests"]
-
-    def __init__(cls, name, bases, attrs):
-        unionfs_deco = None
-        if CFG["unionfs"]["enable"]:
-            rw_dir = str(CFG["unionfs"]["rw"])
-            unionfs_deco = partial(unionfs.unionfs, rw=rw_dir)
-        config_deco = run.store_config
-
-        methods = ProjectDecorator.decorated_methods
-        for key, value in attrs.items():
-            if (key in methods) and hasattr(cls, key):
-                wrapped_fun = value
-                wrapped_fun = config_deco(wrapped_fun)
-
-                if unionfs_deco is not None:
-                    wrapped_fun = unionfs_deco()(wrapped_fun)
-
-                wrapped_fun = run.in_builddir('.')(wrapped_fun)
-                setattr(cls, key, wrapped_fun)
-
-        super(ProjectDecorator, cls).__init__(name, bases, attrs)
 
 
 class MultiVersioned:
@@ -128,8 +100,8 @@ class MultiVersioned:
             Active variant context.
         """
         assert hasattr(
-            self, 'variant'
-        ), 'Variant attribute missing from subclass.'
+            self, "variant"
+        ), "Variant attribute missing from subclass."
 
         if self._active_variant is None:
             self._active_variant = self.variant
@@ -147,8 +119,57 @@ class MultiVersioned:
         return self._active_variants
 
 
+class PathTracker:
+    """
+    Remember paths in any subclass
+    """
+
+    _tracked_paths: tp.Set[Path]
+
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+
+        cls._tracked_paths = set()
+
+    def remember_path(self, path: Path) -> None:
+        self._tracked_paths.add(path)
+
+    def forget_path(self, path: Path) -> None:
+        self._tracked_paths.remove(path)
+
+    def __contains__(self, path: Path) -> bool:
+        return path in self._tracked_paths
+
+    def clear_paths(self) -> None:
+        self._tracked_paths.clear()
+
+
+class ProjectRunnables:
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        if hasattr(cls, 'run_tests'):
+            f_run_tests = run.in_builddir()(run.store_config(cls.run_tests))
+            setattr(cls, 'run_tests', f_run_tests)
+
+        if hasattr(cls, 'compile'):
+            f_compile = run.in_builddir()(run.store_config(cls.compile))
+            setattr(cls, 'compile', f_compile)
+
+    @abstractmethod
+    def compile(self) -> None:
+        """Compile the project."""
+
+    @abstractmethod
+    def run_tests(self) -> None:
+        """Run the project."""
+
+
 @attr.s
-class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=too-many-instance-attributes
+class Project(
+    PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry
+):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in
@@ -209,30 +230,32 @@ class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=to
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
+
     CONTAINER: tp.ClassVar[ContainerDeclaration] = ContainerImage()
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
     REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
     SOURCE: tp.ClassVar[Sources] = []
+    WORKLOADS: tp.ClassVar[Workloads] = {}
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         del args, kwargs
 
         new_self = super(Project, cls).__new__(cls)
-        mod_ident = f'{cls.__name__} @ {cls.__module__}'
+        mod_ident = f"{cls.__name__} @ {cls.__module__}"
         if not cls.NAME:
             raise AttributeError(
-                f'{mod_ident} does not define a NAME class attribute.'
+                f"{mod_ident} does not define a NAME class attribute."
             )
         if not cls.DOMAIN:
             raise AttributeError(
-                f'{mod_ident} does not define a DOMAIN class attribute.'
+                f"{mod_ident} does not define a DOMAIN class attribute."
             )
         if not cls.GROUP:
             raise AttributeError(
-                f'{mod_ident} does not define a GROUP class attribute.'
+                f"{mod_ident} does not define a GROUP class attribute."
             )
 
         return new_self
@@ -279,12 +302,17 @@ class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=to
         default=attr.Factory(
             lambda self: local.path(str(CFG["build_dir"])) / self.id / self.
             run_uuid,
-            takes_self=True
+            takes_self=True,
         )
     )
 
     source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True)
+    )
+
+    workloads: Workloads = attr.ib(
+        default=attr.
+        Factory(lambda self: type(self).WORKLOADS, takes_self=True)
     )
 
     primary_source: str = attr.ib()
@@ -321,37 +349,21 @@ class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=to
                     self.container = copy.deepcopy(image)
                     break
 
-    @abstractmethod
-    def run_tests(self) -> None:
-        """
-        Run the tests of this project.
-
-        Clients override this method to provide customized run-time tests.
-
-        Args:
-            experiment: The experiment we run this project under
-            run: A function that takes the run command.
-        """
-
     def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def clone(self) -> 'Project':
+    def clone(self) -> "Project":
         """Create a deepcopy of ourself."""
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
 
-    @abstractmethod
-    def compile(self) -> None:
-        """Compile the project."""
-
     @property
     def id(self) -> str:
         version_str = source.to_str(*tuple(self.variant.values()))
-        return f'{self.name}-{self.group}@{version_str}'
+        return f"{self.name}-{self.group}@{version_str}"
 
     def prepare(self) -> None:
         """Prepare the build diretory."""
@@ -412,7 +424,7 @@ class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=to
         """
         version_str = self.version_of(self.primary_source)
         if not version_str:
-            raise ValueError('You are expected to have a primary_source.')
+            raise ValueError("You are expected to have a primary_source.")
         return version_str
 
     @property
@@ -422,7 +434,7 @@ class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=to
         """
         source_str = self.source_of(self.primary_source)
         if not source_str:
-            raise ValueError('You are expected to have a primary_source.')
+            raise ValueError("You are expected to have a primary_source.")
         return source_str
 
 
@@ -432,7 +444,7 @@ ProjectT = tp.Type[Project]
 def __split_project_input__(
     project_input: str
 ) -> tp.Tuple[str, tp.Optional[str]]:
-    split_input = project_input.rsplit('@', maxsplit=1)
+    split_input = project_input.rsplit("@", maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
 
@@ -503,7 +515,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
 
     def csv(in_str: tp.Union[tp.Any, str]) -> bool:
         if isinstance(in_str, str):
-            return len(in_str.split(',')) > 1
+            return len(in_str.split(",")) > 1
         return False
 
     is_csv = csv(version_in)
@@ -513,7 +525,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
         return __add_single_filter__(project, str(version_in))
 
     if isinstance(version_in, list) or is_csv:
-        version_in = version_in.split(',') if is_csv else version_in
+        version_in = version_in.split(",") if is_csv else version_in
         return __add_indexed_filters__(project, version_in)
 
     if isinstance(version_in, dict):
@@ -521,7 +533,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
             return __add_indexed_filters__(project, list(version_in.keys()))
         return __add_named_filters__(project, version_in)
 
-    raise ValueError('not sure what this version input')
+    raise ValueError("not sure what this version input")
 
 
 ProjectIndex = tp.Mapping[str, ProjectT]
@@ -584,4 +596,4 @@ def populate(
 
 
 def build_dir(e, p) -> LocalPath:
-    return local.path(str(CFG['build_dir'])) / str(e.name) / str(p.id)
+    return local.path(str(CFG["build_dir"])) / str(e.name) / str(p.id)

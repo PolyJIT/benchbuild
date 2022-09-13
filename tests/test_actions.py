@@ -34,19 +34,27 @@ class EmptyProject(Project):
         pass
 
 
-class FailAlways(a.Step):
-    NAME = "FAIL ALWAYS"
+class ExceptAlways(a.ProjectStep):
+    NAME = "EXCEPT ALWAYS"
     DESCRIPTION = "A Step that guarantees to fail."
 
-    def __call__(self):
+    def __call__(self) -> a.StepResult:
         raise ProcessExecutionError([], 1, "", "")
 
 
-class PassAlways(a.Step):
+class FailAlways(a.ProjectStep):
+    NAME = "FAIL ALWAYS"
+    DESCRIPTION = "A Step that guarantees to fail."
+
+    def __call__(self) -> a.StepResult:
+        return a.StepResult.ERROR
+
+
+class PassAlways(a.ProjectStep):
     NAME = "PASS ALWAYS"
     DESCRIPTION = "A Step that guarantees to succeed."
 
-    def __call__(self):
+    def __call__(self) -> a.StepResult:
         return a.StepResult.OK
 
 
@@ -55,12 +63,17 @@ class ActionsTestCase(unittest.TestCase):
     def test_for_all_pass(self):
         ep = EmptyProject()
         actn = a.RequireAll(actions=[PassAlways(ep)])
-        self.assertEqual(actn(), [a.StepResult.OK])
+        self.assertEqual(actn(), a.StepResult.OK)
 
     def test_for_all_fail(self):
         ep = EmptyProject()
         actn = a.RequireAll(actions=[FailAlways(ep)])
-        self.assertEqual(actn(), [a.StepResult.ERROR])
+        self.assertEqual(actn(), a.StepResult.ERROR)
+
+    def test_for_all_except(self):
+        ep = EmptyProject()
+        actn = a.RequireAll(actions=[ExceptAlways(ep)])
+        self.assertEqual(actn(), a.StepResult.ERROR)
 
 
 class TestProject(Project):

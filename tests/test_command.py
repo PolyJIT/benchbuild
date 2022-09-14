@@ -7,7 +7,7 @@ from benchbuild.command import (
     RootRenderer,
     enable_rollback,
 )
-from benchbuild.projects.test import TestProject
+from benchbuild.projects.test.test import TestProject
 
 TT = PathToken.make_token(RootRenderer())
 
@@ -56,39 +56,29 @@ def test_as_plumbum():
 
 def test_rollback_creates(tmp_path):
     expected_path = tmp_path / "bar"
-    cmd = Command(
-        TT / "usr" / "bin" / "touch",
-        expected_path,
-        creates=[TT / str(tmp_path)]
-    )
-    p_cmd = ProjectCommand(TestProject, cmd)
+    cmd = Command(TT / "bin" / "false", creates=[TT / str(expected_path)])
+    prj = TestProject()
+    prj.builddir = tmp_path
 
-    assert not expected_path.exists()
-    p_cmd()
-    assert expected_path.exists()
-
+    p_cmd = ProjectCommand(prj, cmd)
     with enable_rollback(p_cmd):
-        p_cmd()
+        expected_path.touch()
+        assert expected_path.exists()
     assert not expected_path.exists()
 
 
-def test_rollback_creates(tmp_path):
+def test_rollback_consumes(tmp_path):
     expected_path = tmp_path / "bar"
-    touch_cmd = Command(
-        TT / "usr" / "bin" / "touch",
-        expected_path,
-        creates=[TT / str(tmp_path)]
-    )
+    cmd = Command(TT / "bin" / "false", consumes=[TT / str(expected_path)])
 
-    rm_cmd = Command(
-        TT / "usr" / "bin" / "rm", expected_path, consumes=[TT / str(tmp_path)]
-    )
+    prj = TestProject()
+    prj.builddir = tmp_path
 
-    assert not expected_path.exists()
-    touch_cmd()
-    assert expected_path.exists()
+    p_cmd = ProjectCommand(prj, cmd)
 
-    with enable_rollback(ProjectCommand(TestProject(), rm_cmd)):
-        rm_cmd()
-
+    expected_path.touch()
+    with enable_rollback(p_cmd):
+        assert expected_path.exists()
+        expected_path.unlink()
+        assert not expected_path.exists()
     assert expected_path.exists()

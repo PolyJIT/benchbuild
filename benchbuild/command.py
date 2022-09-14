@@ -580,7 +580,7 @@ def _default_prune(project_command: ProjectCommand) -> None:
 
 def _default_backup(
     project_command: ProjectCommand,
-    _suffix: str = ".benchbuild.bak"
+    _suffix: str = ".benchbuild_backup"
 ) -> tp.List[Path]:
     command = project_command.command
     project = project_command.project
@@ -590,7 +590,7 @@ def _default_backup(
         backup_path = backup.render(project=project)
         backup_destination = backup_path.with_suffix(_suffix)
         if backup_path.exists():
-            shutil.copy(str(backup_path), str(backup_destination))
+            shutil.copy(backup_path, backup_destination)
             backup_destinations.append(backup_destination)
 
     return backup_destinations
@@ -624,8 +624,8 @@ def enable_rollback(
 
     backup_paths = backup(project_command)
     yield project_command
-    restore(backup_paths)
     prune(project_command)
+    restore(backup_paths)
 
 
 WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]

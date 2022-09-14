@@ -340,18 +340,14 @@ class Command:
             BenchBuild will construct the output argument from this.
         output: An optional PathToken to declare an output file of the command.
         label: An optional Label that can be used to name a command.
-        creates: A list of PathTokens that encodes any artifacts that are
+        creates: A list of PathToken that encodes any artifacts that are
             created by this command.
             This will include the output PathToken automatically. Any
             additional PathTokens provided will be provided for cleanup.
+        consumes: A list of PathToken that holds any artifacts that will be
+            consumed by this command.
         **kwargs: Any remaining kwargs will be added as environment variables
             to the command.
-
-    _env: tp.Dict[str, str]
-    _label: tp.Optional[str]
-    _output: tp.Optional[PathToken]
-    _output_param: tp.List[str]
-    _path: PathToken
 
     Base command path:
     >>> ROOT = PathToken.make_token()

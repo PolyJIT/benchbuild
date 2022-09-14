@@ -575,7 +575,7 @@ def _default_prune(project_command: ProjectCommand) -> None:
     for created in command.creates:
         created_path = created.render(project=project)
         if created_path.exists() and created_path.is_file():
-            created_path.unlink(missing_ok=True)
+            created_path.unlink()
 
 
 def _default_backup(

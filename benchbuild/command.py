@@ -1,6 +1,9 @@
+import logging
+import shutil
 import sys
 import typing as tp
 from collections.abc import Set
+from contextlib import contextmanager
 from pathlib import Path
 
 from plumbum import local
@@ -19,6 +22,8 @@ if sys.version_info <= (3, 8):
     from typing_extensions import Protocol, runtime_checkable
 else:
     from typing import Protocol, runtime_checkable
+
+LOG = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -325,6 +330,29 @@ class Command:
     Optional, commands can provide output and output_param parameters to
     declare the Command's output behavior.
 
+    Attributes:
+        path: The binary path of the command
+        *args: Command arguments.
+        output_param: A format string that encodes the output parameter argument
+            using the `output` attribute.
+
+            Example: output_param = f"--out {output}".
+            BenchBuild will construct the output argument from this.
+        output: An optional PathToken to declare an output file of the command.
+        label: An optional Label that can be used to name a command.
+        creates: A list of PathTokens that encodes any artifacts that are
+            created by this command.
+            This will include the output PathToken automatically. Any
+            additional PathTokens provided will be provided for cleanup.
+        **kwargs: Any remaining kwargs will be added as environment variables
+            to the command.
+
+    _env: tp.Dict[str, str]
+    _label: tp.Optional[str]
+    _output: tp.Optional[PathToken]
+    _output_param: tp.List[str]
+    _path: PathToken
+
     Base command path:
     >>> ROOT = PathToken.make_token()
     >>> base_c = Command(ROOT / "bin" / "true")
@@ -354,6 +382,8 @@ class Command:
     _output: tp.Optional[PathToken]
     _output_param: tp.List[str]
     _path: PathToken
+    _creates: tp.List[PathToken]
+    _consumes: tp.List[PathToken]
 
     def __init__(
         self,
@@ -362,6 +392,8 @@ class Command:
         output: tp.Optional[PathToken] = None,
         output_param: tp.Optional[tp.List[str]] = None,
         label: tp.Optional[str] = None,
+        creates: tp.Optional[tp.List[PathToken]] = None,
+        consumes: tp.Optional[tp.List[PathToken]] = None,
         **kwargs: str,
     ) -> None:
 
@@ -372,6 +404,11 @@ class Command:
         self._output_param = output_param if output_param is not None else []
         self._label = label
         self._env = kwargs
+        self._creates = creates if creates is not None else []
+        self._consumes = consumes if consumes is not None else []
+
+        if output:
+            self._creates.append(output)
 
     @property
     def name(self) -> str:
@@ -392,6 +429,14 @@ class Command:
     @property
     def output(self) -> tp.Optional[PathToken]:
         return self._output
+
+    @property
+    def creates(self) -> tp.List[PathToken]:
+        return self._creates
+
+    @property
+    def consumes(self) -> tp.List[PathToken]:
+        return self._consumes
 
     def env(self, **kwargs: str) -> None:
         self._env.update(kwargs)
@@ -525,6 +570,66 @@ class ProjectCommand:
 
     def __str__(self) -> str:
         return str(self.command)
+
+
+def _default_prune(project_command: ProjectCommand) -> None:
+    command = project_command.command
+    project = project_command.project
+
+    for created in command.creates:
+        created_path = created.render(project=project)
+        if created_path.exists() and created_path.is_file():
+            created_path.unlink(missing_ok=True)
+
+
+def _default_backup(
+    project_command: ProjectCommand,
+    _suffix: str = ".benchbuild.bak"
+) -> tp.List[Path]:
+    command = project_command.command
+    project = project_command.project
+
+    backup_destinations: tp.List[Path] = []
+    for backup in command.consumes:
+        backup_path = backup.render(project=project)
+        backup_destination = backup_path.with_suffix(_suffix)
+        if backup_path.exists():
+            shutil.copy(str(backup_path), str(backup_destination))
+            backup_destinations.append(backup_destination)
+
+    return backup_destinations
+
+
+def _default_restore(backup_paths: tp.List[Path]) -> None:
+    for backup_path in backup_paths:
+        original_path = backup_path.with_suffix("")
+        if not original_path.exists() and backup_path.exists():
+            backup_path.rename(original_path)
+
+        if not original_path.exists() and not backup_path.exists():
+            LOG.error("No backup to restore from. %s missing", str(backup_path))
+
+        if original_path.exists() and backup_path.exists():
+            LOG.error("%s not consumed, ignoring backup", str(original_path))
+
+
+RollbackFn = tp.Callable[[ProjectCommand], None]
+BackupFn = tp.Callable[[ProjectCommand], tp.List[PathToken]]
+RestoreFn = tp.Callable[[tp.List[PathToken]], None]
+
+
+@contextmanager
+def enable_rollback(
+    project_command: ProjectCommand,
+    backup: BackupFn = _default_backup,
+    restore: RestoreFn = _default_restore,
+    prune: RollbackFn = _default_prune
+):
+
+    backup_paths = backup(project_command)
+    yield project_command
+    restore(backup_paths)
+    prune(project_command)
 
 
 WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]

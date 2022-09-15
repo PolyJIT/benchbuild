@@ -398,7 +398,7 @@ class Command:
 
     @property
     def label(self) -> str:
-        return self.label
+        return self._label
 
     @label.setter
     def label(self, new_label: str) -> None:

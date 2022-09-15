@@ -543,7 +543,7 @@ def unwrap(
 
 
 def filter_workload_index(
-    only: WorkloadSet, index: WorkloadIndex
+    only: tp.Optional[WorkloadSet], index: WorkloadIndex
 ) -> tp.Generator[tp.List[Command], None, None]:
     """
     Yield only commands from the index that match the filter.

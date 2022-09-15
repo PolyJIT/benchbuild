@@ -14,6 +14,18 @@ def test_basic_command():
     assert cmd_path.exists()
 
 
+def test_command_label():
+    my_label = "MyLabel"
+    other_label = "OtherLabel"
+    cmd: Command = Command(TT / "bin" / "true", label=my_label)
+
+    assert cmd.label == my_label
+
+    cmd.label = other_label
+
+    assert cmd.label == other_label
+
+
 def test_basic_command_exists():
     cmd = Command(TT / ".benchbuild_true_does_not_exist")
 

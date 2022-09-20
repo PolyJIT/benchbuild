@@ -418,11 +418,12 @@ class Command:
         self._output_param = output_param if output_param is not None else []
         self._label = label
         self._env = kwargs
-        self._creates = creates if creates is not None else []
-        self._consumes = consumes if consumes is not None else []
 
-        self._creates = [_to_pathtoken(token) for token in self._creates]
-        self._consumes = [_to_pathtoken(token) for token in self._creates]
+        _creates = creates if creates is not None else []
+        _consumes = consumes if consumes is not None else []
+
+        self._creates = [_to_pathtoken(token) for token in _creates]
+        self._consumes = [_to_pathtoken(token) for token in _consumes]
 
         if output:
             self._creates.append(output)

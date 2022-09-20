@@ -474,6 +474,8 @@ class Command:
             *args,
             output=self._output,
             output_param=self._output_param,
+            creates=self._creates,
+            consumes=self._consumes,
             **self._env
         )
 

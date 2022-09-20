@@ -5,7 +5,7 @@ from benchbuild.command import (
     ProjectCommand,
     PathToken,
     RootRenderer,
-    enable_rollback,
+    cleanup,
 )
 from benchbuild.projects.test.test import TestProject
 
@@ -61,7 +61,7 @@ def test_rollback_creates(tmp_path):
     prj.builddir = tmp_path
 
     p_cmd = ProjectCommand(prj, cmd)
-    with enable_rollback(p_cmd):
+    with cleanup(p_cmd):
         expected_path.touch()
         assert expected_path.exists()
     assert not expected_path.exists()
@@ -77,7 +77,7 @@ def test_rollback_consumes(tmp_path):
     p_cmd = ProjectCommand(prj, cmd)
 
     expected_path.touch()
-    with enable_rollback(p_cmd):
+    with cleanup(p_cmd):
         assert expected_path.exists()
         expected_path.unlink()
         assert not expected_path.exists()

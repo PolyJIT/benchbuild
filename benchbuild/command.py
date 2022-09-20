@@ -645,7 +645,7 @@ RestoreFn = tp.Callable[[tp.List[PathToken]], None]
 
 
 @contextmanager
-def enable_rollback(
+def cleanup(
     project_command: ProjectCommand,
     backup: BackupFn = _default_backup,
     restore: RestoreFn = _default_restore,

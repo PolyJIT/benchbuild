@@ -460,7 +460,7 @@ class Command:
         self._env.update(kwargs)
 
     @property
-    def label(self) -> str:
+    def label(self) -> tp.Optional[str]:
         return self._label
 
     @label.setter

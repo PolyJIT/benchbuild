@@ -641,9 +641,27 @@ def _default_restore(backup_paths: tp.List[Path]) -> None:
             LOG.error("%s not consumed, ignoring backup", str(original_path))
 
 
-RollbackFn = tp.Callable[[ProjectCommand], None]
-BackupFn = tp.Callable[[ProjectCommand], tp.List[PathToken]]
-RestoreFn = tp.Callable[[tp.List[PathToken]], None]
+class PruneFn(Protocol):
+    """Prune function protocol."""
+
+    def __call__(self, project_command: ProjectCommand) -> None:
+        ...
+
+
+class BackupFn(Protocol):
+    """Backup callback function protocol."""
+
+    def __call__(self,
+                 project_command: ProjectCommand,
+                 _suffix: str = ...) -> tp.List[Path]:
+        ...
+
+
+class RestoreFn(Protocol):
+    """Restore function protocol."""
+
+    def __call__(self, backup_paths: tp.List[Path]) -> None:
+        ...
 
 
 @contextmanager
@@ -651,8 +669,17 @@ def cleanup(
     project_command: ProjectCommand,
     backup: BackupFn = _default_backup,
     restore: RestoreFn = _default_restore,
-    prune: RollbackFn = _default_prune
+    prune: PruneFn = _default_prune
 ):
+    """
+    Encapsulate a command in automatic backup, restore and prune.
+
+    This will wrap a ProjectCommand inside a contextmanager. All consumed
+    files inside the project's build directory will be backed up by benchbuild.
+    You can then run your command as usual.
+    When you leave the context, all created paths are deleted and all consumed
+    paths restored.
+    """
 
     backup_paths = backup(project_command)
     yield project_command

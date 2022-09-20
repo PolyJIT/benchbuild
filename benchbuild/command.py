@@ -139,7 +139,7 @@ class PathToken:
 
     def __init__(
         self,
-        renderer: PathRenderStrategy = None,
+        renderer: PathRenderStrategy,
         left: tp.Optional['PathToken'] = None,
         right: tp.Optional['PathToken'] = None
     ) -> None:
@@ -153,7 +153,7 @@ class PathToken:
         return Path(str(self)).name
 
     @property
-    def dirname(self) -> str:
+    def dirname(self) -> Path:
         return Path(str(self)).parent
 
     def exists(self) -> bool:
@@ -441,7 +441,7 @@ class Command:
         self._path = new_path
 
     @property
-    def dirname(self) -> PathToken:
+    def dirname(self) -> Path:
         return self._path.dirname
 
     @property

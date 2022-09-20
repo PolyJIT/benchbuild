@@ -322,6 +322,9 @@ class OnlyIn:
         return WorkloadSet()
 
 
+ArtefactPath = tp.Union[PathToken, str]
+
+
 class Command:
     """
     A command wrapper for benchbuild's commands.
@@ -370,6 +373,16 @@ class Command:
     Command(path=/bin/true args=('--arg1', '--arg2'))
     >>> str(args_c)
     '/bin/true --arg1 --arg2'
+
+    Use str for creates:
+    >>> cmd = Command(ROOT / "bin" / "true", creates=["tmp/foo"])
+    >>> cmd.creates
+    [<builddir>/tmp/foo]
+
+    Use absolute path-str for creates:
+    >>> cmd = Command(ROOT / "bin" / "true", creates=["/tmp/foo"])
+    >>> cmd.creates
+    [/tmp/foo]
     """
 
     _args: tp.Tuple[tp.Any, ...]
@@ -388,10 +401,15 @@ class Command:
         output: tp.Optional[PathToken] = None,
         output_param: tp.Optional[tp.List[str]] = None,
         label: tp.Optional[str] = None,
-        creates: tp.Optional[tp.List[PathToken]] = None,
-        consumes: tp.Optional[tp.List[PathToken]] = None,
+        creates: tp.Optional[tp.List[ArtefactPath]] = None,
+        consumes: tp.Optional[tp.List[ArtefactPath]] = None,
         **kwargs: str,
     ) -> None:
+
+        def _to_pathtoken(token: ArtefactPath) -> PathToken:
+            if isinstance(token, str):
+                return ProjectRoot() / token
+            return token
 
         self._path = path
         self._args = tuple(str(arg) for arg in args)
@@ -402,6 +420,9 @@ class Command:
         self._env = kwargs
         self._creates = creates if creates is not None else []
         self._consumes = consumes if consumes is not None else []
+
+        self._creates = [_to_pathtoken(token) for token in self._creates]
+        self._consumes = [_to_pathtoken(token) for token in self._creates]
 
         if output:
             self._creates.append(output)
@@ -571,11 +592,15 @@ class ProjectCommand:
 def _default_prune(project_command: ProjectCommand) -> None:
     command = project_command.command
     project = project_command.project
+    builddir = Path(str(project.builddir))
 
     for created in command.creates:
         created_path = created.render(project=project)
         if created_path.exists() and created_path.is_file():
-            created_path.unlink()
+            if not created_path.is_relative_to(builddir):
+                LOG.error("Pruning outside project builddir was rejected!")
+            else:
+                created_path.unlink()
 
 
 def _default_backup(
@@ -584,14 +609,18 @@ def _default_backup(
 ) -> tp.List[Path]:
     command = project_command.command
     project = project_command.project
+    builddir = Path(str(project.builddir))
 
     backup_destinations: tp.List[Path] = []
     for backup in command.consumes:
         backup_path = backup.render(project=project)
         backup_destination = backup_path.with_suffix(_suffix)
         if backup_path.exists():
-            shutil.copy(backup_path, backup_destination)
-            backup_destinations.append(backup_destination)
+            if not backup_path.is_relative_to(builddir):
+                LOG.error("Backup outside project builddir was rejected!")
+            else:
+                shutil.copy(backup_path, backup_destination)
+                backup_destinations.append(backup_destination)
 
     return backup_destinations
 

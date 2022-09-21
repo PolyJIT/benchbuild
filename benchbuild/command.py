@@ -651,10 +651,19 @@ def _default_prune(project_command: ProjectCommand) -> None:
     project = project_command.project
     builddir = Path(str(project.builddir))
 
+    def is_relative_to(p: Path, other: Path) -> bool:
+        if sys.version_info <= (3, 8):
+            try:
+                p.relative_to(other)
+                return True
+            except ValueError:
+                return False
+        return p.is_relative_to(other)
+
     for created in command.creates:
         created_path = created.render(project=project)
         if created_path.exists() and created_path.is_file():
-            if not created_path.is_relative_to(builddir):
+            if not is_relative_to(created_path, builddir):
                 LOG.error("Pruning outside project builddir was rejected!")
             else:
                 created_path.unlink()

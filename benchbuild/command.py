@@ -647,7 +647,7 @@ class ProjectCommand:
 
 
 def _is_relative_to(p: Path, other: Path) -> bool:
-    if sys.version_info <= (3, 8):
+    if sys.version_info < (3, 9):
         try:
             p.relative_to(other)
             return True

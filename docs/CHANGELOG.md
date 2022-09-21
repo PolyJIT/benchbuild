@@ -1,22 +1,121 @@
+## 6.4 (2022-09-21)
+
+### Feat
+
+- **actions**: make MultiStep generic.
+- **command**: make use of rendered and unrenderer PathToken explicit.
+- **command**: safeguard pruning and backup
+- **command**: add tests for enable_rollback
+- **command**: add support for creates and consumes properties for commands
+- **command**: add a label to commands
+- **workload**: switch WorkloadSet to varargs instead of kwargs
+- **command**: add example `OnlyIn` for WorkloadSet customization.
+
+### Fix
+
+- **command**: strictly less than python 3.9
+- **command**: use _is_relative_to where needed
+- **command**: guard is_relative_to with else
+- **command**: do not depend on Path.is_relative_to (<python3.9)
+- **command**: make mypy happy.
+- **command**: Command.label is Optional
+- **command**: use protocols instead of typing.Callable for callback functions
+- **command**: Command.__getitem__ used constructor wrong
+- **command**: return self._label instead of self.label
+- **command**: return Path instead of str or PathToken
+- **command**: assign consumed files to consumes attribute
+- **tests**: remove missing_ok from unlink (python3.7)
+- **tests**: repair test_command tests
+- **tests**: make test project pickle'able
+- **tests**: add missing pytest-git dependency
+- **command**: `only` might be None
+- **command**: access cache path instead of builddir path
+- **command**: make sure SupportsUnwrap returns a WorkloadSet
+
+### Refactor
+
+- **command**: rename enable_rollback -> cleanup
+
 ## 6.3.2 (2022-08-21)
 
 ### Feat
 
+- **command**: rename NullRenderer to RootRenderer
+- **command**: hook up token renderer logic with Commands
+- **command**: add support for generic path tokens
+- **workload**: convert scimark2
+- **command**: migrate git-based projects to workload sets
+- **command**: add support for WorkloadSet.
+- **command**: clear path tracker on fresh ProjectEnvironment
+- **wrapping**: avoid wrapping the same command twice.
+- **jobs**: add RunJob and RunJobs actions
+- **command**: replace source root anywhere in command's parts
+- **command**: pass environment to plumbum command
+- **command**: pass args to plumbum command
+- **command**: improve args and kwargs handling
+- add env and __str__ to commands
+- **command**: support declarative commands in projects (WIP)
 - **source**: add 'fetch' support to FetchableSource derivatives
+- **workloads**: add properties & tags accessors
+- **workloads**: convert benchbuild.xz to support workloads
 
 ### Fix
 
+- test must use render()
+- **x264**: repair broken cli args
+- **command**: actually run the workload
+- **command**: check for existence, only after rendering
+- **project**: target compile instead of run_tests, when accessing compile
+- **command**: remove unused definitions
+- **command**: context -> kwargs
+- **typing**: python3.7 requires typing_extensions for runtime_checkable / Protocll
+- **command**: missing rename job -> workload
+- **command**: provide mapping type
+- **workload**: strip previous workload draft
+- workaround a mypy error
+- correct mypy errors.
+- **wrapping**: provide default arg for sprefix
+- **actions**: provide default StepResult
+- **command**: store args as tuple
+- **bzip2**: clean draft marker
+- **actions**: repair status print of actions
+- **experiment**: initialize CleanExtra correctly
+- **jobs**: allow jobs to run as wrapped binaries
 - use oci_compliant name for image names
+- **workloads**: wrong workload type
+- **actions**: unbreak tests after list -> scalar conversion
 
 ### Refactor
 
+- **command**: lower-case token str
+- rename Job -> Workload
+- **command**: remove debug prints
 - **source**: remove unnecessary ellipsis
 
 ## 6.3.1 (2022-03-01)
 
 ### Feat
 
+- **actions**: clean interfaces of utils/actions
+- **workloads**: make object instance accessible to workloads using descriptors
+- **workloads**: hook up Compile and Run action to new workload impl
+- **workloads**: add simple intersection filter to workloads
+- **workloads**: change workload registration decorator style.
+- **workloads**: migrate Compile/Run action to run workloads only
+- **project**: remove run_tests and compile abstract methods
+- **gzip**: convert gzip to workloads
+- **workload**: Add prototype support for workloads.
 - **environments**: strip container args when entering interactive mode
+
+### Fix
+
+- **workloads**: typo.
+- **gzip**: undo wrong wrap command
+- **actions**: project -> obj after rebase
+
+### Refactor
+
+- **workloads**: remove useless/unused parts
 
 ## 6.3 (2022-02-03)
 

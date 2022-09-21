@@ -1,6 +1,9 @@
+import logging
+import shutil
 import sys
 import typing as tp
 from collections.abc import Set
+from contextlib import contextmanager
 from pathlib import Path
 
 from plumbum import local
@@ -20,6 +23,8 @@ if sys.version_info <= (3, 8):
 else:
     from typing import Protocol, runtime_checkable
 
+LOG = logging.getLogger(__name__)
+
 
 @runtime_checkable
 class PathRenderStrategy(Protocol):
@@ -27,8 +32,14 @@ class PathRenderStrategy(Protocol):
     Rendering strategy protocol for path components.
     """
 
-    def __call__(self, **kwargs: tp.Any) -> Path:
-        ...
+    @property
+    def unrendered(self) -> str:
+        """
+        Returns an unrendered representation of this strategy.
+        """
+
+    def rendered(self, **kwargs: tp.Any) -> Path:
+        """Renders this strategy."""
 
 
 class RootRenderer:
@@ -36,11 +47,16 @@ class RootRenderer:
     Renders the root directory.
     """
 
-    def __call__(self, **kwargs: tp.Any) -> Path:
+    @property
+    def unrendered(self) -> str:
+        return "/"
+
+    def rendered(self, **kwargs: tp.Any) -> Path:
+        del kwargs
         return Path("/")
 
     def __str__(self) -> str:
-        return str(Path("/"))
+        return self.unrendered
 
     def __repr__(self) -> str:
         return str(self)
@@ -55,7 +71,12 @@ class ConstStrRenderer:
     def __init__(self, value: str) -> None:
         self.value = value
 
-    def __call__(self, **kwargs: tp.Any) -> Path:
+    @property
+    def unrendered(self) -> str:
+        return self.value
+
+    def rendered(self, **kwargs: tp.Any) -> Path:
+        del kwargs
         return Path(self.value)
 
     def __str__(self) -> str:
@@ -70,16 +91,34 @@ class BuilddirRenderer:
     Renders the build directory of the assigned project.
     """
 
-    def __call__(
+    @property
+    def unrendered(self) -> str:
+        return "<builddir>"
+
+    def rendered(
         self,
-        project: 'benchbuild.project.Project' = None,
+        project: tp.Optional['benchbuild.project.Project'] = None,
         **kwargs: tp.Any
     ) -> Path:
-        assert project is not None
+        """
+        Render the project's build directory.
+
+        If rendering is not possible, the unrendered representation is
+        provided and an error will be loggged.
+
+        Args:
+            project: the project to render the build directory from.
+        """
+        del kwargs
+
+        if project is None:
+            LOG.error("Cannot render a build directory without a project.")
+            return Path(self.unrendered)
+
         return Path(project.builddir)
 
     def __str__(self) -> str:
-        return "<builddir>"
+        return self.unrendered
 
 
 class SourceRootRenderer:
@@ -96,20 +135,37 @@ class SourceRootRenderer:
     def __init__(self, local_name: str) -> None:
         self.local = local_name
 
-    def __call__(
+    @property
+    def unrendered(self) -> str:
+        return f"<source_of({self.local})>"
+
+    def rendered(
         self,
-        project: 'benchbuild.project.Project' = None,
+        project: tp.Optional['benchbuild.project.Project'] = None,
         **kwargs: tp.Any
     ) -> Path:
-        assert project is not None
+        """
+        Render the project's source directory.
+
+        If rendering is not possible, the unrendered representation is
+        provided and an error will be loggged.
+
+        Args:
+            project: the project to render the build directory from.
+        """
+        del kwargs
+
+        if project is None:
+            LOG.error("Cannot render a source directory without a project.")
+            return Path(self.unrendered)
 
         src_path = project.source_of(self.local)
         if src_path:
             return Path(src_path)
-        return Path(project.build_dir) / self.local
+        return Path(project.builddir) / self.local
 
     def __str__(self) -> str:
-        return f"<source_of({self.local})>"
+        return self.unrendered
 
 
 class PathToken:
@@ -134,7 +190,7 @@ class PathToken:
 
     def __init__(
         self,
-        renderer: PathRenderStrategy = None,
+        renderer: PathRenderStrategy,
         left: tp.Optional['PathToken'] = None,
         right: tp.Optional['PathToken'] = None
     ) -> None:
@@ -148,14 +204,19 @@ class PathToken:
         return Path(str(self)).name
 
     @property
-    def dirname(self) -> str:
+    def dirname(self) -> Path:
         return Path(str(self)).parent
 
     def exists(self) -> bool:
         return Path(str(self)).exists()
 
     def render(self, **kwargs: tp.Any) -> Path:
-        token = self.renderer(**kwargs)
+        """
+        Renders the PathToken as a standard pathlib Path.
+
+        Any kwargs will be forwarded to the PathRenderStrategy.
+        """
+        token = self.renderer.rendered(**kwargs)
         p = Path()
 
         if self.left:
@@ -180,7 +241,7 @@ class PathToken:
         return PathToken(self.renderer, self.left, self.right / rhs_token)
 
     def __str__(self) -> str:
-        parts = [self.left, str(self.renderer), self.right]
+        parts = [self.left, self.renderer.unrendered, self.right]
         return str(Path(*[str(part) for part in parts if part is not None]))
 
     def __repr__(self) -> str:
@@ -219,7 +280,7 @@ class SupportsUnwrap(Protocol):
         ...
 
 
-class WorkloadSet(Set):
+class WorkloadSet:
     """An immutable set of workload descriptors.
 
     A WorkloadSet is immutable and usable as a key in a job mapping.
@@ -317,6 +378,9 @@ class OnlyIn:
         return WorkloadSet()
 
 
+ArtefactPath = tp.Union[PathToken, str]
+
+
 class Command:
     """
     A command wrapper for benchbuild's commands.
@@ -324,6 +388,25 @@ class Command:
     Commands are defined by a path to an executable binary and it's arguments.
     Optional, commands can provide output and output_param parameters to
     declare the Command's output behavior.
+
+    Attributes:
+        path: The binary path of the command
+        *args: Command arguments.
+        output_param: A format string that encodes the output parameter argument
+            using the `output` attribute.
+
+            Example: output_param = f"--out {output}".
+            BenchBuild will construct the output argument from this.
+        output: An optional PathToken to declare an output file of the command.
+        label: An optional Label that can be used to name a command.
+        creates: A list of PathToken that encodes any artifacts that are
+            created by this command.
+            This will include the output PathToken automatically. Any
+            additional PathTokens provided will be provided for cleanup.
+        consumes: A list of PathToken that holds any artifacts that will be
+            consumed by this command.
+        **kwargs: Any remaining kwargs will be added as environment variables
+            to the command.
 
     Base command path:
     >>> ROOT = PathToken.make_token()
@@ -346,24 +429,43 @@ class Command:
     Command(path=/bin/true args=('--arg1', '--arg2'))
     >>> str(args_c)
     '/bin/true --arg1 --arg2'
+
+    Use str for creates:
+    >>> cmd = Command(ROOT / "bin" / "true", creates=["tmp/foo"])
+    >>> cmd.creates
+    [<builddir>/tmp/foo]
+
+    Use absolute path-str for creates:
+    >>> cmd = Command(ROOT / "bin" / "true", creates=["/tmp/foo"])
+    >>> cmd.creates
+    [/tmp/foo]
     """
 
     _args: tp.Tuple[tp.Any, ...]
     _env: tp.Dict[str, str]
     _label: tp.Optional[str]
     _output: tp.Optional[PathToken]
-    _output_param: tp.List[str]
+    _output_param: tp.Sequence[str]
     _path: PathToken
+    _creates: tp.Sequence[PathToken]
+    _consumes: tp.Sequence[PathToken]
 
     def __init__(
         self,
         path: PathToken,
         *args: tp.Any,
         output: tp.Optional[PathToken] = None,
-        output_param: tp.Optional[tp.List[str]] = None,
+        output_param: tp.Optional[tp.Sequence[str]] = None,
         label: tp.Optional[str] = None,
+        creates: tp.Optional[tp.Sequence[ArtefactPath]] = None,
+        consumes: tp.Optional[tp.Sequence[ArtefactPath]] = None,
         **kwargs: str,
     ) -> None:
+
+        def _to_pathtoken(token: ArtefactPath) -> PathToken:
+            if isinstance(token, str):
+                return ProjectRoot() / token
+            return token
 
         self._path = path
         self._args = tuple(str(arg) for arg in args)
@@ -372,6 +474,15 @@ class Command:
         self._output_param = output_param if output_param is not None else []
         self._label = label
         self._env = kwargs
+
+        _creates = creates if creates is not None else []
+        _consumes = consumes if consumes is not None else []
+
+        self._creates = [_to_pathtoken(token) for token in _creates]
+        self._consumes = [_to_pathtoken(token) for token in _consumes]
+
+        if output:
+            self._creates.append(output)
 
     @property
     def name(self) -> str:
@@ -386,18 +497,26 @@ class Command:
         self._path = new_path
 
     @property
-    def dirname(self) -> PathToken:
+    def dirname(self) -> Path:
         return self._path.dirname
 
     @property
     def output(self) -> tp.Optional[PathToken]:
         return self._output
 
+    @property
+    def creates(self) -> tp.Sequence[PathToken]:
+        return self._creates
+
+    @property
+    def consumes(self) -> tp.Sequence[PathToken]:
+        return self._consumes
+
     def env(self, **kwargs: str) -> None:
         self._env.update(kwargs)
 
     @property
-    def label(self) -> str:
+    def label(self) -> tp.Optional[str]:
         return self._label
 
     @label.setter
@@ -411,6 +530,8 @@ class Command:
             *args,
             output=self._output,
             output_param=self._output_param,
+            creates=self._creates,
+            consumes=self._consumes,
             **self._env
         )
 
@@ -473,7 +594,7 @@ class Command:
             command_str = f"{env_str} {command_str}"
         if args_str:
             command_str = f"{command_str} {args_str}"
-        if self._label:
+        if self.label:
             command_str = f"{self._label} {command_str}"
         return command_str
 
@@ -505,26 +626,129 @@ class ProjectCommand:
         self.command = command
 
     @property
-    def path(self) -> PathToken:
-        return self.command.path
+    def path(self) -> Path:
+        return self.command.path.render(project=self.project)
 
     def __call__(self, *args: tp.Any):
         build_dir = self.project.builddir
 
         CFG.store(Path(build_dir) / ".benchbuild.yml")
         with local.cwd(build_dir):
-            cmd_path = self.command.path.render(project=self.project)
+            cmd_path = self.path
 
             wrap(str(cmd_path), self.project)
             return self.command.__call__(*args, project=self.project)
 
     def __repr__(self) -> str:
-        cmd_path = self.command.path.render(project=self.project)
-
-        return f"ProjectCommand({self.project.name}, {cmd_path})"
+        return f"ProjectCommand({self.project.name}, {self.path})"
 
     def __str__(self) -> str:
         return str(self.command)
+
+
+def _is_relative_to(p: Path, other: Path) -> bool:
+    if sys.version_info < (3, 9):
+        try:
+            p.relative_to(other)
+            return True
+        except ValueError:
+            return False
+    return p.is_relative_to(other)
+
+
+def _default_prune(project_command: ProjectCommand) -> None:
+    command = project_command.command
+    project = project_command.project
+    builddir = Path(str(project.builddir))
+
+    for created in command.creates:
+        created_path = created.render(project=project)
+        if created_path.exists() and created_path.is_file():
+            if not _is_relative_to(created_path, builddir):
+                LOG.error("Pruning outside project builddir was rejected!")
+            else:
+                created_path.unlink()
+
+
+def _default_backup(
+    project_command: ProjectCommand,
+    _suffix: str = ".benchbuild_backup"
+) -> tp.List[Path]:
+    command = project_command.command
+    project = project_command.project
+    builddir = Path(str(project.builddir))
+
+    backup_destinations: tp.List[Path] = []
+    for backup in command.consumes:
+        backup_path = backup.render(project=project)
+        backup_destination = backup_path.with_suffix(_suffix)
+        if backup_path.exists():
+            if not _is_relative_to(backup_path, builddir):
+                LOG.error("Backup outside project builddir was rejected!")
+            else:
+                shutil.copy(backup_path, backup_destination)
+                backup_destinations.append(backup_destination)
+
+    return backup_destinations
+
+
+def _default_restore(backup_paths: tp.List[Path]) -> None:
+    for backup_path in backup_paths:
+        original_path = backup_path.with_suffix("")
+        if not original_path.exists() and backup_path.exists():
+            backup_path.rename(original_path)
+
+        if not original_path.exists() and not backup_path.exists():
+            LOG.error("No backup to restore from. %s missing", str(backup_path))
+
+        if original_path.exists() and backup_path.exists():
+            LOG.error("%s not consumed, ignoring backup", str(original_path))
+
+
+class PruneFn(Protocol):
+    """Prune function protocol."""
+
+    def __call__(self, project_command: ProjectCommand) -> None:
+        ...
+
+
+class BackupFn(Protocol):
+    """Backup callback function protocol."""
+
+    def __call__(self,
+                 project_command: ProjectCommand,
+                 _suffix: str = ...) -> tp.List[Path]:
+        ...
+
+
+class RestoreFn(Protocol):
+    """Restore function protocol."""
+
+    def __call__(self, backup_paths: tp.List[Path]) -> None:
+        ...
+
+
+@contextmanager
+def cleanup(
+    project_command: ProjectCommand,
+    backup: BackupFn = _default_backup,
+    restore: RestoreFn = _default_restore,
+    prune: PruneFn = _default_prune
+):
+    """
+    Encapsulate a command in automatic backup, restore and prune.
+
+    This will wrap a ProjectCommand inside a contextmanager. All consumed
+    files inside the project's build directory will be backed up by benchbuild.
+    You can then run your command as usual.
+    When you leave the context, all created paths are deleted and all consumed
+    paths restored.
+    """
+
+    backup_paths = backup(project_command)
+    yield project_command
+    prune(project_command)
+    restore(backup_paths)
 
 
 WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]

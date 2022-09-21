@@ -1,6 +1,13 @@
-from pathlib import PosixPath
+from pathlib import Path, PosixPath
 
-from benchbuild.command import Command, PathToken, RootRenderer
+from benchbuild.command import (
+    Command,
+    ProjectCommand,
+    PathToken,
+    RootRenderer,
+    cleanup,
+)
+from benchbuild.projects.test.test import TestProject
 
 TT = PathToken.make_token(RootRenderer())
 
@@ -57,3 +64,33 @@ def test_as_plumbum():
     expected_str = "/bin/true 1 2 three"
     pb_cmd = cmd[1, "2", "three"].as_plumbum()
     assert str(pb_cmd) == expected_str
+
+
+def test_rollback_creates(tmp_path):
+    expected_path = tmp_path / "bar"
+    cmd = Command(TT / "bin" / "false", creates=[TT / str(expected_path)])
+    prj = TestProject()
+    prj.builddir = tmp_path
+
+    p_cmd = ProjectCommand(prj, cmd)
+    with cleanup(p_cmd):
+        expected_path.touch()
+        assert expected_path.exists()
+    assert not expected_path.exists()
+
+
+def test_rollback_consumes(tmp_path):
+    expected_path = tmp_path / "bar"
+    cmd = Command(TT / "bin" / "false", consumes=[TT / str(expected_path)])
+
+    prj = TestProject()
+    prj.builddir = tmp_path
+
+    p_cmd = ProjectCommand(prj, cmd)
+
+    expected_path.touch()
+    with cleanup(p_cmd):
+        assert expected_path.exists()
+        expected_path.unlink()
+        assert not expected_path.exists()
+    assert expected_path.exists()

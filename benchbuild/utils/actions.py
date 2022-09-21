@@ -266,7 +266,10 @@ class ProjectStep(Step):
         Clean(self.project)()
 
 
-class MultiStep(Step):
+StepTy = tp.TypeVar("StepTy", bound=Step)
+
+
+class MultiStep(Step, tp.Generic[StepTy]):
     """Group multiple actions into one step.
 
     Usually used to define behavior on error, e.g., execute everything
@@ -276,9 +279,9 @@ class MultiStep(Step):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    actions: tp.List[Step]
+    actions: tp.List[StepTy]
 
-    def __init__(self, actions: tp.Optional[tp.List[Step]] = None) -> None:
+    def __init__(self, actions: tp.Optional[tp.List[StepTy]] = None) -> None:
         super().__init__(StepResult.UNSET)
 
         self.actions = actions if actions else []
@@ -286,7 +289,7 @@ class MultiStep(Step):
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
-    def __iter__(self) -> tp.Iterator[Step]:
+    def __iter__(self) -> tp.Iterator[StepTy]:
         return self.actions.__iter__()
 
     def __call__(self) -> StepResult:

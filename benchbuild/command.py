@@ -658,7 +658,8 @@ def _default_prune(project_command: ProjectCommand) -> None:
                 return True
             except ValueError:
                 return False
-        return p.is_relative_to(other)
+        else:
+            return p.is_relative_to(other)
 
     for created in command.creates:
         created_path = created.render(project=project)

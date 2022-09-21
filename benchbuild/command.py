@@ -280,7 +280,7 @@ class SupportsUnwrap(Protocol):
         ...
 
 
-class WorkloadSet(Set[tp.Any]):
+class WorkloadSet:
     """An immutable set of workload descriptors.
 
     A WorkloadSet is immutable and usable as a key in a job mapping.
@@ -445,20 +445,20 @@ class Command:
     _env: tp.Dict[str, str]
     _label: tp.Optional[str]
     _output: tp.Optional[PathToken]
-    _output_param: tp.List[str]
+    _output_param: tp.Sequence[str]
     _path: PathToken
-    _creates: tp.List[PathToken]
-    _consumes: tp.List[PathToken]
+    _creates: tp.Sequence[PathToken]
+    _consumes: tp.Sequence[PathToken]
 
     def __init__(
         self,
         path: PathToken,
         *args: tp.Any,
         output: tp.Optional[PathToken] = None,
-        output_param: tp.Optional[tp.List[str]] = None,
+        output_param: tp.Optional[tp.Sequence[str]] = None,
         label: tp.Optional[str] = None,
-        creates: tp.Optional[tp.List[ArtefactPath]] = None,
-        consumes: tp.Optional[tp.List[ArtefactPath]] = None,
+        creates: tp.Optional[tp.Sequence[ArtefactPath]] = None,
+        consumes: tp.Optional[tp.Sequence[ArtefactPath]] = None,
         **kwargs: str,
     ) -> None:
 

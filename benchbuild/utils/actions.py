@@ -279,9 +279,11 @@ class MultiStep(Step, tp.Generic[StepTy]):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    actions: tp.List[StepTy]
+    actions: tp.Sequence[StepTy]
 
-    def __init__(self, actions: tp.Optional[tp.List[StepTy]] = None) -> None:
+    def __init__(
+        self, actions: tp.Optional[tp.Sequence[StepTy]] = None
+    ) -> None:
         super().__init__(StepResult.UNSET)
 
         self.actions = actions if actions else []
@@ -506,9 +508,9 @@ class Experiment(Any):
     def __init__(
         self,
         experiment: "benchbuild.experiment.Experiment",
-        actions: tp.Optional[tp.List[Step]],
+        actions: tp.Optional[tp.Sequence[Step]],
     ) -> None:
-        _actions: tp.List[Step] = (
+        _actions: tp.Sequence[Step] = (
             [Echo(message=f"Start experiment: {experiment.name}")] +
             actions if actions else [] +
             [Echo(message=f"Completed experiment: {experiment.name}")]

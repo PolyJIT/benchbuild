@@ -208,7 +208,7 @@ class Step(metaclass=StepClass):
         """
 
     @abc.abstractmethod
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
 
@@ -234,7 +234,7 @@ class ProjectStep(Step):
         return textwrap.indent("* Execute configured action.", indent * " ")
 
     @abc.abstractmethod
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
     def onerror(self) -> None:
@@ -270,7 +270,7 @@ class MultiStep(Step, tp.Generic[StepTy]):
         return self.actions.__iter__()
 
     @abc.abstractmethod
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
     def __str__(self, indent: int = 0) -> str:
@@ -311,7 +311,7 @@ class Clean(ProjectStep):
                 else:
                     umount_paths.append(part.mountpoint)
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         if not CFG["clean"]:
             LOG.warning("Clean disabled by config.")
             return StepResult.OK
@@ -343,7 +343,7 @@ class MakeBuildDir(ProjectStep):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         if not self.project:
             return StepResult.ERROR
         if not os.path.exists(self.project.builddir):
@@ -361,7 +361,7 @@ class Compile(ProjectStep):
     NAME = "COMPILE"
     DESCRIPTION = "Compile the project"
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         try:
             self.project.compile()
 
@@ -390,7 +390,7 @@ class Run(ProjectStep):
 
         self.experiment = experiment
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
@@ -429,7 +429,7 @@ class Echo(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(f"* echo: {self.message}", indent * " ")
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         LOG.info(self.message)
         return StepResult.OK
 
@@ -447,13 +447,13 @@ class Any(MultiStep):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         length = len(self.actions)
         cnt = 0
         results = [StepResult.OK]
         for a in self.actions:
             cnt = cnt + 1
-            result = a(*args, **kwargs)
+            result = a()
             results.append(result)
 
             if result == StepResult.ERROR:
@@ -543,7 +543,7 @@ class Experiment(Any):
             results.append(StepResult.ERROR)
         return results
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         results = []
         session = None
         experiment, session = self.begin_transaction()
@@ -566,7 +566,7 @@ class RequireAll(MultiStep):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         results: tp.List[StepResult] = []
 
         total_steps = len(self.actions)
@@ -577,7 +577,7 @@ class RequireAll(MultiStep):
         for i, action in itertools.takewhile(no_fail, enumerate(self.actions)):
             result = StepResult.UNSET
             try:
-                result = action(*args, **kwargs)
+                result = action()
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
                 LOG.error(
@@ -641,7 +641,7 @@ class RunWorkload(ProjectStep):
 
         self._workload = workload
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         try:
             self.workload_ref()
             self.status = StepResult.OK
@@ -685,13 +685,11 @@ class RunWorkloads(MultiStep):
                 RunWorkload(project, command.ProjectCommand(project, workload))
             ])
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            self.status = max([
-                workload(*args, **kwargs) for workload in self.actions
-            ],
+            self.status = max([workload() for workload in self.actions],
                               default=StepResult.OK)
             run.end_run_group(group, session)
         except ProcessExecutionError:
@@ -722,7 +720,7 @@ class CleanExtra(Step):
     def __init__(self) -> None:
         super().__init__(StepResult.UNSET)
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         if not CFG["clean"]:
             return StepResult.OK
 
@@ -747,7 +745,7 @@ class ProjectEnvironment(ProjectStep):
     NAME = "ENV"
     DESCRIPTION = "Prepare the project environment."
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         project = self.project
         project.clear_paths()
 
@@ -789,7 +787,7 @@ class SetProjectVersion(ProjectStep):
             revision_strings, *project.source
         )
 
-    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> StepResult:
+    def __call__(self) -> StepResult:
         project = self.project
         prj_vars = project.active_variant
         prj_vars.update(self.variant)

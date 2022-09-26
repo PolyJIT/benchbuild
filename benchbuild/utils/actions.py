@@ -241,7 +241,11 @@ class ProjectStep(Step):
         Clean(self.project)()
 
 
-StepTy = tp.TypeVar("StepTy", bound=Step)
+class Stepable(tp.Iterable, tp.Sized):
+    pass
+
+
+StepTy = tp.TypeVar("StepTy", bound=Stepable)
 
 
 class MultiStep(Step, tp.Generic[StepTy]):
@@ -257,7 +261,7 @@ class MultiStep(Step, tp.Generic[StepTy]):
     actions: tp.MutableSequence[StepTy]
 
     def __init__(
-        self, actions: tp.Optional[tp.Sequence[StepTy]] = None
+        self, actions: tp.Optional[tp.MutableSequence[StepTy]] = None
     ) -> None:
         super().__init__(StepResult.UNSET)
 

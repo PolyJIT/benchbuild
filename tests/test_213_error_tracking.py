@@ -18,7 +18,6 @@ class Issue213a(a.Step):
     NAME = "Issue213a"
     DESCRIPTION = "Issue213a"
 
-    @a.notify_step_begin_end
     def __call__(self):
         raise ProcessExecutionError([], 1, "", "")
 
@@ -27,7 +26,6 @@ class Issue213b(a.Step):
     NAME = "Issue213b"
     DESCRIPTION = "Issue213b"
 
-    @a.notify_step_begin_end
     def __call__(self):
         return a.StepResult.ERROR
 

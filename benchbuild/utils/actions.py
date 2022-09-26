@@ -241,11 +241,7 @@ class ProjectStep(Step):
         Clean(self.project)()
 
 
-class Stepable(tp.Iterable, tp.Sized):
-    pass
-
-
-StepTy = tp.TypeVar("StepTy", bound=Stepable)
+StepTy = tp.TypeVar("StepTy", bound=Step, covariant=True)
 
 
 class MultiStep(Step, tp.Generic[StepTy]):

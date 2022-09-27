@@ -241,10 +241,12 @@ class ProjectStep(Step):
         Clean(self.project)()
 
 
-StepTy = tp.TypeVar("StepTy", bound=Step, covariant=True)
 
 
-class MultiStep(Step, tp.Generic[StepTy]):
+StepTy_co = tp.TypeVar("StepTy_co", bound=Step, covariant=True)
+
+
+class MultiStep(Step, tp.Generic[StepTy_co]):
     """Group multiple actions into one step.
 
     Usually used to define behavior on error, e.g., execute everything
@@ -254,10 +256,11 @@ class MultiStep(Step, tp.Generic[StepTy]):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    actions: tp.MutableSequence[StepTy]
+    actions: tp.MutableSequence[StepTy_co]
 
     def __init__(
-        self, actions: tp.Optional[tp.MutableSequence[StepTy]] = None
+        self,
+        actions: tp.Optional[tp.MutableSequence[StepTy_co]] = None
     ) -> None:
         super().__init__(StepResult.UNSET)
 
@@ -266,7 +269,7 @@ class MultiStep(Step, tp.Generic[StepTy]):
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
-    def __iter__(self) -> tp.Iterator[StepTy]:
+    def __iter__(self) -> tp.Iterator[StepTy_co]:
         return self.actions.__iter__()
 
     @abc.abstractmethod

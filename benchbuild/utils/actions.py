@@ -120,61 +120,7 @@ def log_before_after(name: str,
     return func_decorator
 
 
-class StepClass(type):
-    """Decorate `steps` with logging and result conversion."""
-
-    def __new__(
-        mcs: tp.Type["StepClass"],
-        name: str,
-        bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any],
-    ) -> tp.Any:
-        if not "NAME" in attrs:
-            raise AttributeError(
-                f"{name} does not define a NAME class attribute."
-            )
-
-        if not "DESCRIPTION" in attrs:
-            raise AttributeError(
-                f"{name} does not define a DESCRIPTION class attribute."
-            )
-
-        base_has_call = any([hasattr(bt, "__call__") for bt in bases])
-        if not (base_has_call or "__call__" in attrs):
-            raise AttributeError(f"{name} does not define a __call__ method.")
-
-        base_has_str = any([hasattr(bt, "__call__") for bt in bases])
-        if not (base_has_str or "__str__" in attrs):
-            raise AttributeError(f"{name} does not define a __str__ method.")
-
-        name_ = attrs["NAME"]
-        description_ = attrs["DESCRIPTION"]
-
-        def base_attr(name: str) -> tp.Any:
-            return (
-                attrs[name] if name in attrs else [
-                    base.__dict__[name]
-                    for base in bases
-                    if name in base.__dict__
-                ][0]
-            )
-
-        original_call = base_attr("__call__")
-        original_str = base_attr("__str__")
-
-        if name_ and description_:
-            attrs["__call__"] = log_before_after(name_,
-                                                 description_)(original_call)
-        else:
-            original_call = attrs["__call__"]
-            attrs["__call__"] = original_call
-
-        attrs["__str__"] = prepend_status(original_str)
-
-        return super().__new__(mcs, name, bases, attrs)
-
-
-class Step(metaclass=StepClass):
+class Step:
     """
     Base class of a step.
 
@@ -187,17 +133,20 @@ class Step(metaclass=StepClass):
 
     status: StepResult
 
+    def __init_subclass__(cls, **kwargs: tp.Any):
+        super().__init_subclass__(**kwargs)
+
+        setattr(
+            cls, "__call__",
+            log_before_after(cls.NAME, cls.DESCRIPTION)(cls.__call__)
+        )
+        setattr(cls, "__str__", prepend_status(cls.__str__))
+
     def __init__(self, status: StepResult) -> None:
         self.status = status
 
     def __len__(self) -> int:
         return 1
-
-    def __iter__(self) -> tp.Iterator[Step]:
-        return self
-
-    def __next__(self) -> Step:  # pylint: disable=no-self-use
-        raise StopIteration
 
     def __str__(self, indent: int = 0) -> str:
         return f"* Running action {self.NAME} - {self.DESCRIPTION}"
@@ -233,14 +182,12 @@ class ProjectStep(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent("* Execute configured action.", indent * " ")
 
-    @abc.abstractmethod
-    def __call__(self) -> StepResult:
-        raise NotImplementedError
-
     def onerror(self) -> None:
         Clean(self.project)()
 
-
+    @abc.abstractmethod
+    def __call__(self) -> StepResult:
+        raise NotImplementedError
 
 
 StepTy_co = tp.TypeVar("StepTy_co", bound=Step, covariant=True)

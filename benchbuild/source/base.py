@@ -16,8 +16,6 @@ if sys.version_info <= (3, 8):
 else:
     from typing import Protocol
 
-NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
-
 
 @attr.s(frozen=True, eq=True)
 class RevisionStr:  # pylint: disable=too-few-public-methods
@@ -307,6 +305,9 @@ def primary(*sources: SourceT) -> SourceT:
     return head
 
 
+NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
+
+
 def product(*sources: Expandable) -> NestedVariants:
     """
     Return the cross product of the given sources.
@@ -314,11 +315,104 @@ def product(*sources: Expandable) -> NestedVariants:
     Returns:
         An iterable containing the cross product of all source variants.
     """
+
     siblings = [source.versions() for source in sources if source.is_expandable]
     return itertools.product(*siblings)
 
 
 SourceContext = tp.Dict[str, Fetchable]
+
+
+class ContextAwareSource(Expandable):
+
+    def is_context_free(self) -> bool:
+        """
+        Return, if this source needs context to evaluate it's own list of available versions.
+        """
+
+    def versions_with_context(
+        self, ctx: VariantContext
+    ) -> tp.Sequence[VariantContext]:
+        """
+        Augment the given context with new revisions associated with this source.
+
+        Args:
+            ctx: the variant context, containing information about every context-free variant.
+
+        Returns:
+            a sequence of variant context objects.
+        """
+
+
+class EnumeratorFn(Protocol):
+
+    def __call__(self, *source: Expandable) -> tp.List[VariantContext]:
+        """
+        Return an enumeration of all variants for each source.
+
+        Returns:
+            a list of version tuples, containing each possible variant.
+        """
+
+
+def _default_enumerator(*sources: Expandable) -> tp.List[VariantContext]:
+    # FIXME: NestedVariant declares the wrong type?
+    return [context(*l) for l in product(*sources)]
+
+
+class ContextEnumeratorFn(Protocol):
+
+    def __call__(self, context: VariantContext,
+                 *sources: ContextAwareSource) -> tp.Sequence[VariantContext]:
+        """
+        """
+
+
+def _default_context_enumerator(
+    context: VariantContext, *sources: ContextAwareSource
+) -> tp.Sequence[VariantContext]:
+    """
+    Transform given variant into a list of variants to check.
+
+    This only considers the given context of all context-free sources per context-sensitive source.
+
+    Args:
+        context:
+        *sources:
+    """
+    return list(
+        *itertools.chain(
+            source.versions_with_context(context) for source in sources
+        )
+    )
+
+
+def enumerate(
+    *sources: ContextAwareSource,
+    context_free_enumerator: EnumeratorFn = _default_enumerator,
+    context_sensitive_enumerator:
+    ContextEnumeratorFn = _default_context_enumerator
+) -> tp.Sequence[VariantContext]:
+    """
+    Enumerates the given sources.
+
+    The enumeration requires two phases.
+    1. A phase for all sources that do not require a context to evaluate.
+    2. A phase for all sources that require a static context.
+    """
+    context_free_sources = [
+        source for source in sources if source.is_context_free
+    ]
+    context_sensitive_sources = [
+        source for source in sources if not source.is_context_free
+    ]
+
+    versions = context_free_enumerator(*context_free_sources)
+    ctx_versions = itertools.chain(
+        context_sensitive_enumerator(context, *context_sensitive_sources)
+        for context in versions
+    )
+    return list(*ctx_versions)
 
 
 def sources_as_dict(*sources: Fetchable) -> SourceContext:
@@ -333,8 +427,12 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
     return {src.local: src for src in sources}
 
 
+class ExpandableAndFetchableSource(FetchableSource, Expandable):
+    ...
+
+
 def context_from_revisions(
-    revs: tp.Sequence[RevisionStr], *sources: SourceT
+    revs: tp.Sequence[RevisionStr], *sources: ExpandableAndFetchableSource
 ) -> VariantContext:
     """
     Create a VariantContext from a sequence of revision strings.

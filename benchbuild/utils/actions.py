@@ -13,6 +13,7 @@ TODO
 """
 from __future__ import annotations
 
+import abc
 import enum
 import functools as ft
 import itertools
@@ -93,30 +94,6 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     return wrapper
 
 
-def notify_step_begin_end(
-    func: DecoratedFunction[StepResult],
-) -> DecoratedFunction[StepResult]:
-    """Print the beginning and the end of a `func`."""
-
-    @ft.wraps(func)
-    def wrapper(self: "Step", *args: tp.Any, **kwargs: tp.Any) -> StepResult:
-        """Wrapper stub."""
-        cls = self.__class__
-        on_step_begin = cls.ON_STEP_BEGIN
-        on_step_end = cls.ON_STEP_END
-
-        for begin_listener in on_step_begin:
-            begin_listener(self)
-
-        res = func(self, *args, **kwargs)
-
-        for end_listener in on_step_end:
-            end_listener(self, func)
-        return res
-
-    return wrapper
-
-
 def log_before_after(name: str,
                      desc: str) -> FunctionDecorator[StepResult, StepResult]:
     """Log customized string before & after running func."""
@@ -143,66 +120,9 @@ def log_before_after(name: str,
     return func_decorator
 
 
-class StepClass(type):
-    """Decorate `steps` with logging and result conversion."""
-
-    def __new__(
-        mcs: tp.Type["StepClass"],
-        name: str,
-        bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any],
-    ) -> tp.Any:
-        if not "NAME" in attrs:
-            raise AttributeError(
-                f"{name} does not define a NAME class attribute."
-            )
-
-        if not "DESCRIPTION" in attrs:
-            raise AttributeError(
-                f"{name} does not define a DESCRIPTION class attribute."
-            )
-
-        base_has_call = any([hasattr(bt, "__call__") for bt in bases])
-        if not (base_has_call or "__call__" in attrs):
-            raise AttributeError(f"{name} does not define a __call__ method.")
-
-        base_has_str = any([hasattr(bt, "__call__") for bt in bases])
-        if not (base_has_str or "__str__" in attrs):
-            raise AttributeError(f"{name} does not define a __str__ method.")
-
-        name_ = attrs["NAME"]
-        description_ = attrs["DESCRIPTION"]
-
-        def base_attr(name: str) -> tp.Any:
-            return (
-                attrs[name] if name in attrs else [
-                    base.__dict__[name]
-                    for base in bases
-                    if name in base.__dict__
-                ][0]
-            )
-
-        original_call = base_attr("__call__")
-        original_str = base_attr("__str__")
-
-        if name_ and description_:
-            attrs["__call__"] = log_before_after(name_,
-                                                 description_)(original_call)
-        else:
-            original_call = attrs["__call__"]
-            attrs["__call__"] = original_call
-
-        attrs["__str__"] = prepend_status(original_str)
-
-        return super().__new__(mcs, name, bases, attrs)
-
-
-class Step(metaclass=StepClass):
-    """Base class of a step.
-
-    This stores all common attributes for step classes.
-        metaclass ([type], optional): Defaults to StepClass. Takes
-            care of wrapping Steps correctly.
+class Step:
+    """
+    Base class of a step.
 
     Raises:
         StopIteration: If we do not encapsulate more substeps.
@@ -211,10 +131,16 @@ class Step(metaclass=StepClass):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    ON_STEP_BEGIN = []
-    ON_STEP_END = []
-
     status: StepResult
+
+    def __init_subclass__(cls, **kwargs: tp.Any):
+        super().__init_subclass__(**kwargs)
+
+        setattr(
+            cls, "__call__",
+            log_before_after(cls.NAME, cls.DESCRIPTION)(cls.__call__)
+        )
+        setattr(cls, "__str__", prepend_status(cls.__str__))
 
     def __init__(self, status: StepResult) -> None:
         self.status = status
@@ -222,19 +148,16 @@ class Step(metaclass=StepClass):
     def __len__(self) -> int:
         return 1
 
-    def __iter__(self) -> tp.Iterator[Step]:
-        return self
-
-    def __next__(self) -> Step:  # pylint: disable=no-self-use
-        raise StopIteration
-
-    def __call__(self) -> StepResult:
-        raise NotImplementedError
-
     def __str__(self, indent: int = 0) -> str:
-        raise NotImplementedError
+        return f"* Running action {self.NAME} - {self.DESCRIPTION}"
 
     def onerror(self) -> None:
+        """
+        Default implementation does nothing.
+        """
+
+    @abc.abstractmethod
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
 
@@ -259,17 +182,18 @@ class ProjectStep(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent("* Execute configured action.", indent * " ")
 
-    def __call__(self) -> StepResult:
-        raise NotImplementedError
-
     def onerror(self) -> None:
         Clean(self.project)()
 
+    @abc.abstractmethod
+    def __call__(self) -> StepResult:
+        raise NotImplementedError
 
-StepTy = tp.TypeVar("StepTy", bound=Step)
+
+StepTy_co = tp.TypeVar("StepTy_co", bound=Step, covariant=True)
 
 
-class MultiStep(Step, tp.Generic[StepTy]):
+class MultiStep(Step, tp.Generic[StepTy_co]):
     """Group multiple actions into one step.
 
     Usually used to define behavior on error, e.g., execute everything
@@ -279,19 +203,23 @@ class MultiStep(Step, tp.Generic[StepTy]):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    actions: tp.List[StepTy]
+    actions: tp.MutableSequence[StepTy_co]
 
-    def __init__(self, actions: tp.Optional[tp.List[StepTy]] = None) -> None:
+    def __init__(
+        self,
+        actions: tp.Optional[tp.MutableSequence[StepTy_co]] = None
+    ) -> None:
         super().__init__(StepResult.UNSET)
 
-        self.actions = actions if actions else []
+        self.actions = list(actions) if actions else []
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
-    def __iter__(self) -> tp.Iterator[StepTy]:
+    def __iter__(self) -> tp.Iterator[StepTy_co]:
         return self.actions.__iter__()
 
+    @abc.abstractmethod
     def __call__(self) -> StepResult:
         raise NotImplementedError
 
@@ -333,7 +261,6 @@ class Clean(ProjectStep):
                 else:
                     umount_paths.append(part.mountpoint)
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not CFG["clean"]:
             LOG.warning("Clean disabled by config.")
@@ -366,7 +293,6 @@ class MakeBuildDir(ProjectStep):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not self.project:
             return StepResult.ERROR
@@ -385,7 +311,6 @@ class Compile(ProjectStep):
     NAME = "COMPILE"
     DESCRIPTION = "Compile the project"
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         try:
             self.project.compile()
@@ -415,7 +340,6 @@ class Run(ProjectStep):
 
         self.experiment = experiment
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
@@ -455,7 +379,6 @@ class Echo(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(f"* echo: {self.message}", indent * " ")
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         LOG.info(self.message)
         return StepResult.OK
@@ -474,7 +397,6 @@ class Any(MultiStep):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         length = len(self.actions)
         cnt = 0
@@ -506,13 +428,15 @@ class Experiment(Any):
     def __init__(
         self,
         experiment: "benchbuild.experiment.Experiment",
-        actions: tp.Optional[tp.List[Step]],
+        actions: tp.Optional[tp.MutableSequence[Step]],
     ) -> None:
-        _actions: tp.List[Step] = (
-            [Echo(message=f"Start experiment: {experiment.name}")] +
-            actions if actions else [] +
-            [Echo(message=f"Completed experiment: {experiment.name}")]
-        )
+        _actions: tp.MutableSequence[Step] = [
+            Echo(message=f"Start experiment: {experiment.name}")
+        ]
+        _actions.extend(actions if actions else [])
+        _actions.extend([
+            Echo(message=f"Completed experiment: {experiment.name}")
+        ])
 
         super().__init__(_actions)
         self.experiment = experiment
@@ -569,7 +493,6 @@ class Experiment(Any):
             results.append(StepResult.ERROR)
         return results
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         results = []
         session = None
@@ -593,7 +516,6 @@ class RequireAll(MultiStep):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         results: tp.List[StepResult] = []
 
@@ -709,11 +631,10 @@ class RunWorkloads(MultiStep):
         )
 
         for workload in workloads:
-            self.actions.append(
+            self.actions.extend([
                 RunWorkload(project, command.ProjectCommand(project, workload))
-            )
+            ])
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
@@ -749,7 +670,6 @@ class CleanExtra(Step):
     def __init__(self) -> None:
         super().__init__(StepResult.UNSET)
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not CFG["clean"]:
             return StepResult.OK
@@ -775,7 +695,6 @@ class ProjectEnvironment(ProjectStep):
     NAME = "ENV"
     DESCRIPTION = "Prepare the project environment."
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         project = self.project
         project.clear_paths()
@@ -818,7 +737,6 @@ class SetProjectVersion(ProjectStep):
             revision_strings, *project.source
         )
 
-    @notify_step_begin_end
     def __call__(self) -> StepResult:
         project = self.project
         prj_vars = project.active_variant

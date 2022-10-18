@@ -7,7 +7,8 @@ import plumbum as pb
 import pytest
 
 from benchbuild import source
-from benchbuild.source import FetchableSource, Variant
+from benchbuild.projects.test.test import TestProject
+from benchbuild.source import FetchableSource, Variant, ContextAwareSource
 
 Variants = tp.Iterable[Variant]
 
@@ -336,3 +337,39 @@ def describe_git():
         found_versions = [str(v) for v in reversed(a_repo.versions())]
 
         assert expected_versions == found_versions
+
+
+class ConfigSource(source.FetchableSource):
+
+    def default(self) -> Variant:
+        raise NotImplementedError()
+
+    def version(self, target_dir: str, version: str) -> pb.LocalPath:
+        raise NotImplementedError()
+
+    def versions(self) -> tp.List[Variant]:
+        return []
+
+    def fetch(self) -> pb.LocalPath:
+        return NotImplementedError()
+
+    def is_expandable(self) -> bool:
+        return True
+
+    def is_context_free(self) -> bool:
+        return False
+
+    def versions_with_context(
+        self, ctx: source.base.ProjectRevision
+    ) -> source.base.NestedVariants:
+        return [(Variant(self, "caw"),)]
+
+
+def test_enumerate_output(make_source):
+    src_1 = make_source([0, 1])
+    src_2 = ConfigSource(local="local", remote="remote")
+    prj = TestProject()
+
+    revs = source.enumerate(prj, src_1, src_2)
+    print(revs)
+    assert False

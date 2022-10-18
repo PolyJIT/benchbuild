@@ -16,6 +16,9 @@ if sys.version_info <= (3, 8):
 else:
     from typing import Protocol
 
+if tp.TYPE_CHECKING:
+    from benchbuild.project import Project
+
 
 @attr.s(frozen=True, eq=True)
 class RevisionStr:  # pylint: disable=too-few-public-methods
@@ -43,6 +46,59 @@ class Variant:
 
     def __str__(self) -> str:
         return str(self.version)
+
+
+NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
+
+
+class ProjectRevision:
+    project: "Project"
+    variants: tp.Sequence[Variant]
+
+    def __init__(
+        self, project: "Project", primary: Variant, *vars: Variant
+    ) -> None:
+        self.project = project
+        self.variants = [primary] + list(vars)
+
+        assert project.primary_source
+
+    def extend(self, *variants: Variant) -> None:
+        self.variants = list(self.variants) + list(variants)
+
+    def source_by_name(self, name: str) -> 'FetchableSource':
+        """
+        Return the source object that matches the key.
+
+        Args:
+            name: The local name of the source.
+
+        Returns:
+            the found source object
+
+        Raises:
+            KeyError, if we cannot find the source with this name.
+        """
+        found_variants = [
+            variant for variant in self.variants if variant.owner.key == name
+        ]
+        if len(found_variants) > 0:
+            return found_variants[0].owner
+
+        raise KeyError(f"Source with name {name} not found.")
+
+    @property
+    def primary(self) -> Variant:
+        return self.variants[0]
+
+    def __str__(self) -> str:
+        name = self.project.name
+        variant_str = to_str(*self.variants)
+
+        return f"{name} version: ({variant_str})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 VariantContext = tp.Dict[str, Variant]
@@ -122,6 +178,41 @@ class Expandable(Protocol):
         """
 
 
+class ContextAwareSource(Expandable):
+
+    @property
+    def is_context_free(self) -> bool:
+        """
+        Return, if this source needs context to evaluate it's own list of available versions.
+        """
+
+    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+        """
+        Augment the given revision with new variants associated with this source.
+
+        Args:
+            ctx: the project revision, containing information about every context-free variant.
+
+        Returns:
+            a sequence of project revisions.
+        """
+
+
+class ContextFreeMixin:
+    """
+    Make a context-free source context-aware.
+
+    This will setup default implementations that avoids interaction with any context.
+    """
+
+    @property
+    def is_context_free(self) -> bool:
+        return True
+
+    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+        raise AttributeError("Invalid use of versions with context")
+
+
 class Versioned(Protocol):
 
     @property
@@ -154,7 +245,7 @@ class Versioned(Protocol):
         """
 
 
-class FetchableSource:
+class FetchableSource(ContextFreeMixin):
     """
     Base class for fetchable sources.
 
@@ -305,9 +396,6 @@ def primary(*sources: SourceT) -> SourceT:
     return head
 
 
-NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
-
-
 def product(*sources: Expandable) -> NestedVariants:
     """
     Return the cross product of the given sources.
@@ -320,33 +408,9 @@ def product(*sources: Expandable) -> NestedVariants:
     return itertools.product(*siblings)
 
 
-SourceContext = tp.Dict[str, Fetchable]
-
-
-class ContextAwareSource(Expandable):
-
-    def is_context_free(self) -> bool:
-        """
-        Return, if this source needs context to evaluate it's own list of available versions.
-        """
-
-    def versions_with_context(
-        self, ctx: VariantContext
-    ) -> tp.Sequence[VariantContext]:
-        """
-        Augment the given context with new revisions associated with this source.
-
-        Args:
-            ctx: the variant context, containing information about every context-free variant.
-
-        Returns:
-            a sequence of variant context objects.
-        """
-
-
 class EnumeratorFn(Protocol):
 
-    def __call__(self, *source: Expandable) -> tp.List[VariantContext]:
+    def __call__(self, *source: Expandable) -> NestedVariants:
         """
         Return an enumeration of all variants for each source.
 
@@ -355,22 +419,21 @@ class EnumeratorFn(Protocol):
         """
 
 
-def _default_enumerator(*sources: Expandable) -> tp.List[VariantContext]:
-    # FIXME: NestedVariant declares the wrong type?
-    return [context(*l) for l in product(*sources)]
+def _default_enumerator(*sources: Expandable) -> NestedVariants:
+    return product(*sources)
 
 
 class ContextEnumeratorFn(Protocol):
 
-    def __call__(self, context: VariantContext,
-                 *sources: ContextAwareSource) -> tp.Sequence[VariantContext]:
+    def __call__(self, context: ProjectRevision,
+                 *sources: ContextAwareSource) -> tp.Sequence[ProjectRevision]:
         """
         """
 
 
-def _default_context_enumerator(
-    context: VariantContext, *sources: ContextAwareSource
-) -> tp.Sequence[VariantContext]:
+def _default_caw_enumerator(
+    context: ProjectRevision, *sources: ContextAwareSource
+) -> tp.Sequence[ProjectRevision]:
     """
     Transform given variant into a list of variants to check.
 
@@ -380,19 +443,21 @@ def _default_context_enumerator(
         context:
         *sources:
     """
-    return list(
-        *itertools.chain(
-            source.versions_with_context(context) for source in sources
-        )
-    )
+
+    variants = [source.versions_with_context(context) for source in sources]
+    return [
+        ProjectRevision(
+            context.project, *(list(context.variants) + list(caw_variants))
+        ) for caw_variants in itertools.product(*variants)
+    ]
 
 
 def enumerate(
+    project: "Project",
     *sources: ContextAwareSource,
     context_free_enumerator: EnumeratorFn = _default_enumerator,
-    context_sensitive_enumerator:
-    ContextEnumeratorFn = _default_context_enumerator
-) -> tp.Sequence[VariantContext]:
+    context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
+) -> tp.Sequence[ProjectRevision]:
     """
     Enumerates the given sources.
 
@@ -403,16 +468,26 @@ def enumerate(
     context_free_sources = [
         source for source in sources if source.is_context_free
     ]
-    context_sensitive_sources = [
+    context_aware_sources = [
         source for source in sources if not source.is_context_free
     ]
 
-    versions = context_free_enumerator(*context_free_sources)
-    ctx_versions = itertools.chain(
-        context_sensitive_enumerator(context, *context_sensitive_sources)
-        for context in versions
-    )
-    return list(*ctx_versions)
+    revisions = context_free_enumerator(*context_free_sources)
+    project_revisions = [
+        ProjectRevision(project, *variants) for variants in revisions
+    ]
+    if len(context_aware_sources) > 0:
+        return list(
+            *itertools.chain(
+                context_aware_enumerator(rev, *context_aware_sources)
+                for rev in project_revisions
+            )
+        )
+
+    return project_revisions
+
+
+SourceContext = tp.Dict[str, Fetchable]
 
 
 def sources_as_dict(*sources: Fetchable) -> SourceContext:

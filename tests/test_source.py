@@ -9,6 +9,7 @@ import pytest
 from benchbuild import source
 from benchbuild.projects.test.test import TestProject
 from benchbuild.source import FetchableSource, Variant, ContextAwareSource
+from benchbuild.source.base import Fetchable
 
 Variants = tp.Iterable[Variant]
 
@@ -341,9 +342,6 @@ def describe_git():
 
 class ConfigSource(source.FetchableSource):
 
-    def default(self) -> Variant:
-        raise NotImplementedError()
-
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         raise NotImplementedError()
 
@@ -353,16 +351,46 @@ class ConfigSource(source.FetchableSource):
     def fetch(self) -> pb.LocalPath:
         return NotImplementedError()
 
+    @property
+    def default(self) -> Variant:
+        raise NotImplementedError()
+
+    @property
     def is_expandable(self) -> bool:
         return True
 
     def is_context_free(self) -> bool:
         return False
 
+
+class Config1(ConfigSource):
+
     def versions_with_context(
         self, ctx: source.base.ProjectRevision
     ) -> source.base.NestedVariants:
-        return [(Variant(self, "caw"),)]
+
+        if ctx.primary.version == "0":
+            ret = [(Variant(self, "v1.1"), Variant(self, "v1.2"))]
+            return ret
+        else:
+            return []
+
+
+class Config2(ConfigSource):
+
+    def versions_with_context(
+        self, ctx: source.base.ProjectRevision
+    ) -> source.base.NestedVariants:
+
+        if ctx.primary.version == "1":
+            ret = [(Variant(self, "v2.1"), Variant(self, "v2.2"))]
+            return ret
+        else:
+            return []
+
+
+def test_fetchablesource_protocols():
+    assert issubclass(FetchableSource, ContextAwareSource)
 
 
 def test_enumerate_output(make_source):

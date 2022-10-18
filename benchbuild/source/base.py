@@ -52,6 +52,16 @@ NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
 
 
 class ProjectRevision:
+    """
+    A project revision captures all variants that form a single state used for an experiment.
+
+    A project may have an arbitrary number of input sources that are required for
+    it's defined workloads, e.g., test input files, optional dependencies, or submodules.
+
+    BenchBuild considers each source to have different version numbers, encoded as "Variants".
+    The complete set of "Variants" for a project then forms a project revision.
+    """
+
     project: "Project"
     variants: tp.Sequence[Variant]
 
@@ -126,6 +136,7 @@ def to_str(*variants: Variant) -> str:
     return ",".join([str(i) for i in variants])
 
 
+@tp.runtime_checkable
 class Fetchable(Protocol):
 
     @property
@@ -158,6 +169,7 @@ class Fetchable(Protocol):
         """
 
 
+@tp.runtime_checkable
 class Expandable(Protocol):
 
     @property
@@ -169,7 +181,7 @@ class Expandable(Protocol):
         in the version expansion of an associated project.
         """
 
-    def versions(self) -> tp.Iterable[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
@@ -178,9 +190,9 @@ class Expandable(Protocol):
         """
 
 
-class ContextAwareSource(Expandable):
+@tp.runtime_checkable
+class ContextAwareSource(Protocol):
 
-    @property
     def is_context_free(self) -> bool:
         """
         Return, if this source needs context to evaluate it's own list of available versions.
@@ -205,7 +217,6 @@ class ContextFreeMixin:
     This will setup default implementations that avoids interaction with any context.
     """
 
-    @property
     def is_context_free(self) -> bool:
         return True
 
@@ -213,6 +224,7 @@ class ContextFreeMixin:
         raise AttributeError("Invalid use of versions with context")
 
 
+@tp.runtime_checkable
 class Versioned(Protocol):
 
     @property
@@ -235,8 +247,7 @@ class Versioned(Protocol):
             str: [description]
         """
 
-    @property
-    def versions(self) -> tp.Iterable[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
@@ -300,7 +311,7 @@ class FetchableSource(ContextFreeMixin):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
@@ -309,7 +320,7 @@ class FetchableSource(ContextFreeMixin):
         """
         raise NotImplementedError()
 
-    def explore(self) -> tp.Iterable[Variant]:
+    def explore(self) -> tp.Sequence[Variant]:
         """
         Explore revisions of this source.
 
@@ -408,6 +419,13 @@ def product(*sources: Expandable) -> NestedVariants:
     return itertools.product(*siblings)
 
 
+class BaseSource(Expandable, Versioned, ContextAwareSource, Protocol):
+    """
+    Composition of source protocols.
+    """
+    pass
+
+
 class EnumeratorFn(Protocol):
 
     def __call__(self, *source: Expandable) -> NestedVariants:
@@ -445,16 +463,20 @@ def _default_caw_enumerator(
     """
 
     variants = [source.versions_with_context(context) for source in sources]
-    return [
+    variants = [var for var in variants if var]
+
+    ret = [
         ProjectRevision(
             context.project, *(list(context.variants) + list(caw_variants))
         ) for caw_variants in itertools.product(*variants)
     ]
+    print("caw_enum", ret)
+    return ret
 
 
 def enumerate(
     project: "Project",
-    *sources: ContextAwareSource,
+    *sources: BaseSource,
     context_free_enumerator: EnumeratorFn = _default_enumerator,
     context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
 ) -> tp.Sequence[ProjectRevision]:
@@ -466,23 +488,27 @@ def enumerate(
     2. A phase for all sources that require a static context.
     """
     context_free_sources = [
-        source for source in sources if source.is_context_free
+        source for source in sources if source.is_context_free()
     ]
     context_aware_sources = [
-        source for source in sources if not source.is_context_free
+        source for source in sources if not source.is_context_free()
     ]
 
     revisions = context_free_enumerator(*context_free_sources)
     project_revisions = [
         ProjectRevision(project, *variants) for variants in revisions
     ]
+
     if len(context_aware_sources) > 0:
-        return list(
-            *itertools.chain(
-                context_aware_enumerator(rev, *context_aware_sources)
-                for rev in project_revisions
+        revs = list(
+            itertools.chain(
+                *(
+                    context_aware_enumerator(rev, *context_aware_sources)
+                    for rev in project_revisions
+                )
             )
         )
+        return revs
 
     return project_revisions
 

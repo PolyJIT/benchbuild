@@ -6,7 +6,6 @@ from .base import FetchableSource as FetchableSource
 from .base import Expandable as Expandable
 from .base import ContextAwareSource as ContextAwareSource
 from .base import ContextEnumeratorFn as ContextEnumeratorFn
-from .base import ExpandableAndFetchableSource as ExpandableAndFetchableSource
 from .base import Variant as Variant
 from .base import VariantContext as VariantContext
 from .base import context as context

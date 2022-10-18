@@ -502,12 +502,8 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
     return {src.local: src for src in sources}
 
 
-class ExpandableAndFetchableSource(FetchableSource, Expandable):
-    ...
-
-
 def context_from_revisions(
-    revs: tp.Sequence[RevisionStr], *sources: ExpandableAndFetchableSource
+    revs: tp.Sequence[RevisionStr], *sources: FetchableSource
 ) -> VariantContext:
     """
     Create a VariantContext from a sequence of revision strings.

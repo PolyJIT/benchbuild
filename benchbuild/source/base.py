@@ -470,7 +470,6 @@ def _default_caw_enumerator(
             context.project, *(list(context.variants) + list(caw_variants))
         ) for caw_variants in itertools.product(*variants)
     ]
-    print("caw_enum", ret)
     return ret
 
 

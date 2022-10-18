@@ -161,38 +161,6 @@ def test_http_download_required():
     pass
 
 
-class VersionSource(FetchableSource):
-    known_versions: tp.List[str]
-
-    def __init__(
-        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
-        known_versions: tp.List[str]
-    ):
-        super().__init__(local, remote)
-
-        self.known_versions = known_versions
-
-    @property
-    def default(self) -> Variant:
-        return Variant(owner=self, version='1')
-
-    def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        return '.'
-
-    def versions(self) -> tp.List[Variant]:
-        return [Variant(self, str(v)) for v in self.known_versions]
-
-
-@pytest.fixture
-def make_source():
-
-    def _make_version_source(versions: tp.List[int]):
-        str_versions = [str(v) for v in versions]
-        return VersionSource('ls', 'rs', str_versions)
-
-    return _make_version_source
-
-
 def test_single_versions_filter(make_source):
     src_1 = make_source([0])
     src_2 = make_source(range(2))
@@ -338,66 +306,3 @@ def describe_git():
         found_versions = [str(v) for v in reversed(a_repo.versions())]
 
         assert expected_versions == found_versions
-
-
-class ConfigSource(source.FetchableSource):
-
-    def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        raise NotImplementedError()
-
-    def versions(self) -> tp.List[Variant]:
-        return []
-
-    def fetch(self) -> pb.LocalPath:
-        return NotImplementedError()
-
-    @property
-    def default(self) -> Variant:
-        raise NotImplementedError()
-
-    @property
-    def is_expandable(self) -> bool:
-        return True
-
-    def is_context_free(self) -> bool:
-        return False
-
-
-class Config1(ConfigSource):
-
-    def versions_with_context(
-        self, ctx: source.base.ProjectRevision
-    ) -> source.base.NestedVariants:
-
-        if ctx.primary.version == "0":
-            ret = [(Variant(self, "v1.1"), Variant(self, "v1.2"))]
-            return ret
-        else:
-            return []
-
-
-class Config2(ConfigSource):
-
-    def versions_with_context(
-        self, ctx: source.base.ProjectRevision
-    ) -> source.base.NestedVariants:
-
-        if ctx.primary.version == "1":
-            ret = [(Variant(self, "v2.1"), Variant(self, "v2.2"))]
-            return ret
-        else:
-            return []
-
-
-def test_fetchablesource_protocols():
-    assert issubclass(FetchableSource, ContextAwareSource)
-
-
-def test_enumerate_output(make_source):
-    src_1 = make_source([0, 1])
-    src_2 = ConfigSource(local="local", remote="remote")
-    prj = TestProject()
-
-    revs = source.enumerate(prj, src_1, src_2)
-    print(revs)
-    assert False

@@ -134,7 +134,6 @@ def to_str(*variants: Variant) -> str:
     return ",".join([str(i) for i in variants])
 
 
-@tp.runtime_checkable
 class Fetchable(Protocol):
 
     @property
@@ -167,7 +166,6 @@ class Fetchable(Protocol):
         """
 
 
-@tp.runtime_checkable
 class Expandable(Protocol):
 
     @property
@@ -188,7 +186,6 @@ class Expandable(Protocol):
         """
 
 
-@tp.runtime_checkable
 class ContextAwareSource(Protocol):
 
     def is_context_free(self) -> bool:
@@ -224,7 +221,6 @@ class ContextFreeMixin:
         raise AttributeError("Invalid use of versions with context")
 
 
-@tp.runtime_checkable
 class Versioned(Protocol):
 
     @property

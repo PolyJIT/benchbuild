@@ -73,7 +73,11 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
     print(f'group: {project.GROUP}')
     print(f'domain: {project.DOMAIN}')
     print('source:')
+
     for source in project.SOURCE:
+        if not source.is_context_free():
+            continue
+
         num_versions = len(source.versions())
 
         print(' -', f'{source.remote}')

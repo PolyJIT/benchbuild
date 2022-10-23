@@ -15,7 +15,6 @@ def test_enumerate_output(make_source, caw_src_0, caw_src_1):
     """
     Test conditional-expansion with cross-product.
     """
-    prj = TestProject()
     src_primary = make_source([0, 1])
 
     expected_variants = [
@@ -29,6 +28,6 @@ def test_enumerate_output(make_source, caw_src_0, caw_src_1):
          Variant(caw_src_1, "v1.2")],
     ]
 
-    revs = enumerate(prj, src_primary, caw_src_0, caw_src_1)
+    revs = enumerate(TestProject, src_primary, caw_src_0, caw_src_1)
     test = [rev.variants for rev in revs]
     assert test == expected_variants

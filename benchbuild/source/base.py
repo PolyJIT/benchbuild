@@ -62,16 +62,14 @@ class ProjectRevision:
     The complete set of "Variants" for a project then forms a project revision.
     """
 
-    project: "Project"
+    project_cls: tp.Type["Project"]
     variants: tp.Sequence[Variant]
 
     def __init__(
-        self, project: "Project", primary: Variant, *vars: Variant
+        self, project_cls: tp.Type["Project"], primary: Variant, *vars: Variant
     ) -> None:
-        self.project = project
+        self.project_cls = project_cls
         self.variants = [primary] + list(vars)
-
-        assert project.primary_source
 
     def extend(self, *variants: Variant) -> None:
         self.variants = list(self.variants) + list(variants)
@@ -102,7 +100,7 @@ class ProjectRevision:
         return self.variants[0]
 
     def __str__(self) -> str:
-        name = self.project.name
+        name = self.project_cls.NAME
         variant_str = to_str(*self.variants)
 
         return f"{name} version: ({variant_str})"
@@ -469,14 +467,14 @@ def _default_caw_enumerator(
 
     ret = [
         ProjectRevision(
-            context.project, *(list(context.variants) + list(caw_variants))
+            context.project_cls, *(list(context.variants) + list(caw_variants))
         ) for caw_variants in itertools.product(*variants)
     ]
     return ret
 
 
 def enumerate(
-    project: "Project",
+    project_cls: tp.Type["Project"],
     *sources: BaseSource,
     context_free_enumerator: EnumeratorFn = _default_enumerator,
     context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
@@ -497,7 +495,7 @@ def enumerate(
 
     revisions = context_free_enumerator(*context_free_sources)
     project_revisions = [
-        ProjectRevision(project, *variants) for variants in revisions
+        ProjectRevision(project_cls, *variants) for variants in revisions
     ]
 
     if len(context_aware_sources) > 0:

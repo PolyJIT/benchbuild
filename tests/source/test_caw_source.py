@@ -24,10 +24,11 @@ def test_enumerate_output(make_source, caw_src_0, caw_src_1):
         [Variant(src_primary, "0"),
          Variant(caw_src_0, "v0.2")],
         [Variant(src_primary, "1"),
-         Variant(caw_src_0, "v1.2")],
+         Variant(caw_src_1, "v1.1")],
         [Variant(src_primary, "1"),
-         Variant(caw_src_0, "v1.2")],
+         Variant(caw_src_1, "v1.2")],
     ]
 
     revs = enumerate(prj, src_primary, caw_src_0, caw_src_1)
-    assert [rev.variants for rev in revs] == expected_variants
+    test = [rev.variants for rev in revs]
+    assert test == expected_variants

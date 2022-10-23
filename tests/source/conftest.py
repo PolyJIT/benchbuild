@@ -84,10 +84,11 @@ class Config0(CAWSource):
     This returns 2 variants, only if our primary version is '0'.
     """
 
-    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+    def versions_with_context(self,
+                              ctx: ProjectRevision) -> tp.Sequence[Variant]:
 
         if ctx.primary.version == "0":
-            ret = [(Variant(self, "v0.1"), Variant(self, "v0.2"))]
+            ret = [Variant(self, "v0.1"), Variant(self, "v0.2")]
             return ret
         else:
             return []
@@ -100,10 +101,11 @@ class Config1(CAWSource):
     This returns 2 variants, only if our primary version is '1'.
     """
 
-    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+    def versions_with_context(self,
+                              ctx: ProjectRevision) -> tp.Sequence[Variant]:
 
         if ctx.primary.version == "1":
-            ret = [(Variant(self, "v1.1"), Variant(self, "v1.2"))]
+            ret = [Variant(self, "v1.1"), Variant(self, "v1.2")]
             return ret
         else:
             return []

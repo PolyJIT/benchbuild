@@ -198,7 +198,8 @@ class ContextAwareSource(Protocol):
         Return, if this source needs context to evaluate it's own list of available versions.
         """
 
-    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+    def versions_with_context(self,
+                              ctx: ProjectRevision) -> tp.Sequence[Variant]:
         """
         Augment the given revision with new variants associated with this source.
 
@@ -220,7 +221,8 @@ class ContextFreeMixin:
     def is_context_free(self) -> bool:
         return True
 
-    def versions_with_context(self, ctx: ProjectRevision) -> NestedVariants:
+    def versions_with_context(self,
+                              ctx: ProjectRevision) -> tp.Sequence[Variant]:
         raise AttributeError("Invalid use of versions with context")
 
 

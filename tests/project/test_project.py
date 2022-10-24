@@ -162,7 +162,7 @@ def test_project_has_source_of_primary(project_instance):
 def test_project_source_must_contain_elements():
     with pytest.raises(ValueError) as excinfo:
         DummyPrjEmptySource()
-    assert "not enough values to unpack" in str(excinfo)
+    assert "A project requires at least one source!" in str(excinfo)
 
 
 def test_filters_is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable

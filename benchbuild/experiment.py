@@ -172,9 +172,9 @@ class Experiment(metaclass=ExperimentRegistry):
             prj_actions: Actions = []
 
             for revision in self.sample(prj_cls):
-                version_str = source.to_str(*variant_context.values())
+                version_str = str(revision)
 
-                p = prj_cls(variant_context)
+                p = prj_cls(revision)
                 p.builddir = build_dir(self, p)
                 atomic_actions: Actions = [
                     actns.Clean(p),

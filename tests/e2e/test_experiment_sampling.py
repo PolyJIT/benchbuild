@@ -38,7 +38,7 @@ class SampleExperiment(bb.Experiment):
     @classmethod
     def sample(cls,
                prj_cls: bb.project.ProjectT) -> tp.Sequence[source.Revision]:
-        return source.enumerate_revisions(prj_cls)[:EXPECTED_COMMITS]
+        return source.enumerate_revisions(*prj_cls.SOURCE)[:EXPECTED_COMMITS]
 
 
 class SampleProject(bb.Project):

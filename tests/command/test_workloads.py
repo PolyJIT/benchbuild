@@ -5,6 +5,7 @@ import benchbuild.command as c
 from benchbuild.command import WorkloadSet, OnlyIn, Command, SourceRoot
 from benchbuild.experiments.empty import NoMeasurement
 from benchbuild.project import Project, ProjectT
+from benchbuild.source import nosource
 from benchbuild.source.git import Git
 from benchbuild.utils.actions import RunWorkloads, StepResult
 from benchbuild.utils.revision_ranges import RevisionRange
@@ -16,7 +17,7 @@ class DefaultWorkloadProject(Project):
     DOMAIN = "tests"
     GROUP = "tests"
 
-    SOURCE = []
+    SOURCE = [nosource()]
     WORKLOADS = {}
 
     def compile(self) -> None:
@@ -31,7 +32,7 @@ class OnlyInWorkloadProject(Project):
     DOMAIN = "tests"
     GROUP = "tests"
 
-    SOURCE = []
+    SOURCE = [nosource()]
     WORKLOADS = {}
 
     def compile(self) -> None:

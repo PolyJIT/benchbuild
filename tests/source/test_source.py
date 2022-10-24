@@ -7,9 +7,7 @@ import plumbum as pb
 import pytest
 
 from benchbuild import source
-from benchbuild.projects.test.test import TestProject
-from benchbuild.source import FetchableSource, Variant, ContextAwareSource
-from benchbuild.source.base import Fetchable
+from benchbuild.source import FetchableSource, Variant
 
 
 class SimpleSource(FetchableSource):

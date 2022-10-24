@@ -77,6 +77,20 @@ class Revision:
     def extend(self, *variants: Variant) -> None:
         self.variants = list(self.variants) + list(variants)
 
+    def __update_variant(self, variant: Variant) -> None:
+
+        def __replace(elem: Variant):
+            if elem.name() == variant.name():
+                return variant
+            else:
+                return elem
+
+        self.variants = map(__replace, self.variants)
+
+    def update(self, revision: "Revision") -> None:
+        for variant in revision.variants:
+            self.__update_variant(variant)
+
     def variant_by_name(self, name: str) -> Variant:
         """
         Return the variant for the given source name.
@@ -377,14 +391,14 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(*sources: Versioned) -> Revision:
+def default(primary: Versioned, *sources: Versioned) -> Revision:
     """
     Return the 'default' revision for the given sources.
 
     Returns:
         A revision that contains every default variant for each source.
     """
-    return Revision(*[src.default for src in sources])
+    return Revision(primary.default, *[src.default for src in sources])
 
 
 SourceT = tp.TypeVar('SourceT')
@@ -523,9 +537,9 @@ def revision_from_str(
     revs: tp.Sequence[RevisionStr], *sources: FetchableSource
 ) -> Revision:
     """
-    Create a VariantContext from a sequence of revision strings.
+    Create a Revision from a sequence of revision strings.
 
-    A valid VariantContext can only be created, if the number of valid revision
+    A valid Revision can only be created, if the number of valid revision
     strings is equivalent to the number of sources.
     A valid revision string is one that has been found in the a source's
     version.

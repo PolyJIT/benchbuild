@@ -815,16 +815,15 @@ class SetProjectVersion(ProjectStep):
     ) -> None:
         super().__init__(project)
 
-        self.revision = source.base.revision_from_str(
+        self.revision = source.revision_from_str(
             revision_strings, *project.source
         )
 
     @notify_step_begin_end
     def __call__(self) -> StepResult:
         project = self.project
-        #revision = project.active_revision
-        #revision.update(self.revision)
-        revision = self.revision
+        revision = project.active_revision
+        revision.update(self.revision)
 
         for variant in revision.variants:
             name = variant.name()

@@ -259,11 +259,18 @@ class Project(
 
         return new_self
 
-    revision: source.Revision = attr.ib(
-        default=attr.Factory(
-            lambda self: source.default(*type(self).SOURCE), takes_self=True
-        )
-    )
+    revision: source.Revision = attr.ib()
+
+    @revision.default
+    def __default_revision(self) -> source.Revision:
+        srcs = type(self).SOURCE
+        print("DEFAULT", srcs)
+        if len(srcs) == 0:
+            raise ValueError("A project requires at least one source!")
+
+        assert len(srcs) > 0, "A project requires at least one source!"
+
+        return source.default(srcs[0], *(srcs[1:]))
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)

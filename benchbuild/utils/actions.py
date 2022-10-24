@@ -780,20 +780,21 @@ class ProjectEnvironment(ProjectStep):
         project = self.project
         project.clear_paths()
 
-        prj_vars = project.variant
+        revision = project.revision
 
-        for name, variant in prj_vars.items():
+        for variant in revision.variants:
+            name = variant.name()
             LOG.info("Fetching %s @ %s", str(name), variant.version)
-            src = variant.owner
-            src.version(project.builddir, variant.version)
+            src = variant.source()
+            src.version(project.builddir, str(variant))
 
         self.status = StepResult.OK
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
         project = self.project
-        variant = project.variant
-        version_str = source.to_str(*tuple(variant.values()))
+        revision = project.revision
+        version_str = str(revision)
 
         return textwrap.indent(
             f"* Project environment for: {project.name} @ {version_str}",
@@ -805,7 +806,7 @@ class SetProjectVersion(ProjectStep):
     NAME = "SET PROJECT VERSION"
     DESCRIPTION = "Checkout a project version"
 
-    variant: source.base.VariantContext
+    revision: source.Revision
 
     def __init__(
         self,
@@ -814,28 +815,30 @@ class SetProjectVersion(ProjectStep):
     ) -> None:
         super().__init__(project)
 
-        self.variant = source.base.context_from_revisions(
+        self.revision = source.base.revision_from_str(
             revision_strings, *project.source
         )
 
     @notify_step_begin_end
     def __call__(self) -> StepResult:
         project = self.project
-        prj_vars = project.active_variant
-        prj_vars.update(self.variant)
+        #revision = project.active_revision
+        #revision.update(self.revision)
+        revision = self.revision
 
-        for name, variant in prj_vars.items():
+        for variant in revision.variants:
+            name = variant.name()
             LOG.info("Fetching %s @ %s", str(name), variant.version)
-            src = variant.owner
-            src.version(project.builddir, variant.version)
+            src = variant.source()
+            src.version(project.builddir, str(variant))
 
-        project.active_variant = prj_vars
+        project.active_revision = revision
         self.status = StepResult.OK
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
         project = self.project
-        version_str = source.to_str(*tuple(self.variant.values()))
+        version_str = str(self.revision)
 
         return textwrap.indent(
             f"* Add project version {version_str} for: {project.name}",

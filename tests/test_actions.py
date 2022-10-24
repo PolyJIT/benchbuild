@@ -119,47 +119,47 @@ class TestExperiment(Experiment):
 def test_SetProjectVersion_can_partially_update() -> None:
     exp = TestExperiment(projects=[TestProject])
     context = exp.sample(TestProject)[0]
-    prj = TestProject(variant=context)
+    prj = TestProject(revision=context)
 
-    assert prj.active_variant['src-a'].version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
 
     spv = SetProjectVersion(prj, RevisionStr('v2a'))
     with pytest.raises(ProcessExecutionError):
         spv()
 
-    assert prj.active_variant['src-a'].version == 'v2a'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v2a'
 
 
 def test_SetProjectVersion_can_update_full() -> None:
     exp = TestExperiment(projects=[TestProject])
     context = exp.sample(TestProject)[0]
-    prj = TestProject(variant=context)
+    prj = TestProject(revision=context)
 
-    assert prj.active_variant['src-a'].version == 'v1a'
-    assert prj.active_variant['src-b'].version == 'v1b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
     spv = SetProjectVersion(prj, RevisionStr('v2a'), RevisionStr('v2b'))
     with pytest.raises(ProcessExecutionError):
         spv()
 
-    assert prj.active_variant['src-a'].version == 'v2a'
-    assert prj.active_variant['src-b'].version == 'v2b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v2a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v2b'
 
 
 def test_SetProjectVersion_suffers_from_version_collision() -> None:
     exp = TestExperiment(projects=[TestProject])
     context = exp.sample(TestProject)[0]
-    prj = TestProject(variant=context)
+    prj = TestProject(revision=context)
 
-    assert prj.active_variant['src-a'].version == 'v1a'
-    assert prj.active_variant['src-b'].version == 'v1b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
     spv = SetProjectVersion(prj, RevisionStr('v3'))
     with pytest.raises(ProcessExecutionError):
         spv()
 
-    assert prj.active_variant['src-a'].version == 'v3'
-    assert prj.active_variant['src-b'].version == 'v3'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v3'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v3'
 
 
 def test_SetProjectVersion_can_set_revision_through_filter(t_project) -> None:
@@ -171,17 +171,17 @@ def test_SetProjectVersion_can_set_revision_through_filter(t_project) -> None:
     project_cls = __add_single_filter__(t_project, 'v3')
     exp = TestExperiment(projects=[project_cls])
     context = exp.sample(project_cls)[0]
-    prj = project_cls(variant=context)
+    prj = project_cls(revision=context)
 
-    assert prj.active_variant['src-a'].version == 'v3'
-    assert prj.active_variant['src-b'].version == 'v1b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v3'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
     spv = SetProjectVersion(prj, RevisionStr('v1a'))
     with pytest.raises(ProcessExecutionError):
         spv()
 
-    assert prj.active_variant['src-a'].version == 'v1a'
-    assert prj.active_variant['src-b'].version == 'v1b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
 
 def test_SetProjectVersion_raises_error_when_no_revision_is_found() -> None:
@@ -190,10 +190,10 @@ def test_SetProjectVersion_raises_error_when_no_revision_is_found() -> None:
     """
     exp = TestExperiment(projects=[TestProject])
     context = exp.sample(TestProject)[0]
-    prj = TestProject(variant=context)
+    prj = TestProject(revision=context)
 
-    assert prj.active_variant['src-a'].version == 'v1a'
-    assert prj.active_variant['src-b'].version == 'v1b'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
     with pytest.raises(
         ValueError, match='Revisions (.+) not found in any available source.'

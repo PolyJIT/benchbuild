@@ -317,8 +317,8 @@ def enumerate_projects(
                     yield prj
 
 
-def make_version_tag(*versions: source.Variant) -> str:
-    return '-'.join([str(v) for v in versions])
+def make_version_tag(revision: source.Revision) -> str:
+    return '-'.join([str(v) for v in revision.variants])
 
 
 def make_image_name(name: str, tag: str) -> str:
@@ -389,7 +389,7 @@ def create_base_images(
 
 
 def __pull_sources_in_context(prj: project.Project) -> None:
-    for version in prj.variant.values():
+    for version in prj.revision.variants:
         src = version.owner
         src.version(local.cwd, str(version))
 
@@ -413,7 +413,7 @@ def create_project_images(
     publish = bootstrap.bus()
 
     for prj in enumerate_projects(experiments, projects):
-        version = make_version_tag(*prj.variant.values())
+        version = make_version_tag(prj.revision)
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
         layers = prj.container
@@ -461,7 +461,7 @@ def create_experiment_images(
     publish = bootstrap.bus()
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
-            version = make_version_tag(*prj.variant.values())
+            version = make_version_tag(prj.revision)
             base_tag = make_image_name(f'{prj.name}/{prj.group}', version)
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version
@@ -495,7 +495,7 @@ def run_experiment_images(
 
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
-            version = make_version_tag(*prj.variant.values())
+            version = make_version_tag(prj.revision)
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version
             )
@@ -520,7 +520,7 @@ def remove_images(
 
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
-            version = make_version_tag(*prj.variant.values())
+            version = make_version_tag(prj.revision)
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version
             )
@@ -528,7 +528,7 @@ def remove_images(
 
     if delete_project_images:
         for prj in enumerate_projects(experiments, projects):
-            version = make_version_tag(*prj.variant.values())
+            version = make_version_tag(prj.revision)
             image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
             publish(commands.DeleteImage(image_tag))

@@ -37,9 +37,8 @@ class SampleExperiment(bb.Experiment):
 
     @classmethod
     def sample(cls,
-               prj_cls: bb.project.ProjectT) -> tp.List[source.VariantContext]:
-        variants = list(source.product(*prj_cls.SOURCE))
-        return [source.context(*var) for var in variants[:EXPECTED_COMMITS]]
+               prj_cls: bb.project.ProjectT) -> tp.Sequence[source.Revision]:
+        return source.enumerate_revisions(prj_cls)[:EXPECTED_COMMITS]
 
 
 class SampleProject(bb.Project):

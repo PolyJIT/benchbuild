@@ -58,54 +58,60 @@ def src_b(versions_b):
     )
 
 
-#
-#def describe_context_from_revisions():
-#
-#    def can_link_revision_from_single(versions_a, src_a) -> None:
-#        select = [source.base.RevisionStr(versions_a[0])]
-#        context = source.base.context_from_revisions(select, src_a)
-#
-#        assert context, "No context has been created."
-#        assert src_a.local in context.keys(), "wrong source in context."
-#
-#    def can_select_revision_from_multiple(src_a, src_b) -> None:
-#        select = [source.base.RevisionStr('1.0b')]
-#        context = source.base.context_from_revisions(select, src_a, src_b)
-#
-#        assert context, "No context has been created."
-#        assert src_a.local not in context.keys(), "src_a in context."
-#        assert src_b.local in context.keys(), "src_b not in context."
-#
-#    def finds_all_requested_revisions(src_a, src_b) -> None:
-#        select = [
-#            source.base.RevisionStr('1.0a'),
-#            source.base.RevisionStr('1.0b')
-#        ]
-#        context = source.base.context_from_revisions(select, src_a, src_b)
-#
-#        assert context, "No context has been created."
-#        assert src_a.local in context.keys(), "src_a not in context."
-#        assert src_b.local in context.keys(), "src_b not in context."
-#
-#        select_2 = [
-#            source.base.RevisionStr('1.0a'),
-#            source.base.RevisionStr('not-in')
-#        ]
-#        context = source.base.context_from_revisions(select_2, src_a, src_b)
-#        assert src_a.local in context.keys(), "src_a not in context."
-#        assert src_b.local not in context.keys(), "src_b in context."
-#
+def test_revision_from_str_can_link_revision_from_single(
+    versions_a, src_a
+) -> None:
+    select = [source.base.RevisionStr(versions_a[0])]
+    context = source.revision_from_str(select, src_a)
+
+    assert context, "No context has been created."
+    assert context.source_by_name(
+        src_a.local
+    ) == src_a, "wrong source in context."
 
 
-def test_base_context(src_a):
-    var = src_a.default
-    ctx = source.context(var)
+def test_revision_from_str_can_select_revision_from_multiple(
+    src_a, src_b
+) -> None:
+    select = [source.base.RevisionStr('1.0b')]
+    context = source.revision_from_str(select, src_a, src_b)
 
-    assert ctx[src_a.local].owner == src_a
-    assert ctx[src_a.local] == var
-
+    assert context, "No context has been created."
     with pytest.raises(KeyError):
-        ctx['non-existing']  # pylint: disable=pointless-statement
+        context.source_by_name(src_a.local)
+
+    assert context.source_by_name(src_b.local) == src_b, "src_b not in context."
+
+
+def test_revision_from_str_finds_all_requested_revisions(src_a, src_b) -> None:
+    select = [source.base.RevisionStr('1.0a'), source.base.RevisionStr('1.0b')]
+    context = source.revision_from_str(select, src_a, src_b)
+
+    assert context, "No context has been created."
+
+    assert context.source_by_name(src_a.local) == src_a, "src_a not in context."
+    assert context.source_by_name(src_b.local) == src_b, "src_b not in context."
+
+    select_2 = [
+        source.base.RevisionStr('1.0a'),
+        source.base.RevisionStr('not-in')
+    ]
+    context = source.revision_from_str(select_2, src_a, src_b)
+
+    assert context.source_by_name(src_a.local) == src_a, "src_a not in context."
+    with pytest.raises(KeyError):
+        context.source_by_name(src_b.local)
+
+
+#def test_base_context(src_a):
+#    var = src_a.default
+#    ctx = source.context(var)
+#
+#    assert ctx[src_a.local].owner == src_a
+#    assert ctx[src_a.local] == var
+#
+#    with pytest.raises(KeyError):
+#        ctx['non-existing']  # pylint: disable=pointless-statement
 
 
 def test_base_to_str(src_a, src_b, versions_a, versions_b):
@@ -123,12 +129,15 @@ def test_base_to_str(src_a, src_b, versions_a, versions_b):
 
 
 def test_base_default(src_a, src_b):
-    default_versions = source.default(src_a, src_b)
+    default_revision = source.default(src_a, src_b)
 
-    assert src_a.local in default_versions
-    assert default_versions[src_a.local] == src_a.default
-    assert src_b.local in default_versions
-    assert default_versions[src_b.local] == src_b.default
+    src_a_name = src_a.local
+    src_b_name = src_b.local
+
+    assert src_a_name == default_revision.source_by_name(src_a_name).local
+    assert src_a.default == default_revision.variant_by_name(src_a_name)
+    assert src_b_name in default_revision.source_by_name(src_b_name).local
+    assert src_b.default == default_revision.variant_by_name(src_b_name)
 
 
 def test_base_product(src_a, src_b):

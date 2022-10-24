@@ -42,12 +42,14 @@ def create_run(cmd, project, exp, grp):
     from benchbuild.utils import schema as s
 
     session = s.Session()
-    run = s.Run(command=str(cmd),
-                project_name=project.name,
-                project_group=project.group,
-                experiment_name=exp.name,
-                run_group=str(grp),
-                experiment_group=exp.id)
+    run = s.Run(
+        command=str(cmd),
+        project_name=project.name,
+        project_group=project.group,
+        experiment_name=exp.name,
+        run_group=str(grp),
+        experiment_group=exp.id
+    )
     session.add(run)
     session.commit()
 
@@ -98,7 +100,7 @@ def persist_project(project):
     desc = project.__doc__
     domain = str(project.domain)
     group_name = str(project.group)
-    version = str(project.variant)
+    version = str(project.revision)
     try:
         src_url = project.src_uri
     except AttributeError:
@@ -178,12 +180,15 @@ def persist_time(run, session, timings):
     from benchbuild.utils import schema as s
 
     for timing in timings:
-        session.add(s.Metric(name="time.user_s", value=timing[0],
-                             run_id=run.id))
         session.add(
-            s.Metric(name="time.system_s", value=timing[1], run_id=run.id))
-        session.add(s.Metric(name="time.real_s", value=timing[2],
-                             run_id=run.id))
+            s.Metric(name="time.user_s", value=timing[0], run_id=run.id)
+        )
+        session.add(
+            s.Metric(name="time.system_s", value=timing[1], run_id=run.id)
+        )
+        session.add(
+            s.Metric(name="time.real_s", value=timing[2], run_id=run.id)
+        )
 
 
 def persist_perf(run, session, svg_path):
@@ -203,7 +208,8 @@ def persist_perf(run, session, svg_path):
     with open(svg_path, 'r') as svg_file:
         svg_data = svg_file.read()
         session.add(
-            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id))
+            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id)
+        )
 
 
 def persist_compilestats(run, session, stats):

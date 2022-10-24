@@ -42,7 +42,6 @@ LOG = logging.getLogger(__name__)
 
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
-VariantContext = source.VariantContext
 Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
@@ -80,43 +79,43 @@ class ProjectRegistry(type):
 
 
 class MultiVersioned:
-    _active_variant: tp.Optional[VariantContext]
-    _active_variants: tp.List[VariantContext]
+    _active_revision: tp.Optional[source.Revision]
+    _active_revisions: tp.List[source.Revision]
 
-    variant: VariantContext
+    revision: source.Revision
 
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
 
-        cls._active_variant = None
-        cls._active_variants = []
+        cls._active_revision = None
+        cls._active_revisions = []
 
     @property
-    def active_variant(self) -> VariantContext:
+    def active_revision(self) -> source.Revision:
         """
-        Get the active variant.
+        Get the active revision.
 
         Returns:
-            Active variant context.
+            Active revision context.
         """
         assert hasattr(
-            self, "variant"
-        ), "Variant attribute missing from subclass."
+            self, "revision"
+        ), "revision attribute missing from subclass."
 
-        if self._active_variant is None:
-            self._active_variant = self.variant
-            self._active_variants.append(self.variant)
+        if self._active_revision is None:
+            self._active_revision = self.revision
+            self._active_revisions.append(self.revision)
 
-        return self._active_variant
+        return self._active_revision
 
-    @active_variant.setter
-    def active_variant(self, variant: VariantContext) -> None:
-        self._active_variants.append(variant)
-        self._active_variant = variant
+    @active_revision.setter
+    def active_revision(self, revision: source.Revision) -> None:
+        self._active_revisions.append(revision)
+        self._active_revision = revision
 
     @property
-    def active_variants(self) -> tp.List[VariantContext]:
-        return self._active_variants
+    def active_revisions(self) -> tp.Sequence[source.Revision]:
+        return self._active_revisions
 
 
 class PathTracker:
@@ -260,11 +259,11 @@ class Project(
 
         return new_self
 
-    variant: VariantContext = attr.ib()
-
-    @variant.default
-    def __default_variant(self) -> VariantContext:
-        return source.default(*type(self).SOURCE)
+    revision: source.Revision = attr.ib(
+        default=attr.Factory(
+            lambda self: source.default(*type(self).SOURCE), takes_self=True
+        )
+    )
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
@@ -362,7 +361,7 @@ class Project(
 
     @property
     def id(self) -> str:
-        version_str = source.to_str(*tuple(self.variant.values()))
+        version_str = str(self.revision)
         return f"{self.name}-{self.group}@{version_str}"
 
     def prepare(self) -> None:
@@ -379,9 +378,9 @@ class Project(
         """
         Retrieve source for given index name.
 
-        First we try to find the given source in the configured variant index.
+        First we try to find the given source in the configured revision index.
         If unsuccessful, we try to find them in our configured sources. The
-        second variant picks up all sources that did not take part in
+        second revision picks up all sources that did not take part in
         version expansion.
 
         Args:
@@ -389,11 +388,15 @@ class Project(
             name (str): Local name of the source .
 
         Returns:
-            (Optional[FetchableSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this revision.
         """
-        variant = self.variant
-        if name in variant:
-            return str(self.builddir / variant[name].owner.local)
+        revision = self.revision
+
+        try:
+            src = revision.source_by_name(name)
+            return str(self.builddir / src.local)
+        except KeyError:
+            LOG.debug(f"{name} not found in revision. Skipping.")
 
         all_sources = source.sources_as_dict(*self.source)
         if name in all_sources:
@@ -403,18 +406,22 @@ class Project(
 
     def version_of(self, name: str) -> tp.Optional[str]:
         """
-        Retrieve source for given index name.
+        Retrieve version for given index name.
 
         Args:
             project (Project): The project to access.
             name (str): Local name of the source .
 
         Returns:
-            (Optional[FetchableSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this revision.
         """
-        variant = self.variant
-        if name in variant:
-            return str(variant[name])
+        revision = self.revision
+        try:
+            return str(revision.variant_by_name(name))
+
+        except KeyError:
+            LOG.debug(f"{name} not found in revision. Skipping.")
+
         return None
 
     @property

@@ -171,7 +171,7 @@ class Experiment(metaclass=ExperimentRegistry):
         for prj_cls in self.projects:
             prj_actions: Actions = []
 
-            for variant_context in self.sample(prj_cls):
+            for revision in self.sample(prj_cls):
                 version_str = source.to_str(*variant_context.values())
 
                 p = prj_cls(variant_context)
@@ -195,7 +195,7 @@ class Experiment(metaclass=ExperimentRegistry):
         return actions
 
     @classmethod
-    def sample(cls, prj_cls: ProjectT) -> tp.List[source.VariantContext]:
+    def sample(cls, prj_cls: ProjectT) -> tp.Sequence[source.Revision]:
         """
         Sample all versions provided by the project.
 
@@ -205,14 +205,15 @@ class Experiment(metaclass=ExperimentRegistry):
             prj_cls: The project type to enumerate all versions from.
 
         Returns:
-            A list of all sampled Variants.
+            A list of all sampled project revisions.
         """
-        variants = list(source.product(*prj_cls.SOURCE))
-        if bool(CFG["versions"]["full"]):
-            return [source.context(*var) for var in variants]
+        revisions = source.enumerate_revisions(*prj_cls.SOURCE)
 
-        if len(variants) > 0:
-            return [source.context(*variants[0])]
+        if bool(CFG["versions"]["full"]):
+            return revisions
+
+        if len(revisions) > 0:
+            return [revisions[0]]
         raise ValueError("At least one variant is required!")
 
     def default_runtime_actions(self, project: Project) -> Actions:

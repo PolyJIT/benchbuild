@@ -8,6 +8,7 @@ import benchbuild as bb
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.project import ProjectIndex, Project
 from benchbuild.settings import CFG
+from benchbuild.source import enumerate_revisions
 
 
 class BBProject(cli.Application):

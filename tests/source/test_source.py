@@ -11,8 +11,6 @@ from benchbuild.projects.test.test import TestProject
 from benchbuild.source import FetchableSource, Variant, ContextAwareSource
 from benchbuild.source.base import Fetchable
 
-Variants = tp.Iterable[Variant]
-
 
 class SimpleSource(FetchableSource):
     test_versions: tp.List[str] = attr.ib()
@@ -32,7 +30,7 @@ class SimpleSource(FetchableSource):
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return pb.local.path('.') / f'bb-test-{version}'
 
-    def versions(self) -> Variants:
+    def versions(self) -> tp.Sequence[Variant]:
         return [Variant(self, v) for v in self.test_versions]
 
 
@@ -60,41 +58,43 @@ def src_b(versions_b):
     )
 
 
-def describe_context_from_revisions():
-
-    def can_link_revision_from_single(versions_a, src_a) -> None:
-        select = [source.base.RevisionStr(versions_a[0])]
-        context = source.base.context_from_revisions(select, src_a)
-
-        assert context, "No context has been created."
-        assert src_a.local in context.keys(), "wrong source in context."
-
-    def can_select_revision_from_multiple(src_a, src_b) -> None:
-        select = [source.base.RevisionStr('1.0b')]
-        context = source.base.context_from_revisions(select, src_a, src_b)
-
-        assert context, "No context has been created."
-        assert src_a.local not in context.keys(), "src_a in context."
-        assert src_b.local in context.keys(), "src_b not in context."
-
-    def finds_all_requested_revisions(src_a, src_b) -> None:
-        select = [
-            source.base.RevisionStr('1.0a'),
-            source.base.RevisionStr('1.0b')
-        ]
-        context = source.base.context_from_revisions(select, src_a, src_b)
-
-        assert context, "No context has been created."
-        assert src_a.local in context.keys(), "src_a not in context."
-        assert src_b.local in context.keys(), "src_b not in context."
-
-        select_2 = [
-            source.base.RevisionStr('1.0a'),
-            source.base.RevisionStr('not-in')
-        ]
-        context = source.base.context_from_revisions(select_2, src_a, src_b)
-        assert src_a.local in context.keys(), "src_a not in context."
-        assert src_b.local not in context.keys(), "src_b in context."
+#
+#def describe_context_from_revisions():
+#
+#    def can_link_revision_from_single(versions_a, src_a) -> None:
+#        select = [source.base.RevisionStr(versions_a[0])]
+#        context = source.base.context_from_revisions(select, src_a)
+#
+#        assert context, "No context has been created."
+#        assert src_a.local in context.keys(), "wrong source in context."
+#
+#    def can_select_revision_from_multiple(src_a, src_b) -> None:
+#        select = [source.base.RevisionStr('1.0b')]
+#        context = source.base.context_from_revisions(select, src_a, src_b)
+#
+#        assert context, "No context has been created."
+#        assert src_a.local not in context.keys(), "src_a in context."
+#        assert src_b.local in context.keys(), "src_b not in context."
+#
+#    def finds_all_requested_revisions(src_a, src_b) -> None:
+#        select = [
+#            source.base.RevisionStr('1.0a'),
+#            source.base.RevisionStr('1.0b')
+#        ]
+#        context = source.base.context_from_revisions(select, src_a, src_b)
+#
+#        assert context, "No context has been created."
+#        assert src_a.local in context.keys(), "src_a not in context."
+#        assert src_b.local in context.keys(), "src_b not in context."
+#
+#        select_2 = [
+#            source.base.RevisionStr('1.0a'),
+#            source.base.RevisionStr('not-in')
+#        ]
+#        context = source.base.context_from_revisions(select_2, src_a, src_b)
+#        assert src_a.local in context.keys(), "src_a not in context."
+#        assert src_b.local not in context.keys(), "src_b in context."
+#
 
 
 def test_base_context(src_a):
@@ -198,111 +198,110 @@ def test_explore_with_filter(make_source):
     assert ['0', '1'] == src_explore
 
 
-def test_versions_product():
-    pass
+def test_git_submodule_versions_do_not_get_expanded():
+    git_repo = source.Git('remote.git', 'local.git', clone=False)
+    git_repo.versions = mock.MagicMock(name='versions')
+    git_repo.versions.return_value = ['1', '2', '3']
+
+    git_repo_sub = source.GitSubmodule(
+        'remote.sub.git', 'local.git/sub', clone=False
+    )
+    git_repo_sub.versions = mock.MagicMock(name='versions')
+    git_repo_sub.versions.return_value = ['sub1', 'sub2', 'sub3']
+
+    variants = list(source.product(git_repo, git_repo_sub))
+    expected_variants = [('1',), ('2',), ('3',)]
+
+    assert variants == expected_variants
 
 
-def describe_git():
+@mock.patch('benchbuild.source.git.base.target_prefix')
+def test_git_repo_can_be_fetched(mocked_prefix, simple_repo):
+    base_dir, repo = simple_repo
+    mocked_prefix.return_value = str(base_dir)
 
-    def submodule_versions_do_not_get_expanded():
-        git_repo = source.Git('remote.git', 'local.git', clone=False)
-        git_repo.versions = mock.MagicMock(name='versions')
-        git_repo.versions.return_value = ['1', '2', '3']
+    a_repo = source.Git(remote=repo.git_dir, local='test.git')
+    cache_path = a_repo.fetch()
 
-        git_repo_sub = source.GitSubmodule(
-            'remote.sub.git', 'local.git/sub', clone=False
+    assert (base_dir / 'test.git').exists()
+    assert cache_path == str(base_dir / 'test.git')
+
+
+@mock.patch('benchbuild.source.git.base.target_prefix')
+def test_git_repo_clones_submodules(mocked_prefix, repo_with_submodule):
+    base_dir, repo = repo_with_submodule
+    mocked_prefix.return_value = str(base_dir)
+
+    a_repo = source.Git(remote=repo.git_dir, local='test.git')
+    a_repo.fetch()
+
+    for submodule in repo.submodules:
+        expected_sm_path = base_dir / 'test.git' / submodule.path
+        assert expected_sm_path.exists()
+        assert expected_sm_path.list() != []
+
+
+@mock.patch('benchbuild.source.git.base.target_prefix')
+def test_git_submodule_can_be_fetched_outside_main(
+    mocked_prefix, repo_with_submodule
+):
+    base_dir, repo = repo_with_submodule
+    mocked_prefix.return_value = str(base_dir)
+
+    a_repo = source.Git(remote=repo.git_dir, local='test.git')
+    a_repo.fetch()
+
+    for submodule in repo.submodules:
+        expected_sub_path_outside = base_dir / 'outside_main.git'
+        expected_sub_path_inside = base_dir / 'test.git' / submodule.path
+
+        a_sub_repo = source.GitSubmodule(
+            remote=submodule.url, local='outside_main.git'
         )
-        git_repo_sub.versions = mock.MagicMock(name='versions')
-        git_repo_sub.versions.return_value = ['sub1', 'sub2', 'sub3']
+        a_sub_repo.fetch()
 
-        variants = list(source.product(git_repo, git_repo_sub))
-        expected_variants = [('1',), ('2',), ('3',)]
+        assert expected_sub_path_outside.exists()
+        assert expected_sub_path_outside.list() != []
 
-        assert variants == expected_variants
+        assert expected_sub_path_inside.exists()
+        assert expected_sub_path_inside.list() != []
 
-    @mock.patch('benchbuild.source.git.base.target_prefix')
-    def repo_can_be_fetched(mocked_prefix, simple_repo):
-        base_dir, repo = simple_repo
-        mocked_prefix.return_value = str(base_dir)
 
-        a_repo = source.Git(remote=repo.git_dir, local='test.git')
-        cache_path = a_repo.fetch()
+@mock.patch('benchbuild.source.git.base.target_prefix')
+def test_git_submodule_can_be_fetched_inside_fetched_main(
+    mocked_prefix, repo_with_submodule
+):
+    base_dir, repo = repo_with_submodule
+    mocked_prefix.return_value = str(base_dir)
 
-        assert (base_dir / 'test.git').exists()
-        assert cache_path == str(base_dir / 'test.git')
+    a_repo = source.Git(remote=repo.git_dir, local='test.git')
+    a_repo.fetch()
 
-    @mock.patch('benchbuild.source.git.base.target_prefix')
-    def repo_clones_submodules(mocked_prefix, repo_with_submodule):
-        base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
+    for submodule in repo.submodules:
+        expected_sub_path = base_dir / 'test.git' / submodule.path
+        expected_flat_sub_path = base_dir / f'test.git-{submodule.path}'
 
-        a_repo = source.Git(remote=repo.git_dir, local='test.git')
-        a_repo.fetch()
+        sub_path = f'test.git/{submodule.path}'
+        a_sub_repo = source.GitSubmodule(
+            remote=submodule.url, local=str(sub_path)
+        )
+        cache_patch = a_sub_repo.fetch()
 
-        for submodule in repo.submodules:
-            expected_sm_path = base_dir / 'test.git' / submodule.path
-            assert expected_sm_path.exists()
-            assert expected_sm_path.list() != []
+        assert expected_sub_path.exists()
+        assert expected_flat_sub_path.exists()
+        assert expected_sub_path.list() != []
+        assert expected_flat_sub_path.list() != []
+        assert cache_patch == expected_flat_sub_path
 
-    @mock.patch('benchbuild.source.git.base.target_prefix')
-    def submodule_can_be_fetched_outside_main(
-        mocked_prefix, repo_with_submodule
-    ):
-        base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
 
-        a_repo = source.Git(remote=repo.git_dir, local='test.git')
-        a_repo.fetch()
+@mock.patch('benchbuild.source.git.base.target_prefix')
+def test_git_repo_can_list_versions(mocked_prefix, simple_repo):
+    base_dir, repo = simple_repo
+    mocked_prefix.return_value = str(base_dir)
+    master = repo.head.reference
 
-        for submodule in repo.submodules:
-            expected_sub_path_outside = base_dir / 'outside_main.git'
-            expected_sub_path_inside = base_dir / 'test.git' / submodule.path
+    a_repo = source.Git(remote=repo.git_dir, local='test.git')
+    expected_versions = [v.newhexsha[0:a_repo.limit] for v in master.log()]
+    found_versions = [str(v) for v in reversed(a_repo.versions())]
 
-            a_sub_repo = source.GitSubmodule(
-                remote=submodule.url, local='outside_main.git'
-            )
-            a_sub_repo.fetch()
-
-            assert expected_sub_path_outside.exists()
-            assert expected_sub_path_outside.list() != []
-
-            assert expected_sub_path_inside.exists()
-            assert expected_sub_path_inside.list() != []
-
-    @mock.patch('benchbuild.source.git.base.target_prefix')
-    def submodule_can_be_fetched_inside_fetched_main(
-        mocked_prefix, repo_with_submodule
-    ):
-        base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
-
-        a_repo = source.Git(remote=repo.git_dir, local='test.git')
-        a_repo.fetch()
-
-        for submodule in repo.submodules:
-            expected_sub_path = base_dir / 'test.git' / submodule.path
-            expected_flat_sub_path = base_dir / f'test.git-{submodule.path}'
-
-            sub_path = f'test.git/{submodule.path}'
-            a_sub_repo = source.GitSubmodule(
-                remote=submodule.url, local=str(sub_path)
-            )
-            cache_patch = a_sub_repo.fetch()
-
-            assert expected_sub_path.exists()
-            assert expected_flat_sub_path.exists()
-            assert expected_sub_path.list() != []
-            assert expected_flat_sub_path.list() != []
-            assert cache_patch == expected_flat_sub_path
-
-    @mock.patch('benchbuild.source.git.base.target_prefix')
-    def repo_can_list_versions(mocked_prefix, simple_repo):
-        base_dir, repo = simple_repo
-        mocked_prefix.return_value = str(base_dir)
-        master = repo.head.reference
-
-        a_repo = source.Git(remote=repo.git_dir, local='test.git')
-        expected_versions = [v.newhexsha[0:a_repo.limit] for v in master.log()]
-        found_versions = [str(v) for v in reversed(a_repo.versions())]
-
-        assert expected_versions == found_versions
+    assert expected_versions == found_versions

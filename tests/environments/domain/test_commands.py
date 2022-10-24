@@ -2,24 +2,20 @@
 from benchbuild.environments.domain import commands, declarative
 
 
-def describe_image_commands():
+def test_image_name_is_lowercase():
+    expected = ['test-1', 'test-2']
 
-    def name_is_lowercase():
-        expected = ['test-1', 'test-2']
+    cmd_1 = commands.CreateBenchbuildBase(
+        'TEST-1', declarative.ContainerImage()
+    )
+    cmd_2 = commands.CreateImage('TEST-2', declarative.ContainerImage())
 
-        cmd_1 = commands.CreateBenchbuildBase(
-            'TEST-1', declarative.ContainerImage()
-        )
-        cmd_2 = commands.CreateImage('TEST-2', declarative.ContainerImage())
-
-        assert [cmd_1.name, cmd_2.name] == expected
+    assert [cmd_1.name, cmd_2.name] == expected
 
 
-def describe_container_commands():
+def test_containerimage_name_is_lowercase():
+    expected = ['test-1', 'containername1']
 
-    def image_name_is_lowercase():
-        expected = ['test-1', 'containername1']
+    cmd_1 = commands.RunProjectContainer('TEST-1', 'ContainerName1', '')
 
-        cmd_1 = commands.RunProjectContainer('TEST-1', 'ContainerName1', '')
-
-        assert [cmd_1.image, cmd_1.name] == expected
+    assert [cmd_1.image, cmd_1.name] == expected

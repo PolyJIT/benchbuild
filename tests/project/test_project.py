@@ -141,68 +141,71 @@ def project_instance(project):
     return project()
 
 
-def describe_project():
-
-    def has_version_of(project_instance):  # pylint: disable=unused-variable
-        assert hasattr(project_instance, 'version_of_primary')
-
-    def has_source_of(project_instance):  # pylint: disable=unused-variable
-        assert hasattr(project_instance, 'source_of_primary')
-
-    def has_version_of_primary(project_instance):  # pylint: disable=unused-variable
-        assert project_instance.version_of_primary == '1'
-
-    def has_source_of_primary(project_instance):  # pylint: disable=unused-variable
-        assert local.path(
-            project_instance.source_of_primary
-        ).name == 'VersionSource_0'
-
-    def source_must_contain_elements():  # pylint: disable=unused-variable
-        with pytest.raises(ValueError) as excinfo:
-            DummyPrjEmptySource()
-        assert "not enough values to unpack" in str(excinfo)
+def test_project_has_version_of(project_instance):
+    assert hasattr(project_instance, 'version_of_primary')
 
 
-def describe_filters():
-
-    def is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable
-        filtered_prj = __add_filters__(project, str(filter_test.t_input))
-        assert isinstance(primary(*filtered_prj.SOURCE), SingleVersionFilter)
-
-    def wraps_primary(project, filter_test):  # pylint: disable=unused-variable
-        filtered = filter_test.t_filter(project, filter_test.t_input)
-        filtered_source = primary(*filtered.SOURCE)
-        assert isinstance(filtered_source, SingleVersionFilter)
-
-    def returns_no_versions_if_unmatched(project, filter_test):  # pylint: disable=unused-variable
-        filtered = filter_test.t_filter(project, filter_test.t_input_not_in)
-        filtered_source = primary(*filtered.SOURCE)
-
-        assert len(filtered_source.versions()) == 0
-
-    def matches_return_only_one_version(project, filter_test):  # pylint: disable=unused-variable
-        filtered = filter_test.t_filter(project, filter_test.t_input)
-        filtered_source = primary(*filtered.SOURCE)
-
-        assert len(filtered_source.versions()) == 1
-        var_1 = Variant(None, filter_test.t_expect)
-        assert all([v == var_1 for v in filtered_source.versions()])
-
-    def named_unchanged_if_unmatched(project):  # pylint: disable=unused-variable
-        um_filter = {'not-in': '1'}
-        filtered = __add_named_filters__(project, um_filter)
-
-        for src in filtered.SOURCE:
-            assert not isinstance(src, SingleVersionFilter)
+def test_project_has_source_of(project_instance):
+    assert hasattr(project_instance, 'source_of_primary')
 
 
-def describe_default_projects():
+def test_project_has_version_of_primary(project_instance):
+    assert project_instance.version_of_primary == '1'
 
-    @pytest.fixture(scope='class', params=discovered().values())
-    def prj_cls(request):
-        return request.param
 
-    def containerimage_is_optional_on_subclass(prj_cls):
-        if not hasattr(prj_cls, 'CONTAINER'):
-            prj = prj_cls()
-            assert prj.container is not None
+def test_project_has_source_of_primary(project_instance):
+    assert local.path(
+        project_instance.source_of_primary
+    ).name == 'VersionSource_0'
+
+
+def test_project_source_must_contain_elements():
+    with pytest.raises(ValueError) as excinfo:
+        DummyPrjEmptySource()
+    assert "not enough values to unpack" in str(excinfo)
+
+
+def test_filters_is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable
+    filtered_prj = __add_filters__(project, str(filter_test.t_input))
+    assert isinstance(primary(*filtered_prj.SOURCE), SingleVersionFilter)
+
+
+def test_filters_wraps_primary(project, filter_test):  # pylint: disable=unused-variable
+    filtered = filter_test.t_filter(project, filter_test.t_input)
+    filtered_source = primary(*filtered.SOURCE)
+    assert isinstance(filtered_source, SingleVersionFilter)
+
+
+def test_filters_returns_no_versions_if_unmatched(project, filter_test):  # pylint: disable=unused-variable
+    filtered = filter_test.t_filter(project, filter_test.t_input_not_in)
+    filtered_source = primary(*filtered.SOURCE)
+
+    assert len(filtered_source.versions()) == 0
+
+
+def test_filters_matches_return_only_one_version(project, filter_test):  # pylint: disable=unused-variable
+    filtered = filter_test.t_filter(project, filter_test.t_input)
+    filtered_source = primary(*filtered.SOURCE)
+
+    assert len(filtered_source.versions()) == 1
+    var_1 = Variant(None, filter_test.t_expect)
+    assert all([v == var_1 for v in filtered_source.versions()])
+
+
+def test_filters_named_unchanged_if_unmatched(project):  # pylint: disable=unused-variable
+    um_filter = {'not-in': '1'}
+    filtered = __add_named_filters__(project, um_filter)
+
+    for src in filtered.SOURCE:
+        assert not isinstance(src, SingleVersionFilter)
+
+
+@pytest.fixture(scope='class', params=discovered().values())
+def prj_cls(request):
+    return request.param
+
+
+def test_default_projects_containerimage_is_optional_on_subclass(prj_cls):
+    if not hasattr(prj_cls, 'CONTAINER'):
+        prj = prj_cls()
+        assert prj.container is not None

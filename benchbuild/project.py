@@ -264,7 +264,6 @@ class Project(
     @revision.default
     def __default_revision(self) -> source.Revision:
         srcs = type(self).SOURCE
-        print("DEFAULT", srcs)
         if len(srcs) == 0:
             raise ValueError("A project requires at least one source!")
 

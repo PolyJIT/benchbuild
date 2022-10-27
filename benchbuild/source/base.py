@@ -85,7 +85,7 @@ class Revision:
             else:
                 return elem
 
-        self.variants = map(__replace, self.variants)
+        self.variants = list(map(__replace, self.variants))
 
     def update(self, revision: "Revision") -> None:
         for variant in revision.variants:

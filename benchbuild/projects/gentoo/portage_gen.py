@@ -88,7 +88,6 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
 
     Examples:
         >>> from benchbuild.projects.gentoo.portage_gen import PortageFactory
-        >>> from benchbuild.experiments.empty import Empty
         >>> c = PortageFactory("test", "NAME", "DOMAIN")
         >>> c
         <class '__main__.test'>
@@ -113,5 +112,6 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             "GROUP": "auto-gentoo",
             "run": run_not_supported,
             "__module__": "__main__"
-        })
+        }
+    )
     return newclass

@@ -7,6 +7,7 @@ import plumbum as pb
 import pytest
 
 from benchbuild import source
+from benchbuild.projects.test.test import CAWTestProject, TestProject
 from benchbuild.source import FetchableSource, Variant
 
 
@@ -56,49 +57,63 @@ def src_b(versions_b):
     )
 
 
-def test_revision_from_str_can_link_revision_from_single(
-    versions_a, src_a
-) -> None:
-    select = [source.base.RevisionStr(versions_a[0])]
-    context = source.revision_from_str(select, src_a)
+def test_revision_from_str_can_link_revision_from_single() -> None:
+    prj_cls = TestProject
+    src = prj_cls.SOURCE[0]
+    expected = "test.local"
 
-    assert context, "No context has been created."
-    assert context.source_by_name(
-        src_a.local
-    ) == src_a, "wrong source in context."
+    select = [source.RevisionStr("1")]
+    rev = source.revision_from_str(select, prj_cls)
+
+    assert rev, "No revision has been created."
+    assert rev.source_by_name(
+        expected
+    ).local == src.local, "wrong source in revision."
 
 
-def test_revision_from_str_can_select_revision_from_multiple(
-    src_a, src_b
-) -> None:
-    select = [source.base.RevisionStr('1.0b')]
-    context = source.revision_from_str(select, src_a, src_b)
+def test_revision_from_str_can_select_revision_from_multiple() -> None:
+    prj_cls = CAWTestProject
+    src = prj_cls.SOURCE[0]
+    expected = "test.local"
 
-    assert context, "No context has been created."
-    with pytest.raises(KeyError):
-        context.source_by_name(src_a.local)
+    # explore() is currently not supported by CAW sources
+    select = [source.RevisionStr("caw_0")]
 
-    assert context.source_by_name(src_b.local) == src_b, "src_b not in context."
+    with pytest.raises(ValueError):
+        rev = source.revision_from_str(select, prj_cls)
+
+    select = [source.RevisionStr("4")]
+
+    with pytest.raises(ValueError):
+        rev = source.revision_from_str(select, prj_cls)
+        rev.source_by_name(expected)
+
+    select = [source.RevisionStr("2")]
+    rev = source.revision_from_str(select, prj_cls)
+
+    assert rev.source_by_name(expected) == src, "source not in this revision."
 
 
 def test_revision_from_str_finds_all_requested_revisions(src_a, src_b) -> None:
-    select = [source.base.RevisionStr('1.0a'), source.base.RevisionStr('1.0b')]
-    context = source.revision_from_str(select, src_a, src_b)
+    prj_cls = CAWTestProject
+    select = [source.RevisionStr("1"), source.RevisionStr("2")]
+    src = prj_cls.SOURCE[0]
+    caw_src = prj_cls.SOURCE[1]
+    expected = "test.local"
+    not_expected = "test.caw.local"
 
-    assert context, "No context has been created."
+    rev = source.revision_from_str(select, TestProject)
 
-    assert context.source_by_name(src_a.local) == src_a, "src_a not in context."
-    assert context.source_by_name(src_b.local) == src_b, "src_b not in context."
+    assert rev, "No context has been created."
 
-    select_2 = [
-        source.base.RevisionStr('1.0a'),
-        source.base.RevisionStr('not-in')
-    ]
-    context = source.revision_from_str(select_2, src_a, src_b)
+    assert rev.source_by_name(
+        expected
+    ).local == src.local, "src not in context."
 
-    assert context.source_by_name(src_a.local) == src_a, "src_a not in context."
     with pytest.raises(KeyError):
-        context.source_by_name(src_b.local)
+        assert rev.source_by_name(
+            not_expected
+        ) == caw_src, "caw_src not in context."
 
 
 #def test_base_context(src_a):
@@ -124,18 +139,6 @@ def test_base_to_str(src_a, src_b, versions_a, versions_b):
     vars_ab = versions_a + versions_b
     version_text = source.to_str(*vars_a, *vars_b)
     assert version_text == ",".join(vars_ab)
-
-
-def test_base_default(src_a, src_b):
-    default_revision = source.default(src_a, src_b)
-
-    src_a_name = src_a.local
-    src_b_name = src_b.local
-
-    assert src_a_name == default_revision.source_by_name(src_a_name).local
-    assert src_a.default == default_revision.variant_by_name(src_a_name)
-    assert src_b_name in default_revision.source_by_name(src_b_name).local
-    assert src_b.default == default_revision.variant_by_name(src_b_name)
 
 
 def test_base_product(src_a, src_b):

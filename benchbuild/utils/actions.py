@@ -816,7 +816,7 @@ class SetProjectVersion(ProjectStep):
         super().__init__(project)
 
         self.revision = source.revision_from_str(
-            revision_strings, *project.source
+            revision_strings, type(project)
         )
 
     @notify_step_begin_end

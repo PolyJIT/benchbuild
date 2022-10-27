@@ -207,7 +207,7 @@ class Experiment(metaclass=ExperimentRegistry):
         Returns:
             A list of all sampled project revisions.
         """
-        revisions = source.enumerate_revisions(*prj_cls.SOURCE)
+        revisions = source.enumerate_revisions(prj_cls)
 
         if bool(CFG["versions"]["full"]):
             return revisions

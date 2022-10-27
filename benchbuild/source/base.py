@@ -73,7 +73,11 @@ class Revision:
     project_cls: tp.Type["Project"]
     variants: tp.Sequence[Variant]
 
-    def __init__(self, _primary: Variant, *variants: Variant) -> None:
+    def __init__(
+        self, project_cls: tp.Type["Project"], _primary: Variant,
+        *variants: Variant
+    ) -> None:
+        self.project_cls = project_cls
         self.variants = [_primary] + list(variants)
 
     def extend(self, *variants: Variant) -> None:
@@ -348,7 +352,9 @@ class FetchableSource(ContextFreeMixin):
         Returns:
             List[str]: The list of versions to explore.
         """
-        return self.versions()
+        if self.is_context_free():
+            return self.versions()
+        return []
 
     @property
     def is_expandable(self) -> bool:
@@ -395,16 +401,6 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(_primary: Versioned, *sources: Versioned) -> Revision:
-    """
-    Return the 'default' revision for the given sources.
-
-    Returns:
-        A revision that contains every default variant for each source.
-    """
-    return Revision(_primary.default, *[src.default for src in sources])
-
-
 SourceT = tp.TypeVar('SourceT')
 
 
@@ -419,6 +415,17 @@ def primary(*sources: SourceT) -> SourceT:
     """
     (head, *_) = sources
     return head
+
+
+def secondaries(*sources: SourceT) -> tp.Sequence[SourceT]:
+    """
+    Return the complement to the primary source of a project.
+
+    Returns:
+        A list of all sources not considered primary.
+    """
+    (_, *tail) = sources
+    return list(tail)
 
 
 def product(*sources: Expandable) -> NestedVariants:
@@ -456,14 +463,18 @@ def _default_enumerator(*sources: Expandable) -> NestedVariants:
 
 class ContextEnumeratorFn(Protocol):
 
-    def __call__(self, context: Revision,
-                 *sources: ContextAwareSource) -> tp.Sequence[Revision]:
+    def __call__(
+        self, project_cls: tp.Type["Project"], context: Revision,
+        *sources: ContextAwareSource
+    ) -> tp.Sequence[Revision]:
         """
+        Enumerate all revisions that are valid under the given context.
         """
 
 
 def _default_caw_enumerator(
-    context: Revision, *sources: ContextAwareSource
+    project_cls: tp.Type["Project"], context: Revision,
+    *sources: ContextAwareSource
 ) -> tp.Sequence[Revision]:
     """
     Transform given variant into a list of variants to check.
@@ -480,14 +491,14 @@ def _default_caw_enumerator(
     variants = [var for var in variants if var]
 
     ret = [
-        Revision(*(list(context.variants) + list(caw_variants)))
+        Revision(project_cls, *(list(context.variants) + list(caw_variants)))
         for caw_variants in itertools.product(*variants)
     ]
     return ret
 
 
 def enumerate_revisions(
-    *sources: BaseSource,
+    project_cls: tp.Type["Project"],
     context_free_enumerator: EnumeratorFn = _default_enumerator,
     context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
 ) -> tp.Sequence[Revision]:
@@ -498,6 +509,8 @@ def enumerate_revisions(
     1. A phase for all sources that do not require a context to evaluate.
     2. A phase for all sources that require a static context.
     """
+    sources = project_cls.SOURCE
+
     context_free_sources = [
         source for source in sources if source.is_context_free()
     ]
@@ -506,14 +519,17 @@ def enumerate_revisions(
     ]
 
     revisions = context_free_enumerator(*context_free_sources)
-    project_revisions = [Revision(*variants) for variants in revisions]
+    project_revisions = [
+        Revision(project_cls, *variants) for variants in revisions
+    ]
 
     if len(context_aware_sources) > 0:
         revs = list(
             itertools.chain(
                 *(
-                    context_aware_enumerator(rev, *context_aware_sources)
-                    for rev in project_revisions
+                    context_aware_enumerator(
+                        project_cls, rev, *context_aware_sources
+                    ) for rev in project_revisions
                 )
             )
         )
@@ -538,7 +554,7 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
 
 
 def revision_from_str(
-    revs: tp.Sequence[RevisionStr], *sources: FetchableSource
+    revs: tp.Sequence[RevisionStr], project_cls: tp.Type["Project"]
 ) -> Revision:
     """
     Create a Revision from a sequence of revision strings.
@@ -560,6 +576,8 @@ def revision_from_str(
         A variant context.
     """
     found: tp.List[Variant] = []
+    sources = project_cls.SOURCE
+
     for source in sources:
         if source.is_expandable:
             found.extend([
@@ -570,4 +588,4 @@ def revision_from_str(
     if len(found) == 0:
         raise ValueError(f'Revisions {revs} not found in any available source.')
 
-    return Revision(found[0], *found[1:])
+    return Revision(project_cls, primary(*found), *secondaries(*found))

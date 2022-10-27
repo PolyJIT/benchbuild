@@ -8,10 +8,11 @@ from .base import ContextAwareSource as ContextAwareSource
 from .base import ContextEnumeratorFn as ContextEnumeratorFn
 from .base import Variant as Variant
 from .base import Revision as Revision
+from .base import RevisionStr as RevisionStr
 from .base import NestedVariants as NestedVariants
-from .base import default as default
 from .base import nosource as nosource
 from .base import primary as primary
+from .base import secondaries as secondaries
 from .base import product as product
 from .base import enumerate_revisions as enumerate_revisions
 from .base import revision_from_str as revision_from_str

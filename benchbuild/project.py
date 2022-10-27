@@ -268,8 +268,11 @@ class Project(
             raise ValueError("A project requires at least one source!")
 
         assert len(srcs) > 0, "A project requires at least one source!"
-
-        return source.default(srcs[0], *(srcs[1:]))
+        return source.Revision(
+            type(self),
+            source.primary(srcs[0]).default,
+            *[src.default for src in source.secondaries(srcs[1:])]
+        )
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)

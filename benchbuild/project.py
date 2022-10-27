@@ -262,7 +262,7 @@ class Project(
     revision: source.Revision = attr.ib()
 
     @revision.default
-    def __default_revision(self) -> source.Revision:
+    def __default_revision(self) -> source.Revision:  # pylint: disable=unused-private-member
         srcs = type(self).SOURCE
         if len(srcs) == 0:
             raise ValueError("A project requires at least one source!")
@@ -292,14 +292,14 @@ class Project(
     run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
-    def __default_run_uuid(self):  # pylint: disable=no-self-use
+    def __default_run_uuid(self):  # pylint: disable=no-self-use,unused-private-member
         run_group = getenv("BB_DB_RUN_GROUP", None)
         if run_group:
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
     @run_uuid.validator
-    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use
+    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use,unused-private-member
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
@@ -323,7 +323,7 @@ class Project(
     primary_source: str = attr.ib()
 
     @primary_source.default
-    def __default_primary_source(self) -> str:
+    def __default_primary_source(self) -> str:  # pylint: disable=unused-private-member
         return source.primary(*self.source).key
 
     compiler_extension = attr.ib(

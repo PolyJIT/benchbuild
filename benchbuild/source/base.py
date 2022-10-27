@@ -59,20 +59,22 @@ NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
 
 class Revision:
     """
-    A project revision captures all variants that form a single state used for an experiment.
+    A revision captures all variants that form a single project revision.
 
-    A project may have an arbitrary number of input sources that are required for
-    it's defined workloads, e.g., test input files, optional dependencies, or submodules.
+    A project may have an arbitrary number of input sources that are
+    required for it's defined workloads, e.g., test input files, optional
+    dependencies, or submodules.
 
-    BenchBuild considers each source to have different version numbers, encoded as "Variants".
-    The complete set of "Variants" for a project then forms a project revision.
+    BenchBuild considers each source to have different version numbers,
+    encoded as "Variants". The complete set of "Variants" for a project
+    then forms a project revision.
     """
 
     project_cls: tp.Type["Project"]
     variants: tp.Sequence[Variant]
 
-    def __init__(self, primary: Variant, *vars: Variant) -> None:
-        self.variants = [primary] + list(vars)
+    def __init__(self, _primary: Variant, *variants: Variant) -> None:
+        self.variants = [_primary] + list(variants)
 
     def extend(self, *variants: Variant) -> None:
         self.variants = list(self.variants) + list(variants)
@@ -207,7 +209,8 @@ class ContextAwareSource(Protocol):
 
     def is_context_free(self) -> bool:
         """
-        Return, if this source needs context to evaluate it's own list of available versions.
+        Return, if this source needs context to evaluate it's own
+        list of available versions.
         """
 
     def versions_with_context(self, ctx: Revision) -> tp.Sequence[Variant]:
@@ -215,7 +218,8 @@ class ContextAwareSource(Protocol):
         Augment the given revision with new variants associated with this source.
 
         Args:
-            ctx: the project revision, containing information about every context-free variant.
+            ctx: the project revision, containing information about every
+                 context-free variant.
 
         Returns:
             a sequence of project revisions.
@@ -298,7 +302,8 @@ class FetchableSource(ContextFreeMixin):
     def key(self) -> str:
         return self.local
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def default(self) -> Variant:
         """
         The default version for this source.
@@ -391,14 +396,14 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(primary: Versioned, *sources: Versioned) -> Revision:
+def default(_primary: Versioned, *sources: Versioned) -> Revision:
     """
     Return the 'default' revision for the given sources.
 
     Returns:
         A revision that contains every default variant for each source.
     """
-    return Revision(primary.default, *[src.default for src in sources])
+    return Revision(_primary.default, *[src.default for src in sources])
 
 
 SourceT = tp.TypeVar('SourceT')
@@ -433,7 +438,6 @@ class BaseSource(Expandable, Versioned, ContextAwareSource, Protocol):
     """
     Composition of source protocols.
     """
-    pass
 
 
 class EnumeratorFn(Protocol):
@@ -465,7 +469,8 @@ def _default_caw_enumerator(
     """
     Transform given variant into a list of variants to check.
 
-    This only considers the given context of all context-free sources per context-sensitive source.
+    This only considers the given context of all context-free sources
+    per context-sensitive source.
 
     Args:
         context:
@@ -566,4 +571,4 @@ def revision_from_str(
     if len(found) == 0:
         raise ValueError(f'Revisions {revs} not found in any available source.')
 
-    return Revision(*found)
+    return Revision(found[0], *found[1:])

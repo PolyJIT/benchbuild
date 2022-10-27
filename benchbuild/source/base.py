@@ -84,8 +84,7 @@ class Revision:
         def __replace(elem: Variant):
             if elem.name() == variant.name():
                 return variant
-            else:
-                return elem
+            return elem
 
         self.variants = list(map(__replace, self.variants))
 

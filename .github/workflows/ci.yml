@@ -38,7 +38,7 @@ jobs:
         BB_CONTAINER_RUNROOT: "/tmp"
         BB_CONTAINER_ROOT: "/tmp"
       run: |
-        git config protocol.file.allow always
+        git config --global protocol.file.allow always
 
         pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
         pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration

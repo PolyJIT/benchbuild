@@ -60,6 +60,9 @@ class SingleVersionFilter(BaseVersionFilter):
     A simple single versions only filter.
     """
 
+    def is_context_free(self) -> bool:
+        return self.child.is_context_free()
+
     def __init__(self, child: base.FetchableSource, filter_version: str):
         super().__init__(child)
         self.filter_version = filter_version
@@ -67,6 +70,13 @@ class SingleVersionFilter(BaseVersionFilter):
     def versions(self) -> tp.List[base.Variant]:
         return [
             v for v in self.child.versions() if str(v) == self.filter_version
+        ]
+
+    def versions_with_context(self,
+                              ctx: base.Revision) -> tp.Sequence[base.Variant]:
+        return [
+            v for v in self.child.versions_with_context(ctx)
+            if str(v) == self.filter_version
         ]
 
     def explore(self) -> tp.List[base.Variant]:

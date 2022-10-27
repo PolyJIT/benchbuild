@@ -21,5 +21,4 @@ from .git import Git as Git
 from .git import GitSubmodule as GitSubmodule
 from .http import HTTP as HTTP
 from .versions import BaseVersionFilter as BaseVersionFilter
-from .versions import BaseVersionGroup as BaseVersionGroup
 from .versions import SingleVersionFilter as SingleVersionFilter

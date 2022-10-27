@@ -6,46 +6,6 @@ import plumbum as pb
 from . import base
 
 
-class BaseVersionGroup(base.Versioned):
-
-    def __init__(self, children: tp.List[base.FetchableSource]):
-        super().__init__()
-
-        self.children = children
-
-    @property
-    def local(self) -> str:
-        raise NotImplementedError('Does not make sense on a group of sources')
-
-    @property
-    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
-        raise NotImplementedError('Does not make sense on a group of sources')
-
-    @abc.abstractmethod
-    def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        """
-        Fetch the requested version and place it in the target_dir
-
-        Args:
-            target_dir (str):
-                The filesystem path where the version should be placed in.
-            version (str):
-                The version that should be fetched from the local cache.
-
-        Returns:
-            str: [description]
-        """
-
-    @abc.abstractmethod
-    def versions(self) -> tp.List[base.Variant]:
-        """
-        List all available versions of this source.
-
-        Returns:
-            List[str]: The list of all available versions.
-        """
-
-
 class BaseVersionFilter(base.FetchableSource):
     child: base.FetchableSource
 

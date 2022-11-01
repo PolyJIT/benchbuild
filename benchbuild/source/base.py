@@ -114,6 +114,18 @@ class Revision:
 
         raise KeyError(f"Source with name {name} not found.")
 
+    def has_variant(self, name: str) -> bool:
+        """
+        Check if a variant with the given source name exists.
+
+        Args:
+            name: The local name of the source.
+
+        Returns:
+            True, should a variant with the given name exists
+        """
+        return any(variant.owner.key == name for variant in self.variants)
+
     def source_by_name(self, name: str) -> 'FetchableSource':
         """
         Return the source object that matches the key.

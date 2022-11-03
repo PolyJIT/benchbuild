@@ -295,14 +295,14 @@ class Project(
     run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
-    def __default_run_uuid(self):  # pylint: disable=no-self-use,unused-private-member
+    def __default_run_uuid(self):  # pylint: disable=unused-private-member
         run_group = getenv("BB_DB_RUN_GROUP", None)
         if run_group:
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
     @run_uuid.validator
-    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use,unused-private-member
+    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=unused-private-member
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
@@ -405,7 +405,7 @@ class Project(
             src = revision.source_by_name(name)
             return str(self.builddir / src.local)
         except KeyError:
-            LOG.debug(f"{name} not found in revision. Skipping.")
+            LOG.debug("%s not found in revision. Skipping.", name)
 
         all_sources = source.sources_as_dict(*self.source)
         if name in all_sources:
@@ -429,7 +429,7 @@ class Project(
             return str(revision.variant_by_name(name))
 
         except KeyError:
-            LOG.debug(f"{name} not found in revision. Skipping.")
+            LOG.debug("%s not found in revision. Skipping.", name)
 
         return None
 

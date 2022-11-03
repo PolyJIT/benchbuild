@@ -1,3 +1,40 @@
+## 6.5 (2022-11-03)
+
+### Feat
+
+- **source**: re-enable project_cls in enumerate_revision interface
+- **versions**: enable context-aware SingleVersionFilter
+- **source**: only print context-free sources
+- **source**: expand public source API
+- **source**: introduce type skeleton and prototypes for context-aware version enumeration.
+- **action**: replace StepClass metaclass with __init_subclass__
+- **actions**: mark StepTy covariant
+- **actions**: use Stepable protocol as bound for StepTy.
+- **actions**: accept any varargs in a Step's __call__ implementation
+
+### Fix
+
+- require dill version to be exactly 0.3.4
+- linter warning
+- linter warnings
+- **project**: remove debug print
+- **utils**: variant -> revision
+- **tests**: repair tests after VariantContext replacement.
+- **source**: remove runtime_checkable decorator
+- **source**: use project class instead of object for enumerate
+- **source**: return sequence of variants instead of nestedvariant
+- **source**: clean up protocol apis
+- **actions**: rename StepTy -> StepTy_co
+- **tests**: remove notify_step_begin_end
+- **actions**: reduce mypy errors
+- **actions**: use mutable generic container
+
+### Refactor
+
+- **versions**: remove BaseVersionGroup
+- **source**: replace VariantContext with Revision
+- **source**: remove ExpandableAndFetchableSource from API
+
 ## 6.4 (2022-09-21)
 
 ### Feat

@@ -14,7 +14,9 @@ from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.experiment import Experiment
 from benchbuild.project import __add_single_filter__, Project
 from benchbuild.source import nosource, HTTP
+from benchbuild.source.base import RevisionStr
 from benchbuild.utils import actions as a
+from benchbuild.utils.actions import SetProjectVersion
 
 
 class EmptyProject(Project):
@@ -106,94 +108,94 @@ def t_project() -> tp.Type[Project]:
     importlib.reload(sys.modules[__name__])
 
 
-def describe_SetProjectVersion():
-    from benchbuild.source.base import RevisionStr
-    from benchbuild.utils.actions import SetProjectVersion
+class TestExperiment(Experiment):
+    NAME = '-'
 
-    class TestExperiment(Experiment):
-        NAME = '-'
+    def actions_for_project(self,
+                            project: Project) -> tp.MutableSequence[a.Step]:
+        return []
 
-        def actions_for_project(self,
-                                project: Project) -> tp.MutableSequence[a.Step]:
-            return []
 
-    def can_partially_update() -> None:
-        exp = TestExperiment(projects=[TestProject])
-        context = exp.sample(TestProject)[0]
-        prj = TestProject(variant=context)
+def test_SetProjectVersion_can_partially_update() -> None:
+    exp = TestExperiment(projects=[TestProject])
+    context = exp.sample(TestProject)[0]
+    prj = TestProject(revision=context)
 
-        assert prj.active_variant['src-a'].version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
 
-        spv = SetProjectVersion(prj, RevisionStr('v2a'))
-        with pytest.raises(ProcessExecutionError):
-            spv()
+    spv = SetProjectVersion(prj, RevisionStr('v2a'))
+    with pytest.raises(ProcessExecutionError):
+        spv()
 
-        assert prj.active_variant['src-a'].version == 'v2a'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v2a'
 
-    def can_update_full() -> None:
-        exp = TestExperiment(projects=[TestProject])
-        context = exp.sample(TestProject)[0]
-        prj = TestProject(variant=context)
 
-        assert prj.active_variant['src-a'].version == 'v1a'
-        assert prj.active_variant['src-b'].version == 'v1b'
+def test_SetProjectVersion_can_update_full() -> None:
+    exp = TestExperiment(projects=[TestProject])
+    context = exp.sample(TestProject)[0]
+    prj = TestProject(revision=context)
 
-        spv = SetProjectVersion(prj, RevisionStr('v2a'), RevisionStr('v2b'))
-        with pytest.raises(ProcessExecutionError):
-            spv()
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
-        assert prj.active_variant['src-a'].version == 'v2a'
-        assert prj.active_variant['src-b'].version == 'v2b'
+    spv = SetProjectVersion(prj, RevisionStr('v2a'), RevisionStr('v2b'))
+    with pytest.raises(ProcessExecutionError):
+        spv()
 
-    def suffers_from_version_collision() -> None:
-        exp = TestExperiment(projects=[TestProject])
-        context = exp.sample(TestProject)[0]
-        prj = TestProject(variant=context)
+    assert prj.active_revision.variant_by_name("src-a").version == 'v2a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v2b'
 
-        assert prj.active_variant['src-a'].version == 'v1a'
-        assert prj.active_variant['src-b'].version == 'v1b'
 
-        spv = SetProjectVersion(prj, RevisionStr('v3'))
-        with pytest.raises(ProcessExecutionError):
-            spv()
+def test_SetProjectVersion_suffers_from_version_collision() -> None:
+    exp = TestExperiment(projects=[TestProject])
+    context = exp.sample(TestProject)[0]
+    prj = TestProject(revision=context)
 
-        assert prj.active_variant['src-a'].version == 'v3'
-        assert prj.active_variant['src-b'].version == 'v3'
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
-    def can_set_revision_through_filter(t_project) -> None:
-        """
-        Check, if we can set a filtered version.
-        """
-        source_backup = copy.deepcopy(t_project.SOURCE)
+    spv = SetProjectVersion(prj, RevisionStr('v3'))
+    with pytest.raises(ProcessExecutionError):
+        spv()
 
-        project_cls = __add_single_filter__(t_project, 'v3')
-        exp = TestExperiment(projects=[project_cls])
-        context = exp.sample(project_cls)[0]
-        prj = project_cls(variant=context)
+    assert prj.active_revision.variant_by_name("src-a").version == 'v3'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v3'
 
-        assert prj.active_variant['src-a'].version == 'v3'
-        assert prj.active_variant['src-b'].version == 'v1b'
 
-        spv = SetProjectVersion(prj, RevisionStr('v1a'))
-        with pytest.raises(ProcessExecutionError):
-            spv()
+def test_SetProjectVersion_can_set_revision_through_filter(t_project) -> None:
+    """
+    Check, if we can set a filtered version.
+    """
+    source_backup = copy.deepcopy(t_project.SOURCE)
 
-        assert prj.active_variant['src-a'].version == 'v1a'
-        assert prj.active_variant['src-b'].version == 'v1b'
+    project_cls = __add_single_filter__(t_project, 'v3')
+    exp = TestExperiment(projects=[project_cls])
+    context = exp.sample(project_cls)[0]
+    prj = project_cls(revision=context)
 
-    def raises_error_when_no_revision_is_found() -> None:
-        """
-        Raise error, if no RevisionStr can be matched with a source.
-        """
-        exp = TestExperiment(projects=[TestProject])
-        context = exp.sample(TestProject)[0]
-        prj = TestProject(variant=context)
+    assert prj.active_revision.variant_by_name("src-a").version == 'v3'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
 
-        assert prj.active_variant['src-a'].version == 'v1a'
-        assert prj.active_variant['src-b'].version == 'v1b'
+    spv = SetProjectVersion(prj, RevisionStr('v1a'))
+    with pytest.raises(ProcessExecutionError):
+        spv()
 
-        with pytest.raises(
-            ValueError,
-            match='Revisions (.+) not found in any available source.'
-        ):
-            spv = SetProjectVersion(prj, RevisionStr('does-not-exist'))
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
+
+
+def test_SetProjectVersion_raises_error_when_no_revision_is_found() -> None:
+    """
+    Raise error, if no RevisionStr can be matched with a source.
+    """
+    exp = TestExperiment(projects=[TestProject])
+    context = exp.sample(TestProject)[0]
+    prj = TestProject(revision=context)
+
+    assert prj.active_revision.variant_by_name("src-a").version == 'v1a'
+    assert prj.active_revision.variant_by_name("src-b").version == 'v1b'
+
+    with pytest.raises(
+        ValueError, match='Revisions (.+) not found in any available source.'
+    ):
+        spv = SetProjectVersion(prj, RevisionStr('does-not-exist'))

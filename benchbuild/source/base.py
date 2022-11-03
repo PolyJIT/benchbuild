@@ -16,7 +16,8 @@ if sys.version_info <= (3, 8):
 else:
     from typing import Protocol
 
-NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
+if tp.TYPE_CHECKING:
+    from benchbuild.project import Project
 
 
 @attr.s(frozen=True, eq=True)
@@ -43,23 +44,118 @@ class Variant:
     owner: 'FetchableSource' = attr.ib(eq=False, repr=False)
     version: str = attr.ib()
 
+    def name(self) -> str:
+        return self.owner.local
+
+    def source(self) -> 'FetchableSource':
+        return self.owner
+
     def __str__(self) -> str:
         return str(self.version)
 
 
-VariantContext = tp.Dict[str, Variant]
+NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
 
 
-def context(*variants: Variant) -> VariantContext:
+class Revision:
     """
-    Convert an arbitrary number of variants into a VariantContext.
+    A revision captures all variants that form a single project revision.
 
-    A variant context provides an index of local source references to
-    a given variant. You want to use this to access a known source component
-    given variant only a variant.
+    A project may have an arbitrary number of input sources that are
+    required for it's defined workloads, e.g., test input files, optional
+    dependencies, or submodules.
 
+    BenchBuild considers each source to have different version numbers,
+    encoded as "Variants". The complete set of "Variants" for a project
+    then forms a project revision.
     """
-    return {var.owner.key: var for var in variants}
+
+    project_cls: tp.Type["Project"]
+    variants: tp.Sequence[Variant]
+
+    def __init__(
+        self, project_cls: tp.Type["Project"], _primary: Variant,
+        *variants: Variant
+    ) -> None:
+        self.project_cls = project_cls
+        self.variants = [_primary] + list(variants)
+
+    def extend(self, *variants: Variant) -> None:
+        self.variants = list(self.variants) + list(variants)
+
+    def __update_variant(self, variant: Variant) -> None:
+
+        def __replace(elem: Variant):
+            if elem.name() == variant.name():
+                return variant
+            return elem
+
+        self.variants = list(map(__replace, self.variants))
+
+    def update(self, revision: "Revision") -> None:
+        for variant in revision.variants:
+            self.__update_variant(variant)
+
+    def variant_by_name(self, name: str) -> Variant:
+        """
+        Return the variant for the given source name.
+
+        Args:
+            name: The local name of the source.
+
+        Returns:
+            then version of the found source.
+        """
+        found_variants = [
+            variant for variant in self.variants if variant.owner.key == name
+        ]
+        if len(found_variants) > 0:
+            return found_variants[0]
+
+        raise KeyError(f"Source with name {name} not found.")
+
+    def has_variant(self, name: str) -> bool:
+        """
+        Check if a variant with the given source name exists.
+
+        Args:
+            name: The local name of the source.
+
+        Returns:
+            True, should a variant with the given name exists
+        """
+        return any(variant.owner.key == name for variant in self.variants)
+
+    def source_by_name(self, name: str) -> 'FetchableSource':
+        """
+        Return the source object that matches the key.
+
+        Args:
+            name: The local name of the source.
+
+        Returns:
+            the found source object
+
+        Raises:
+            KeyError, if we cannot find the source with this name.
+        """
+        found_variants = [
+            variant for variant in self.variants if variant.owner.key == name
+        ]
+        if len(found_variants) > 0:
+            return found_variants[0].owner
+
+        raise KeyError(f"Source with name {name} not found.")
+
+    @property
+    def primary(self) -> Variant:
+        return self.variants[0]
+
+    def __str__(self) -> str:
+        return to_str(*self.variants)
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 def to_str(*variants: Variant) -> str:
@@ -115,13 +211,48 @@ class Expandable(Protocol):
         in the version expansion of an associated project.
         """
 
-    def versions(self) -> tp.Iterable[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
         Returns:
             List[str]: The list of all available versions.
         """
+
+
+class ContextAwareSource(Protocol):
+
+    def is_context_free(self) -> bool:
+        """
+        Return, if this source needs context to evaluate it's own
+        list of available versions.
+        """
+
+    def versions_with_context(self, ctx: Revision) -> tp.Sequence[Variant]:
+        """
+        Augment the given revision with new variants associated with this source.
+
+        Args:
+            ctx: the project revision, containing information about every
+                 context-free variant.
+
+        Returns:
+            a sequence of project revisions.
+        """
+
+
+class ContextFreeMixin:
+    """
+    Make a context-free source context-aware.
+
+    This will setup default implementations that avoids interaction with any context.
+    """
+
+    def is_context_free(self) -> bool:
+        return True
+
+    def versions_with_context(self, ctx: Revision) -> tp.Sequence[Variant]:
+        raise AttributeError("Invalid use of versions with context")
 
 
 class Versioned(Protocol):
@@ -146,8 +277,7 @@ class Versioned(Protocol):
             str: [description]
         """
 
-    @property
-    def versions(self) -> tp.Iterable[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
@@ -156,7 +286,7 @@ class Versioned(Protocol):
         """
 
 
-class FetchableSource:
+class FetchableSource(ContextFreeMixin):
     """
     Base class for fetchable sources.
 
@@ -187,7 +317,8 @@ class FetchableSource:
     def key(self) -> str:
         return self.local
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def default(self) -> Variant:
         """
         The default version for this source.
@@ -211,7 +342,7 @@ class FetchableSource:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> tp.Sequence[Variant]:
         """
         List all available versions of this source.
 
@@ -220,7 +351,7 @@ class FetchableSource:
         """
         raise NotImplementedError()
 
-    def explore(self) -> tp.Iterable[Variant]:
+    def explore(self) -> tp.Sequence[Variant]:
         """
         Explore revisions of this source.
 
@@ -233,7 +364,9 @@ class FetchableSource:
         Returns:
             List[str]: The list of versions to explore.
         """
-        return self.versions()
+        if self.is_context_free():
+            return self.versions()
+        return []
 
     @property
     def is_expandable(self) -> bool:
@@ -280,17 +413,6 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(*sources: Versioned) -> VariantContext:
-    """
-    Return the collective 'default' version for the given sources.
-
-    Returns:
-        a variant context containing all default variants for the sources.
-    """
-    first = [src.default for src in sources]
-    return context(*first)
-
-
 SourceT = tp.TypeVar('SourceT')
 
 
@@ -307,6 +429,17 @@ def primary(*sources: SourceT) -> SourceT:
     return head
 
 
+def secondaries(*sources: SourceT) -> tp.Sequence[SourceT]:
+    """
+    Return the complement to the primary source of a project.
+
+    Returns:
+        A list of all sources not considered primary.
+    """
+    (_, *tail) = sources
+    return list(tail)
+
+
 def product(*sources: Expandable) -> NestedVariants:
     """
     Return the cross product of the given sources.
@@ -314,8 +447,107 @@ def product(*sources: Expandable) -> NestedVariants:
     Returns:
         An iterable containing the cross product of all source variants.
     """
+
     siblings = [source.versions() for source in sources if source.is_expandable]
     return itertools.product(*siblings)
+
+
+class BaseSource(Expandable, Versioned, ContextAwareSource, Protocol):
+    """
+    Composition of source protocols.
+    """
+
+
+class EnumeratorFn(Protocol):
+
+    def __call__(self, *source: Expandable) -> NestedVariants:
+        """
+        Return an enumeration of all variants for each source.
+
+        Returns:
+            a list of version tuples, containing each possible variant.
+        """
+
+
+def _default_enumerator(*sources: Expandable) -> NestedVariants:
+    return product(*sources)
+
+
+class ContextEnumeratorFn(Protocol):
+
+    def __call__(
+        self, project_cls: tp.Type["Project"], context: Revision,
+        *sources: ContextAwareSource
+    ) -> tp.Sequence[Revision]:
+        """
+        Enumerate all revisions that are valid under the given context.
+        """
+
+
+def _default_caw_enumerator(
+    project_cls: tp.Type["Project"], context: Revision,
+    *sources: ContextAwareSource
+) -> tp.Sequence[Revision]:
+    """
+    Transform given variant into a list of variants to check.
+
+    This only considers the given context of all context-free sources
+    per context-sensitive source.
+
+    Args:
+        context:
+        *sources:
+    """
+
+    variants = [source.versions_with_context(context) for source in sources]
+    variants = [var for var in variants if var]
+
+    ret = [
+        Revision(project_cls, *(list(context.variants) + list(caw_variants)))
+        for caw_variants in itertools.product(*variants)
+    ]
+    return ret
+
+
+def enumerate_revisions(
+    project_cls: tp.Type["Project"],
+    context_free_enumerator: EnumeratorFn = _default_enumerator,
+    context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
+) -> tp.Sequence[Revision]:
+    """
+    Enumerates the given sources.
+
+    The enumeration requires two phases.
+    1. A phase for all sources that do not require a context to evaluate.
+    2. A phase for all sources that require a static context.
+    """
+    sources = project_cls.SOURCE
+
+    context_free_sources = [
+        source for source in sources if source.is_context_free()
+    ]
+    context_aware_sources = [
+        source for source in sources if not source.is_context_free()
+    ]
+
+    revisions = context_free_enumerator(*context_free_sources)
+    project_revisions = [
+        Revision(project_cls, *variants) for variants in revisions
+    ]
+
+    if len(context_aware_sources) > 0:
+        revs = list(
+            itertools.chain(
+                *(
+                    context_aware_enumerator(
+                        project_cls, rev, *context_aware_sources
+                    ) for rev in project_revisions
+                )
+            )
+        )
+        return revs
+
+    return project_revisions
 
 
 SourceContext = tp.Dict[str, Fetchable]
@@ -333,18 +565,20 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
     return {src.local: src for src in sources}
 
 
-def context_from_revisions(
-    revs: tp.Sequence[RevisionStr], *sources: SourceT
-) -> VariantContext:
+def revision_from_str(
+    revs: tp.Sequence[RevisionStr], project_cls: tp.Type["Project"]
+) -> Revision:
     """
-    Create a VariantContext from a sequence of revision strings.
+    Create a Revision from a sequence of revision strings.
 
-    A valid VariantContext can only be created, if the number of valid revision
+    A valid Revision can only be created, if the number of valid revision
     strings is equivalent to the number of sources.
     A valid revision string is one that has been found in the a source's
     version.
     It is required that each revision string is found in a different source
     version.
+
+    We assume that the first source is the primary source of the revision.
 
     Args:
         revs: sequence of revision strings, e.g. a commit-hash.
@@ -354,6 +588,8 @@ def context_from_revisions(
         A variant context.
     """
     found: tp.List[Variant] = []
+    sources = project_cls.SOURCE
+
     for source in sources:
         if source.is_expandable:
             found.extend([
@@ -364,4 +600,4 @@ def context_from_revisions(
     if len(found) == 0:
         raise ValueError(f'Revisions {revs} not found in any available source.')
 
-    return context(*found)
+    return Revision(project_cls, primary(*found), *secondaries(*found))

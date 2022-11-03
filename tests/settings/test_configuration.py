@@ -14,26 +14,27 @@ def bb():
     yield Configuration('bb')
 
 
-def describe_inner_nodes():
+def test_inner_nodes_dict_can_be_inner_node():
+    assert _INNER_NODE_VALUE.is_valid({'default': 0, 'desc': 'a'})
 
-    def dict_can_be_inner_node():
-        assert _INNER_NODE_VALUE.is_valid({'default': 0, 'desc': 'a'})
 
-    def dict_can_be_nested_once():
-        assert _INNER_NODE_SCHEMA.is_valid({'a': {'default': 0, 'desc': 'a'}})
+def test_inner_nodes_dict_can_be_nested_once():
+    assert _INNER_NODE_SCHEMA.is_valid({'a': {'default': 0, 'desc': 'a'}})
 
-    def inner_node_value_can_be_assigned(bb):
-        bb['a'] = {'default': 0, 'desc': 'a'}
-        assert _INNER_NODE_SCHEMA.is_valid(bb.node)
 
-    def inner_node_needs_to_be_initialized():
-        cfg = Configuration('fresh')
-        cfg['a'] = {'default': 0, 'desc': 'a'}
+def test_inner_nodes_inner_node_value_can_be_assigned(bb):
+    bb['a'] = {'default': 0, 'desc': 'a'}
+    assert _INNER_NODE_SCHEMA.is_valid(bb.node)
 
-        assert not hasattr(cfg['a'].node, 'value')
 
-        cfg.init_from_env()
-        assert hasattr(cfg['a'], 'value')
+def test_inner_nodes_inner_node_needs_to_be_initialized():
+    cfg = Configuration('fresh')
+    cfg['a'] = {'default': 0, 'desc': 'a'}
+
+    assert not hasattr(cfg['a'].node, 'value')
+
+    cfg.init_from_env()
+    assert hasattr(cfg['a'], 'value')
 
 
 def test_simple_construction(bb):

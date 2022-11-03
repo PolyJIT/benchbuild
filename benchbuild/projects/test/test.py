@@ -172,7 +172,7 @@ class CAWTestProject(project.Project):
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
-        with open('test.cpp', 'w') as test_source:
+        with open('test.cpp', 'w', encoding="utf-8") as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {

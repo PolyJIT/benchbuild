@@ -315,6 +315,15 @@ def enumerate_projects(
                 prj = prj_class(context)
                 if prj.container:
                     yield prj
+                else:
+                    version = make_version_tag(prj.revision)
+                    image_tag = make_image_name(
+                        f'{prj.name}/{prj.group}', version
+                    )
+
+                    rich.get_console().print(
+                        f"Skipping empty container image declaration for: {image_tag}"
+                    )
 
 
 def make_version_tag(revision: source.Revision) -> str:

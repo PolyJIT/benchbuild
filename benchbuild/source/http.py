@@ -6,7 +6,7 @@ import typing as tp
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, ln, wget
+from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -62,6 +62,25 @@ class HTTP(base.FetchableSource):
     def versions(self) -> tp.List[base.Variant]:
         remotes = normalize_remotes(self.remote)
         return [base.Variant(version=rev, owner=self) for rev in remotes]
+
+
+class HTTPUntar(HTTP):
+    """
+    Fetch and download source via http and auto-unpack using GNU tar
+    """
+
+    def version(self, target_dir: str, version: str) -> pb.LocalPath:
+        archive_path = super().version(target_dir, version)
+        target_name = str(pb.local.path(archive_path).stem)
+
+        target_path = pb.local.path(target_dir) / target_name
+
+        mkdir(target_path)
+        tar("-x", "-C", target_path, "-f", archive_path)
+
+        ln('-sf', target_name, target_path)
+
+        return target_path
 
 
 def normalize_remotes(remote: VarRemotes) -> Remotes:

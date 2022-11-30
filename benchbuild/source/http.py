@@ -6,7 +6,7 @@ import typing as tp
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir
+from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir, mv
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -70,15 +70,37 @@ class HTTPUntar(HTTP):
     """
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        archive_path = super().version(target_dir, version)
-        target_name = str(pb.local.path(archive_path).stem)
+        """
+        Setup the given version of this HTTPUntar source.
 
+        This will fetch the given version from the remote source and unpack the
+        archive into the build directory using tar.
+
+        The location matches the behavior of other sources. However, you need
+        to consider that benchbuild will return a directory instead of a file path.
+
+        Example:
+            You specify a remote version 1.0 of an archive compression.tar.gz and
+            a local name of "compression.tar.gz".
+            The build directory will look as follows:
+
+            <builddir>/1.0-compression.dir/
+            <builddir>/1.0-compression.tar.gz
+            <builddir>/compression.tar.gz -> ./1.0-compression.tar.dir
+
+            The content of the archive is found in the directory compression.tar.gz.
+            Your workloads need to make sure to reference this directory (e.g. using tokens).
+        """
+        archive_path = super().version(target_dir, version)
+
+        target_name = str(pb.local.path(archive_path).with_suffix(".dir"))
         target_path = pb.local.path(target_dir) / target_name
+        active_loc = pb.local.path(target_dir) / self.local
 
         mkdir(target_path)
         tar("-x", "-C", target_path, "-f", archive_path)
 
-        ln('-sf', target_name, target_path)
+        ln('-sf', target_path, active_loc)
 
         return target_path
 

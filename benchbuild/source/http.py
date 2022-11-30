@@ -79,6 +79,9 @@ class HTTPUntar(HTTP):
         The location matches the behavior of other sources. However, you need
         to consider that benchbuild will return a directory instead of a file path.
 
+        When using workloads, you can refer to a directory with the SourceRootRenderer using
+        ``benchbuild.command.source_root``.
+
         Example:
             You specify a remote version 1.0 of an archive compression.tar.gz and
             a local name of "compression.tar.gz".
@@ -89,7 +92,8 @@ class HTTPUntar(HTTP):
             <builddir>/compression.tar.gz -> ./1.0-compression.tar.dir
 
             The content of the archive is found in the directory compression.tar.gz.
-            Your workloads need to make sure to reference this directory (e.g. using tokens).
+            Your workloads need to make sure to reference this directory (e.g. using tokens),
+            e.g., ``source_root("compression.tar.gz")``
         """
         archive_path = super().version(target_dir, version)
 

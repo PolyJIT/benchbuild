@@ -149,10 +149,24 @@ class Revision:
 
     @property
     def primary(self) -> Variant:
-        return self.variants[0]
+        variants = self.sorted()
+        return variants[0]
+
+    def sorted(self) -> tp.Sequence[Variant]:
+        """
+        Return an ordered list of Variants from this revision.
+
+        The order is defined by the order in the SOURCE attribute of the
+        associated project class.
+        """
+        sources = self.project_cls.SOURCE
+        sources = [src for src in sources if self.has_variant(src.key)]
+
+        return [self.variant_by_name(src.key) for src in sources]
 
     def __str__(self) -> str:
-        return to_str(*self.variants)
+        variants = self.sorted()
+        return to_str(*variants)
 
     def __repr__(self) -> str:
         return str(self)

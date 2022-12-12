@@ -10,6 +10,7 @@ pygit2>=1.2
 pygtrie~=2.5
 pyparsing~=3.0
 PyYAML~=6.0
+result~=0.8.0
 rich~=12.5
 schema~=0.7.5
 sqlalchemy-migrate~=0.13

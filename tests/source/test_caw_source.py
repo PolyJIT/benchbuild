@@ -1,7 +1,7 @@
 import typing as tp
 from unittest.mock import patch
 
-from benchbuild.project import Project, populate
+from benchbuild.project import Project, ProjectRegistry, populate
 from benchbuild.source import (
     enumerate_revisions,
     Variant,
@@ -80,10 +80,10 @@ def test_source_mapping(make_source, caw_src_0):
     src_secondary = make_source(["s1", "s2"])
     TestProject.SOURCE = [src_primary, caw_src_0, src_secondary]
 
-    with patch('benchbuild.project.discovered') as discovered:
-        discovered.return_value = {"test": TestProject}
-
-        res = populate(["test/test"])
+    with patch.dict(
+        ProjectRegistry.projects, {"test/test": TestProject}, clear=True
+    ):
+        res: tp.Mapping[str, tp.Type[Project]] = populate(["test/test"])
         assert res["test/test"] == TestProject
 
         expected_revisions = [

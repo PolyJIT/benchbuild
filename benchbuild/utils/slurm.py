@@ -98,7 +98,7 @@ def __save__(
         jinja2.exceptions.TemplateNotFound:
             If the modified template location does not exist.
     """
-    logs_dir = Path(CFG['slurm']['logs'].value)
+    logs_dir = Path(str(CFG['slurm']['logs'].value))
     if logs_dir.suffix != '':
         logs_dir = logs_dir.parent / logs_dir.stem
         LOG.warning(

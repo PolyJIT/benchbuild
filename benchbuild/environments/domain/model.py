@@ -73,7 +73,7 @@ class CopyLayer(Layer):
 
     def __str__(self) -> str:
         sources = ' '.join(self.sources)
-        return f'COPY {sources} self.destination'
+        return f'COPY {sources} {self.destination}'
 
 
 def immutable_kwargs(

@@ -84,8 +84,7 @@ class Config0(CAWSource):
         if ctx.primary.version == "0":
             ret = [Variant(self, "v0.1"), Variant(self, "v0.2")]
             return ret
-        else:
-            return []
+        return []
 
 
 class Config1(CAWSource):
@@ -100,8 +99,7 @@ class Config1(CAWSource):
         if ctx.primary.version == "1":
             ret = [Variant(self, "v1.1"), Variant(self, "v1.2")]
             return ret
-        else:
-            return []
+        return []
 
 
 @pytest.fixture

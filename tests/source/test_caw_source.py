@@ -1,11 +1,13 @@
 import typing as tp
+from unittest.mock import patch
 
-from benchbuild.project import Project
+from benchbuild.project import Project, ProjectRegistry, populate
 from benchbuild.source import (
     enumerate_revisions,
     Variant,
     SingleVersionFilter,
     FetchableSource,
+    Revision,
 )
 
 
@@ -68,3 +70,31 @@ def test_caw_filter(make_source, caw_src_0):
 
     test = [rev.variants for rev in revs]
     assert test == expected_variants
+
+
+def test_source_mapping(make_source, caw_src_0):
+    """
+    Test if we can map a list of revisions to the correct sources.
+    """
+    src_primary = make_source(["0", "1"])
+    src_secondary = make_source(["s1", "s2"])
+    TestProject.SOURCE = [src_primary, caw_src_0, src_secondary]
+
+    with patch.dict(
+        ProjectRegistry.projects, {"test/test": TestProject}, clear=True
+    ):
+        res: tp.Mapping[str, tp.Type[Project]] = populate(["test/test"])
+        assert res["test/test"] == TestProject
+
+        expected_revisions = [
+            str(
+                Revision(
+                    TestProject, Variant(src_primary, "0"),
+                    Variant(caw_src_0, "v0.1"), Variant(src_secondary, "s1")
+                )
+            )
+        ]
+
+        res = populate(["test/test@0,v0.1,s1"])
+        revisions = enumerate_revisions(res["test/test"])
+        assert [str(rev) for rev in revisions] == expected_revisions

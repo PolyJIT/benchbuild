@@ -15,7 +15,7 @@ from benchbuild.settings import CFG
 rich.traceback.install()
 
 
-class BenchBuildContainer(cli.Application):  # type: ignore
+class BenchBuildContainer(cli.Application):
     """
     Top-level command for benchbuild containers.
     """
@@ -30,24 +30,23 @@ class BenchBuildContainer(cli.Application):  # type: ignore
 
 
 @BenchBuildContainer.subcommand("run")
-class BenchBuildContainerRun(cli.Application):  # type: ignore
+class BenchBuildContainerRun(cli.Application):
     experiment_args: tp.List[str] = []
     group_args: tp.List[str] = []
 
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(['export'],
@@ -143,17 +142,16 @@ class BenchBuildContainerBase(cli.Application):
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(['export'],
@@ -222,17 +220,16 @@ class BenchBuildContainerRemoveImages(cli.Application):
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     delete_project_images = cli.Flag(['with-projects'],

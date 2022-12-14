@@ -29,41 +29,6 @@ class ContainerCreateError(Exception):
         self.message = message
 
 
-def create_container(
-    image_id: str,
-    container_name: str,
-    mounts: tp.Optional[tp.List[str]] = None
-) -> str:
-    """
-    Create, but do not start, an OCI container.
-
-    Refer to 'buildah create --help' for details about mount
-    specifications and '--replace'.
-
-    Args:
-        image_id: The container image used as template.
-        container_name: The name the container will be given.
-        mounts: A list of mount specifications for the OCI runtime.
-    """
-    podman_create = bb_podman('create', '--replace')
-
-    create_cmd = podman_create
-    if mounts:
-        for mount in mounts:
-            create_cmd = podman_create['--mount', mount]
-
-    cfg_mounts = list(CFG['container']['mounts'].value)
-    if cfg_mounts:
-        for source, target in cfg_mounts:
-            create_cmd = create_cmd['--mount',
-                                    f'type=bind,src={source},target={target}']
-
-    container_id = str(create_cmd('--name', container_name, image_id)).strip()
-
-    LOG.debug('created container: %s', container_id)
-    return container_id
-
-
 def save(image_id: str, out_path: str) -> Result[bool, ProcessExecutionError]:
     if local.path(out_path).exists():
         LOG.warning("No image exported. Image exists.")

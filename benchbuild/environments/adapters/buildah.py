@@ -19,23 +19,6 @@ from benchbuild.utils.cmd import mktemp
 LOG = logging.getLogger(__name__)
 
 
-def commit_working_container(
-    container: model.Container
-) -> Result[str, ProcessExecutionError]:
-    image = container.image
-    commit = bb_buildah('commit')[container.container_id, image.name.lower()]
-    res = run(commit)
-
-    if isinstance(res, Err):
-        LOG.error(
-            "Could not commit working container %s to %s",
-            container.container_id, image.name.lower()
-        )
-        LOG.error("Reason: %s", str(res.unwrap_err))
-
-    return res
-
-
 def _spawn_add_layer(
     container: model.Container, layer: model.AddLayer
 ) -> Result[str, ProcessExecutionError]:
@@ -70,7 +53,7 @@ def _spawn_run_layer(
     return run(buildah_run)
 
 
-def _spawn_in_context( # pylint: disable=useless-return
+def _spawn_in_context(
     container: model.Container, layer: model.ContextLayer
 ) -> Result[str, ProcessExecutionError]:
     with local.cwd(container.context):

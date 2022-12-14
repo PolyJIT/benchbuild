@@ -75,9 +75,14 @@ class BenchBuildContainerRun(cli.Application):
     def main(self, *projects: str) -> int:
         plugins.discover()
 
-        CFG['container']['replace'] = self.replace
-        CFG['container']['keep'] = self.debug
-        CFG['container']['interactive'] = self.interactive
+        if self.replace:
+            CFG['container']['replace'] = self.replace
+
+        if self.debug:
+            CFG['container']['keep'] = self.debug
+
+        if self.interactive:
+            CFG['container']['interactive'] = self.interactive
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args
@@ -168,7 +173,8 @@ class BenchBuildContainerBase(cli.Application):
     def main(self, *projects: str) -> int:
         plugins.discover()
 
-        CFG['container']['keep'] = self.debug
+        if self.debug:
+            CFG['container']['keep'] = self.debug
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args

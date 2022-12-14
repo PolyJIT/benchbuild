@@ -26,6 +26,13 @@ def commit_working_container(
     commit = bb_buildah('commit')[container.container_id, image.name.lower()]
     res = run(commit)
 
+    if isinstance(res, Err):
+        LOG.error(
+            "Could not commit working container %s to %s",
+            container.container_id, image.name.lower()
+        )
+        LOG.error("Reason: %s", str(res.unwrap_err))
+
     return res
 
 
@@ -157,7 +164,15 @@ def spawn_layer(container: model.Container,
         LayerHandlerT, _LAYER_HANDLERS[type(layer)]
     )
 
-    return handler(container, layer)
+    res = handler(container, layer)
+    if isinstance(res, Err):
+        LOG.error(
+            "Could not spawn layer %s in container %s", str(layer),
+            str(container.container_id)
+        )
+        LOG.error("Reason: %s", str(res.unwrap_err))
+
+    return res
 
 
 def handle_layer_error(
@@ -216,8 +231,12 @@ def store_failed_build(tag: str,
 
     res = run(commit)
     if isinstance(res, Err):
+        LOG.error(
+            "Could not store failed build %s in tag %s", str(container_id),
+            str(failed_tag.lower())
+        )
+        LOG.error("Reason: %s", str(res.unwrap_err))
         return res
-
     return Ok(failed_tag)
 
 
@@ -444,7 +463,7 @@ class BuildahImageRegistry(ImageRegistry):
         res = run(bb_buildah('images')['--json', tag.lower()], retcode=[0, 125])
 
         if isinstance(res, Err):
-            LOG.debug("Could not find the image %s", tag)
+            LOG.error("Could not find the image %s", tag)
             return None
 
         results = res.unwrap()

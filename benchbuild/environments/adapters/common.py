@@ -3,6 +3,7 @@ import typing as tp
 
 from plumbum import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
+from result import Ok, Err, Result
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import podman, buildah
@@ -70,9 +71,6 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
 bb_podman = container_cmd(podman)
 bb_buildah = container_cmd(buildah)
 
-MaybeCommandError = tp.Optional[ProcessExecutionError]
-CommandError = ProcessExecutionError
-
 
 class ImageCreateError(Exception):
 
@@ -83,31 +81,25 @@ class ImageCreateError(Exception):
         self.message = message
 
 
-def run(cmd: BaseCommand, **kwargs: tp.Any) -> tp.Tuple[str, MaybeCommandError]:
-    result = ""
+def run(cmd: BaseCommand,
+        **kwargs: tp.Any) -> Result[str, ProcessExecutionError]:
     try:
-        result = str(cmd(**kwargs)).strip()
+        return Ok(str(cmd(**kwargs)).strip())
     except ProcessExecutionError as err:
-        return result, err
-
-    return result, None
+        return Err(err)
 
 
 def run_tee(cmd: BaseCommand,
-            **kwargs: tp.Any) -> tp.Tuple[tp.Any, MaybeCommandError]:
-    result = ""
+            **kwargs: tp.Any) -> Result[tp.Any, ProcessExecutionError]:
     try:
-        result = cmd.run_tee(**kwargs)
+        return Ok(cmd.run_tee(**kwargs))
     except ProcessExecutionError as err:
-        return result, err
-    return result, None
+        return Err(err)
 
 
 def run_fg(cmd: BaseCommand,
-           **kwargs: tp.Any) -> tp.Tuple[tp.Any, MaybeCommandError]:
-    result = ""
+           **kwargs: tp.Any) -> Result[tp.Any, ProcessExecutionError]:
     try:
-        result = cmd.run_fg(**kwargs)
+        return Ok(cmd.run_fg(**kwargs))
     except ProcessExecutionError as err:
-        return result, err
-    return result, None
+        return Err(err)

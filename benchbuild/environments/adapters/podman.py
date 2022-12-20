@@ -2,7 +2,8 @@ import abc
 import logging
 import typing as tp
 
-from plumbum import local
+from plumbum import local, ProcessExecutionError
+from result import Result, Err, Ok
 from rich import print
 from rich.markdown import Markdown
 
@@ -12,7 +13,6 @@ from benchbuild.environments.adapters.common import (
     run_tee,
     run_fg,
     bb_podman,
-    MaybeCommandError,
 )
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
@@ -29,64 +29,47 @@ class ContainerCreateError(Exception):
         self.message = message
 
 
-def create_container(
-    image_id: str,
-    container_name: str,
-    mounts: tp.Optional[tp.List[str]] = None
-) -> str:
-    """
-    Create, but do not start, an OCI container.
-
-    Refer to 'buildah create --help' for details about mount
-    specifications and '--replace'.
-
-    Args:
-        image_id: The container image used as template.
-        container_name: The name the container will be given.
-        mounts: A list of mount specifications for the OCI runtime.
-    """
-    podman_create = bb_podman('create', '--replace')
-
-    create_cmd = podman_create
-    if mounts:
-        for mount in mounts:
-            create_cmd = podman_create['--mount', mount]
-
-    cfg_mounts = list(CFG['container']['mounts'].value)
-    if cfg_mounts:
-        for source, target in cfg_mounts:
-            create_cmd = create_cmd['--mount',
-                                    f'type=bind,src={source},target={target}']
-
-    container_id = str(create_cmd('--name', container_name, image_id)).strip()
-
-    LOG.debug('created container: %s', container_id)
-    return container_id
-
-
-def save(image_id: str, out_path: str) -> MaybeCommandError:
+def save(image_id: str, out_path: str) -> Result[bool, ProcessExecutionError]:
     if local.path(out_path).exists():
         LOG.warning("No image exported. Image exists.")
-        return None
-    _, err = run(bb_podman('save')['-o', out_path, image_id])
-    return err
+        return Ok(True)
+
+    res = run(bb_podman('save')['-o', out_path, image_id])
+
+    if isinstance(res, Err):
+        LOG.error("Could not save the image %s to %s.", image_id, out_path)
+        LOG.error("Reason: %s", str(res.unwrap_err()))
+        return res
+    return Ok(True)
 
 
-def load(load_path: str) -> MaybeCommandError:
-    _, err = run(bb_podman('load')['-i', load_path])
-    return err
+def load(load_path: str) -> Result[bool, ProcessExecutionError]:
+    res = run(bb_podman('load')['-i', load_path])
+    if isinstance(res, Err):
+        LOG.error("Could not load the image from %s", load_path)
+        LOG.error("Reason: %s", str(res.unwrap_err()))
+        return res
+    return Ok(True)
 
 
-def run_container(name: str) -> MaybeCommandError:
+def run_container(name: str) -> Result[str, ProcessExecutionError]:
     container_start = bb_podman('container', 'start')
-    _, err = run_tee(container_start['-ai', name])
-    return err
+    res = run_tee(container_start['-ai', name])
+    if isinstance(res, Err):
+        LOG.error("Could not run the container %s", name)
+        LOG.error("Reason: %s", str(res.unwrap_err()))
+
+    return res
 
 
-def remove_container(container_id: str) -> MaybeCommandError:
+def remove_container(container_id: str) -> Result[str, ProcessExecutionError]:
     podman_rm = bb_podman('rm')
-    _, err = run(podman_rm[container_id])
-    return err
+    res = run(podman_rm[container_id])
+    if isinstance(res, Err):
+        LOG.error("Could not remove the container %s", container_id)
+        LOG.error("Reason: %s", str(res.unwrap_err()))
+
+    return res
 
 
 class ContainerRegistry(abc.ABC):
@@ -201,20 +184,22 @@ class PodmanRegistry(ContainerRegistry):
                 )
             )
 
-            container_id, err = run(create_cmd['--name', name, image.name])
+            res = run(create_cmd['--name', name, image.name])
         else:
-            container_id, err = run(
-                create_cmd['--name', name, image.name][args]
-            )
+            res = run(create_cmd['--name', name, image.name][args])
 
-        if err:
-            raise ContainerCreateError(
-                container_id, " ".join(err.argv)
-            ) from err
+        if isinstance(res, Err):
+            LOG.error(
+                "Could not create the container %s from %s", name, image.name
+            )
+            LOG.error("Reason: %s", str(res.unwrap_err()))
+
+            raise ContainerCreateError(name, " ".join(res.unwrap_err().argv))
 
         # If we had to replace an existing container (bug?), we get 2 IDs.
         # The first ID is the old (replaced) container.
         # The second ID is the new container.
+        container_id = res.unwrap()
         new_container_id = container_id.split('\n')[-1]
 
         return model.Container(new_container_id, image, '', name)
@@ -225,14 +210,18 @@ class PodmanRegistry(ContainerRegistry):
         interactive = bool(CFG['container']['interactive'])
 
         if interactive:
-            _, err = run_fg(container_start['-ai', container_id])
+            res = run_fg(container_start['-ai', container_id])
         else:
-            _, err = run_tee(container_start['-ai', container_id])
+            res = run_tee(container_start['-ai', container_id])
 
-        if err:
+        if isinstance(res, Err):
+            LOG.error("Could not start the container %s", container_id)
+            LOG.error("Reason: %s", str(res.unwrap_err()))
+
             container.events.append(
                 events.ContainerStartFailed(
-                    container.name, container_id, " ".join(err.argv)
+                    container.name, container_id,
+                    " ".join(res.unwrap_err().argv)
                 )
             )
         else:

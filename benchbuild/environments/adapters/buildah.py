@@ -4,13 +4,12 @@ import logging
 import os
 import typing as tp
 
-from plumbum import local
+from plumbum import local, ProcessExecutionError
+from result import Ok, Err, Result
 
 from benchbuild.environments.adapters.common import (
     run,
     bb_buildah,
-    MaybeCommandError,
-    CommandError,
     ImageCreateError,
 )
 from benchbuild.environments.domain import model, events
@@ -20,16 +19,9 @@ from benchbuild.utils.cmd import mktemp
 LOG = logging.getLogger(__name__)
 
 
-def commit_working_container(container: model.Container) -> MaybeCommandError:
-    image = container.image
-    commit = bb_buildah('commit')[container.container_id, image.name.lower()]
-    _, err = run(commit)
-    return err
-
-
 def _spawn_add_layer(
     container: model.Container, layer: model.AddLayer
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     with local.cwd(container.context):
         sources = [
             os.path.join(container.context, source) for source in layer.sources
@@ -37,19 +29,19 @@ def _spawn_add_layer(
         buildah_add = bb_buildah('add', '--add-history')
         buildah_add = buildah_add[container.container_id][sources][
             layer.destination]
-        _, err = run(buildah_add)
-        return err
+
+        return run(buildah_add)
 
 
 def _spawn_copy_layer(
     container: model.Container, layer: model.AddLayer
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     return _spawn_add_layer(container, layer)
 
 
 def _spawn_run_layer(
     container: model.Container, layer: model.RunLayer
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     kws = []
     for name, value in layer.kwargs:
         kws.append(f'--{name}')
@@ -58,26 +50,25 @@ def _spawn_run_layer(
     buildah_run = bb_buildah('run', '--add-history')
     buildah_run = buildah_run[kws][container.container_id, '--',
                                    layer.command][layer.args]
-    _, err = run(buildah_run)
-    return err
+    return run(buildah_run)
 
 
-def _spawn_in_context( # pylint: disable=useless-return
+def _spawn_in_context(
     container: model.Container, layer: model.ContextLayer
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     with local.cwd(container.context):
         layer.func()
-    return None
+
+    return Ok("")
 
 
 def _update_env_layer(
     container: model.Container, layer: model.UpdateEnv
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     buildah_config = bb_buildah('config')
     for key, value in layer.env:
         buildah_config = buildah_config['-e', f'{key}={value}']
-    _, err = run(buildah_config[container.container_id])
-    return err
+    return run(buildah_config[container.container_id])
 
 
 def fetch_image_env(image: model.Image) -> None:
@@ -112,31 +103,28 @@ def fetch_image_env(image: model.Image) -> None:
 
 def _set_entry_point(
     container: model.Container, layer: model.EntryPoint
-) -> MaybeCommandError:
+) -> Result[str, ProcessExecutionError]:
     cmd = bb_buildah('config')['--entrypoint', json.dumps(list(layer.command))]
-    _, err = run(cmd[container.container_id])
-    return err
+    return run(cmd[container.container_id])
 
 
-def _set_command(
-    container: model.Container, layer: model.SetCommand
-) -> MaybeCommandError:
+def _set_command(container: model.Container,
+                 layer: model.SetCommand) -> Result[str, ProcessExecutionError]:
     cmd = bb_buildah('config')['--cmd', json.dumps(list(layer.command))]
-    _, err = run(cmd[container.container_id])
-    return err
+    return run(cmd[container.container_id])
 
 
 def _set_working_directory(
     container: model.Container, layer: model.WorkingDirectory
-) -> MaybeCommandError:
-    _, err = run(
+) -> Result[str, ProcessExecutionError]:
+    return run(
         bb_buildah('config')['--workingdir', layer.directory,
                              container.container_id]
     )
-    return err
 
 
-LayerHandlerT = tp.Callable[[model.Container, model.Layer], MaybeCommandError]
+LayerHandlerT = tp.Callable[[model.Container, model.Layer],
+                            Result[str, ProcessExecutionError]]
 
 _LAYER_HANDLERS = {
     model.AddLayer: _spawn_add_layer,
@@ -150,20 +138,29 @@ _LAYER_HANDLERS = {
 }
 
 
-def spawn_layer(
-    container: model.Container, layer: model.Layer
-) -> MaybeCommandError:
+def spawn_layer(container: model.Container,
+                layer: model.Layer) -> Result[str, ProcessExecutionError]:
     if layer == container.image.from_:
-        return None
+        return Ok("")
 
     handler: LayerHandlerT = tp.cast(
         LayerHandlerT, _LAYER_HANDLERS[type(layer)]
     )
-    return handler(container, layer)
+
+    res = handler(container, layer)
+    if isinstance(res, Err):
+        LOG.error(
+            "Could not spawn layer %s in container %s", str(layer),
+            str(container.container_id)
+        )
+        LOG.error("Reason: %s", str(res.unwrap_err))
+
+    return res
 
 
 def handle_layer_error(
-    err: CommandError, container: model.Container, layer: model.Layer
+    err: Err[ProcessExecutionError], container: model.Container,
+    layer: model.Layer
 ) -> None:
     """
     Process a layer error gracefully.
@@ -186,19 +183,20 @@ def handle_layer_error(
         return keep and not isinstance(layer, model.FromLayer)
 
     if can_keep(layer):
-        failed_tag, keep_err = store_failed_build(
-            image.name, container.container_id
-        )
-        if keep_err:
-            raise keep_err
+        res = store_failed_build(image.name, container.container_id)
 
-        image.events.append(
-            events.DebugImageKept(image.name, failed_tag, str(layer))
-        )
+        if isinstance(res, Err):
+            LOG.error("Could not store failed build container %s", res.err())
+
+        failed_tag = res.ok()
+        if failed_tag:
+            image.events.append(
+                events.DebugImageKept(image.name, failed_tag, str(layer))
+            )
 
 
 def store_failed_build(tag: str,
-                       container_id: str) -> tp.Tuple[str, MaybeCommandError]:
+                       container_id: str) -> Result[str, ProcessExecutionError]:
     """
     Store a failed build container.
 
@@ -213,8 +211,16 @@ def store_failed_build(tag: str,
     failed_tag = f'{tag}-{suffix}'
 
     commit = bb_buildah('commit')[container_id, failed_tag.lower()]
-    _, err = run(commit)
-    return failed_tag, err
+
+    res = run(commit)
+    if isinstance(res, Err):
+        LOG.error(
+            "Could not store failed build %s in tag %s", str(container_id),
+            str(failed_tag.lower())
+        )
+        LOG.error("Reason: %s", str(res.unwrap_err))
+        return res
+    return Ok(failed_tag)
 
 
 def find_entrypoint(tag: str) -> str:
@@ -393,15 +399,22 @@ class BuildahImageRegistry(ImageRegistry):
     def _create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         image = model.Image(tag, from_, [])
 
-        container_id, err = run(bb_buildah('from')[from_.base])
+        # container_id, err = run(bb_buildah('from')[from_.base])
+        res = run(bb_buildah('from')[from_.base])
 
-        if err:
-            raise ImageCreateError(tag, message=str(err))
+        if isinstance(res, Err):
+            raise ImageCreateError(tag, message=str(res.unwrap_err()))
 
-        context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
-        container = model.Container(container_id, image, context, image.name)
+        if isinstance(res, Ok):
+            container_id = res.unwrap()
+            context = local.path(
+                mktemp('-dt', '-p', str(CFG['build_dir'])).strip()
+            )
+            container = model.Container(
+                container_id, image, context, image.name
+            )
 
-        return container
+            return container
 
     def _add(self, image: model.Image) -> bool:
         required_layers = [l for l in image.layers if not image.is_present(l)]
@@ -410,14 +423,15 @@ class BuildahImageRegistry(ImageRegistry):
             # Recreate build container from image tag
             raise ValueError("No build container found. Create one first.")
 
-        err: MaybeCommandError = None
-        while required_layers and err is None:
+        res: Result[str, ProcessExecutionError] = Ok("")
+
+        while required_layers and res.is_ok():
             layer = required_layers.pop()
             LOG.info(layer)
             container = self.containers[image.name]
-            err = spawn_layer(container, layer)
-            if err:
-                handle_layer_error(err, container, layer)
+            res = spawn_layer(container, layer)
+            if isinstance(res, Err):
+                handle_layer_error(res, container, layer)
             else:
                 image.events.append(
                     events.LayerCreated(
@@ -426,12 +440,17 @@ class BuildahImageRegistry(ImageRegistry):
                 )
                 image.present(layer)
 
-        return err is None
+        return res.is_ok()
 
     def _find(self, tag: str) -> model.MaybeImage:
-        results, _ = run(
-            bb_buildah('images')['--json', tag.lower()], retcode=[0, 125]
-        )
+        res = run(bb_buildah('images')['--json', tag.lower()], retcode=[0, 125])
+
+        if isinstance(res, Err):
+            LOG.error("Could not find the image %s", tag)
+            return None
+
+        results = res.unwrap()
+        LOG.error("Results '%s'", results)
         if results:
             json_results = json.loads(results)
             if json_results:
@@ -439,6 +458,7 @@ class BuildahImageRegistry(ImageRegistry):
                 image = model.Image(tag, model.FromLayer(tag), [])
                 fetch_image_env(image)
                 return image
+
         return None
 
     def _env(self, tag: str, name: str) -> tp.Optional[str]:
@@ -448,4 +468,9 @@ class BuildahImageRegistry(ImageRegistry):
         return None
 
     def _remove(self, image: model.Image) -> None:
-        run(bb_buildah('rmi')[image.name.lower()], retcode=[0])
+        res = run(bb_buildah('rmi')[image.name.lower()], retcode=[0])
+        if isinstance(res, Err):
+            LOG.error(
+                "Could not delete image %s. Reason: %s", image.name.lower(),
+                str(res.unwrap_err())
+            )

@@ -1,9 +1,11 @@
 import abc
+import logging
 import sys
 import typing as tp
 
 from plumbum import local
 from plumbum.path.utils import delete
+from result import Err
 
 from benchbuild.environments.adapters import common, buildah, podman
 from benchbuild.environments.domain import model, events
@@ -12,6 +14,8 @@ if sys.version_info <= (3, 8):
     from typing_extensions import Protocol
 else:
     from typing import Protocol
+
+LOG = logging.getLogger(__name__)
 
 
 class EventCollector(Protocol):
@@ -122,10 +126,14 @@ class BuildahImageUOW(ImageUnitOfWork):
 
     def _commit(self, container: model.Container) -> None:
         image = container.image
-        common.run(
+        res = common.run(
             common.bb_buildah('commit')[container.container_id,
                                         image.name.lower()]
         )
+
+        if isinstance(res, Err):
+            LOG.error("Could not commit container image %s", image.name)
+            LOG.error("Reason: %s", str(res.unwrap_err))
 
     def _rollback(self, container: model.Container) -> None:
         buildah.run(buildah.bb_buildah('rm')[container.container_id])

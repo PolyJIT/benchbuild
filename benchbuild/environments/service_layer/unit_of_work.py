@@ -122,10 +122,14 @@ class BuildahImageUOW(ImageUnitOfWork):
 
     def _commit(self, container: model.Container) -> None:
         image = container.image
-        common.run(
+        res = common.run(
             common.bb_buildah('commit')[container.container_id,
                                         image.name.lower()]
         )
+
+        if isinstance(res, Err):
+            LOG.error("Could not commit container image %s", image.name)
+            LOG.error("Reason: %s", str(res.unwrap_err))
 
     def _rollback(self, container: model.Container) -> None:
         buildah.run(buildah.bb_buildah('rm')[container.container_id])

@@ -260,6 +260,14 @@ CFG["slurm"] = {
     "extra_log": {
         "desc": "Extra log file to be managed by SLURM",
         "default": "/tmp/.slurm"
+    },
+    "container_root": {
+        "default": None,
+        "desc": "Permanent storage for container images"
+    },
+    "container_runroot": {
+        "default": None,
+        "desc": "Runtime storage for containers"
     }
 }
 

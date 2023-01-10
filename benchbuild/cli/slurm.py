@@ -75,6 +75,11 @@ class Slurm(cli.Application):
         )
 
         CFG["build_dir"] = str(CFG["slurm"]["node_dir"])
+        if CFG["slurm"]["container_root"].value is not None:
+            CFG["container"]["root"] = CFG["slurm"]["container_root"].value
+        if CFG["slurm"]["container_runroot"].value is not None:
+            CFG["container"]["runroot"] = CFG["slurm"]["container_runroot"
+                                                      ].value
 
         if not wanted_experiments:
             print("Could not find any experiment. Exiting.")

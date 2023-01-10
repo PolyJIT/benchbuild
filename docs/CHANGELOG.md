@@ -1,3 +1,27 @@
+<a name="6.6.1"></a>
+## 6.6.1 (2023-01-10)
+
+
+#### Features
+
+* **environments:**
+  *  do not overwrite config, if cli option is default ([b1a095c1](https://github.com/PolyJIT/benchbuild/commit/b1a095c1e5b6ceb32b7eb3a7eda61918eeb3f757))
+  *  improve error handling using result module ([fbb69502](https://github.com/PolyJIT/benchbuild/commit/fbb695027e83e99ab8dbbb58447bd3dc9d0073dd))
+* **slurm:**  make container.runroot/container.root available for slurm customization ([616a4c69](https://github.com/PolyJIT/benchbuild/commit/616a4c69bea9ef17547cabfd2a8e076638b1e034), closes [#528](https://github.com/PolyJIT/benchbuild/issues/528))
+* **source:**  make sure we manage the archive symlink properly. ([7687f0e3](https://github.com/PolyJIT/benchbuild/commit/7687f0e317b82b9e8a4b5e78a63827dd18255c06))
+* **source/http:**  add auto-untar http source ([84f90e75](https://github.com/PolyJIT/benchbuild/commit/84f90e7568550a240a25c7cf06b139862f764ed0))
+
+#### Bug Fixes
+
+* **environments:**
+  *  add missing logging import ([aad1b287](https://github.com/PolyJIT/benchbuild/commit/aad1b2878721c466167f52c176683d97d25a9f86))
+  *  add missing Err import ([19c5983c](https://github.com/PolyJIT/benchbuild/commit/19c5983cd43e73d870212428bcc382d3e8255d9e))
+  *  notify user when commit of container image fails ([78b890af](https://github.com/PolyJIT/benchbuild/commit/78b890af5fd03093bc74631bc6ac63c19477ee70))
+* **project:**  version filters should only consider expandable sources ([3d546314](https://github.com/PolyJIT/benchbuild/commit/3d5463146debb66b3448acbf3ee79c4ef17ce35f))
+* **source:**  enforce sorted order of revisions ([ca973ff0](https://github.com/PolyJIT/benchbuild/commit/ca973ff0b7e01e3b79b6daafdc7848e1433f766a))
+
+
+
 ## 6.5 (2022-11-03)
 
 ### Feat

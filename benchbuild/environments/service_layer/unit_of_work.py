@@ -1,4 +1,5 @@
 import abc
+import logging
 import sys
 import typing as tp
 
@@ -13,6 +14,8 @@ if sys.version_info <= (3, 8):
     from typing_extensions import Protocol
 else:
     from typing import Protocol
+
+LOG = logging.getLogger(__name__)
 
 
 class EventCollector(Protocol):

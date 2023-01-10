@@ -446,11 +446,10 @@ class BuildahImageRegistry(ImageRegistry):
         res = run(bb_buildah('images')['--json', tag.lower()], retcode=[0, 125])
 
         if isinstance(res, Err):
-            LOG.error("Could not find the image %s", tag)
+            LOG.debug("Could not find the image %s", tag)
             return None
 
         results = res.unwrap()
-        LOG.error("Results '%s'", results)
         if results:
             json_results = json.loads(results)
             if json_results:

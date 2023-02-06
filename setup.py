@@ -34,8 +34,9 @@ setup(
         "dill==0.3.4", "pathos~=0.2", "parse~=1.14", "plumbum~=1.6",
         "psutil~=5.6", "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.11.0",
         "pygtrie~=2.3", "pyparsing>=2.4,<4.0", "rich>=6.1,<13.0",
-        "sqlalchemy-migrate~=0.13", "typing-extensions>=3.7.4.3,<4.3.1.0",
-        "virtualenv>=16.7,<21.0", "schema~=0.7.4", "result~=0.8.0"
+        "SQLAlchemy~=1.4.46", "sqlalchemy-migrate~=0.13",
+        "typing-extensions>=3.7.4.3,<4.3.1.0", "virtualenv>=16.7,<21.0",
+        "schema~=0.7.4", "result~=0.8.0"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

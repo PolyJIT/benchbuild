@@ -15,5 +15,5 @@ rich~=12.5
 schema~=0.7.5
 SQLAlchemy~=1.4.46
 sqlalchemy-migrate~=0.13
-typing-extensions~=4.3.0
+typing-extensions~=4.4.0
 virtualenv~=20.15

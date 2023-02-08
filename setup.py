@@ -30,13 +30,12 @@ setup(
     include_package_data=True,
     setup_requires=["pytest-runner", "setuptools_scm"],
     install_requires=[
-        "Jinja2>=2.10,<4.0", "PyYAML>=5.1,<7.0", "attrs>=19.3,<23.0",
-        "dill==0.3.4", "pathos~=0.2", "parse~=1.14", "plumbum~=1.6",
-        "psutil~=5.6", "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.11.0",
-        "pygtrie~=2.3", "pyparsing>=2.4,<4.0", "rich>=6.1,<13.0",
-        "SQLAlchemy~=1.4.46", "sqlalchemy-migrate~=0.13",
-        "typing-extensions>=3.7.4.3,<4.3.1.0", "virtualenv>=16.7,<21.0",
-        "schema~=0.7.4", "result~=0.8.0"
+        "Jinja2~=3.1", "PyYAML~=6.0", "attrs~=22.2", "dill==0.3.4",
+        "pathos~=0.2", "parse~=1.19", "plumbum~=1.8", "psutil~=5.9",
+        "psycopg2-binary~=2.9", "pygit2~=1.11", "pygtrie~=2.5",
+        "pyparsing~=3.0", "rich~=13.3", "SQLAlchemy<2",
+        "sqlalchemy-migrate~=0.13", "typing-extensions~=4.4",
+        "virtualenv~=20.19", "schema~=0.7", "result~=0.9"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

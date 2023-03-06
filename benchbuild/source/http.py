@@ -109,6 +109,36 @@ class HTTPUntar(HTTP):
         return target_path
 
 
+class HTTPMultiple(HTTP):
+    """
+    Fetch and download multiple files via HTTP.
+    """
+
+    def __init__(
+        self,
+        local: str,
+        remote: tp.Union[str, tp.Dict[str, str]],
+        files: tp.List[str]
+    ):
+        super().__init__(local, remote)
+        self._files = files
+
+    def fetch_version(self, version: str) -> pb.LocalPath:
+        prefix = base.target_prefix()
+        remotes = normalize_remotes(self.remote)
+
+        url = remotes[version]
+        target_name = versioned_target_name(self.local, version)
+
+        cache_path = pb.local.path(prefix) / target_name
+        mkdir('-p', cache_path)
+
+        for file in self._files:
+            download_single_version(f'{url}/{file}', cache_path / file)
+
+        return cache_path
+
+
 def normalize_remotes(remote: VarRemotes) -> Remotes:
     if isinstance(remote, str):
         raise TypeError('\'remote\' needs to be a mapping type')

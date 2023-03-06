@@ -21,6 +21,7 @@ from .base import to_str as to_str
 from .git import Git as Git
 from .git import GitSubmodule as GitSubmodule
 from .http import HTTP as HTTP
+from .http import HTTPMultiple as HTTPMultiple
 from .http import HTTPUntar as HTTPUntar
 from .versions import BaseVersionFilter as BaseVersionFilter
 from .versions import SingleVersionFilter as SingleVersionFilter

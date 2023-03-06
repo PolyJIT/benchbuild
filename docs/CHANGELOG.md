@@ -1,3 +1,19 @@
+<a name="6.6.3"></a>
+## 6.6.3 (2023-03-06)
+
+
+
+
+<a name="6.6.2"></a>
+## 6.6.2 (2023-03-06)
+
+
+#### Bug Fixes
+
+*   pin sqlalchemy version <2.0 ([86d45043](https://github.com/PolyJIT/benchbuild/commit/86d45043d269775d65c3b2844d9eee669824b46c))
+
+
+
 <a name="6.6.1"></a>
 ## 6.6.1 (2023-01-10)
 

@@ -400,7 +400,7 @@ class BuildahImageRegistry(ImageRegistry):
         image = model.Image(tag, from_, [])
 
         # container_id, err = run(bb_buildah('from')[from_.base])
-        res = run(bb_buildah('from')[from_.base])
+        res = run(bb_buildah('from')[from_.base.lower()])
 
         if isinstance(res, Err):
             raise ImageCreateError(tag, message=str(res.unwrap_err()))

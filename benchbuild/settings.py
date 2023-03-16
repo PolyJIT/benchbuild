@@ -378,6 +378,10 @@ CFG["container"] = {
         "default": s.ConfigPath(os.getcwd()),
         "desc": "Path to benchbuild's source directory"
     },
+    "storage_driver": {
+        "default": "vfs",
+        "desc": "Storage driver for containers."
+     },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."

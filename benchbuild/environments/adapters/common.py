@@ -49,6 +49,7 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
     def wrapped_cmd(*args: str) -> BaseCommand:
         root = CFG['container']['root']
         runroot = CFG['container']['runroot']
+        storage_driver = CFG['container']['storage_driver']
 
         if path_longer_than_50_chars(str(root)):
             LOG.error(
@@ -60,7 +61,10 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
                 '%s - %s', runroot.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED
             )
 
-        opts = ['--root', root, '--runroot', runroot]
+        opts = [
+            '--root', root, '--runroot', runroot,
+            '--storage-driver', storage_driver
+        ]
 
         cmd = base[opts]
         return cmd[args]

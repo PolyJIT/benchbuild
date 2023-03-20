@@ -344,13 +344,16 @@ class Project(
                 ContainerImage, copy.deepcopy(type(self).CONTAINER)
             )
         else:
-            if not isinstance(primary(*self.SOURCE), Git):
+            primary_source = primary(*self.SOURCE)
+            if isinstance(primary_source,source.BaseVersionFilter):
+                primary_source = primary_source.child
+            if not isinstance(primary_source, Git):
                 raise AssertionError(
                     "Container selection by version is only allowed if the"
                     "primary source is a git repository."
                 )
             version = self.version_of_primary
-            cache_path = str(primary(*self.SOURCE).fetch())
+            cache_path = str(primary_source.fetch())
             for rev_range, image in type(self).CONTAINER:
                 rev_range.init_cache(cache_path)
                 if version in rev_range:

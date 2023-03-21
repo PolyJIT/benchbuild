@@ -356,9 +356,11 @@ class Project(
             cache_path = str(primary_source.fetch())
             for rev_range, image in type(self).CONTAINER:
                 rev_range.init_cache(cache_path)
-                if version in rev_range:
-                    self.container = copy.deepcopy(image)
-                    break
+                for rev in rev_range:
+                    if rev.startswith(version):
+                        self.container = copy.deepcopy(image)
+                        break
+
 
     def clean(self) -> None:
         """Clean the project build directory."""

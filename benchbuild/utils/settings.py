@@ -22,7 +22,6 @@ import attr
 import schema
 import six
 import yaml
-from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import LocalPath, local
 
 import benchbuild.utils.user_interface as ui
@@ -36,11 +35,22 @@ class Indexable:
         pass
 
 
-try:
-    __version__ = get_distribution("benchbuild").version
-except DistributionNotFound:
-    __version__ = "unknown"
-    LOG.error("could not find version information.")
+# Importing pkg_resources is slow. Starting with Python 3.8, there is a better
+# option.
+if sys.version_info >= (3, 8):
+    from importlib.metadata import version, PackageNotFoundError
+    try:
+        __version__ = version("benchbuild")
+    except PackageNotFoundError:
+        __version__ = "unknown"
+        LOG.error("could not find version information.")
+else:
+    from pkg_resources import DistributionNotFound, get_distribution
+    try:
+        __version__ = get_distribution("benchbuild").version
+    except DistributionNotFound:
+        __version__ = "unknown"
+        LOG.error("could not find version information.")
 
 
 def available_cpu_count() -> int:

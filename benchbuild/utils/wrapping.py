@@ -27,10 +27,8 @@ import os
 import sys
 import typing as tp
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import dill
-import jinja2
 import plumbum as pb
 from plumbum import local
 from plumbum.commands.base import BoundCommand
@@ -44,6 +42,8 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 LOG = logging.getLogger(__name__)
 
 if tp.TYPE_CHECKING:
+    import jinja2
+
     import benchbuild.project.Project  # pylint: disable=unused-import
 
 
@@ -81,7 +81,8 @@ def unpickle(pickle_file: str) -> tp.Any:
     return pickle
 
 
-def __create_jinja_env() -> jinja2.Environment:
+def __create_jinja_env() -> 'jinja2.Environment':
+    import jinja2
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,

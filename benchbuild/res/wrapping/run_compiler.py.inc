@@ -6,6 +6,11 @@ os.environ["OPENBLAS_NUM_THREADS"] = "4"
 
 from plumbum import TEE, local
 
+# Performance optimization for benchbuild: don't import any experiments or
+# projects. Everything necessary should be imported when loading (unpickling)
+# the project and the compiler.
+os.environ["BB_PLUGINS_AUTOLOAD"] = "False"
+
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos

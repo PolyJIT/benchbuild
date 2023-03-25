@@ -31,7 +31,7 @@ setup(
     setup_requires=["pytest-runner", "setuptools_scm"],
     install_requires=[
         "Jinja2>=2.10,<4.0", "PyYAML>=5.1,<7.0", "attrs>=19.3,<23.0",
-        "dill==0.3.4", "pathos~=0.2", "parse~=1.14", "plumbum~=1.6",
+        "dill==0.3.6", "pathos~=0.3", "parse~=1.14", "plumbum~=1.6",
         "psutil~=5.6", "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.11.0",
         "pygtrie~=2.3", "pyparsing>=2.4,<4.0", "rich>=6.1,<13.0",
         "SQLAlchemy~=1.4.46", "typing-extensions>=3.7.4.3,<4.3.1.0",

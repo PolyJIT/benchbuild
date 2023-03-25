@@ -82,7 +82,7 @@ def unpickle(pickle_file: str) -> tp.Any:
 
 
 def __create_jinja_env() -> 'jinja2.Environment':
-    import jinja2
+    import jinja2  # pylint: disable=import-outside-toplevel
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,

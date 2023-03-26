@@ -1,5 +1,5 @@
 attrs~=22.2
-dill==0.3.4
+dill==0.3.6
 Jinja2~=3.1
 parse~=1.19
 pathos~=0.2

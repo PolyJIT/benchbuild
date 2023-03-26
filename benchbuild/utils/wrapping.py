@@ -77,16 +77,6 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     return ipath
 
 
-def unpickle(pickle_file: str) -> tp.Any:
-    """Unpickle a python object from the given path."""
-    pickle = None
-    with open(pickle_file, "rb") as pickle_f:
-        pickle = dill.load(pickle_f)
-    if not pickle:
-        LOG.error("Could not load python object from file")
-    return pickle
-
-
 def __create_jinja_env() -> jinja2.Environment:
     return jinja2.Environment(
         trim_blocks=True,

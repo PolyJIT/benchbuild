@@ -15,4 +15,4 @@ rich~=12.5
 schema~=0.7.5
 SQLAlchemy~=1.4.46
 typing-extensions~=4.3.0
-virtualenv~=20.20
+virtualenv~=20.21

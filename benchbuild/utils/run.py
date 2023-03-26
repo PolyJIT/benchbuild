@@ -66,6 +66,9 @@ class RunInfo:
             (run, session), where run is the generated run instance and
             session the associated transaction for later use.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
         from benchbuild.utils import schema as s
         from benchbuild.utils.db import create_run
 
@@ -95,6 +98,9 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
         from benchbuild.utils.schema import RunLog
 
         run_id = self.db_run.id
@@ -124,6 +130,9 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
         from benchbuild.utils.schema import RunLog
         run_id = self.db_run.id
 
@@ -157,8 +166,9 @@ class RunInfo:
         )
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
-        run_id = self.db_run.id
-        settings.CFG["db"]["run_id"] = run_id
+        if CFG["db"]["enabled"]:
+            run_id = self.db_run.id
+            settings.CFG["db"]["run_id"] = run_id
 
     def add_payload(self, name, payload):
         if self == payload:
@@ -214,7 +224,8 @@ class RunInfo:
         return self
 
     def commit(self):
-        self.session.commit()
+        if CFG["db"]["enabled"]:
+            self.session.commit()
 
 
 def begin_run_group(project, experiment):

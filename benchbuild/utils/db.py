@@ -1,8 +1,6 @@
 """Database support module for the benchbuild study."""
 import logging
 
-from sqlalchemy.exc import IntegrityError
-
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
@@ -137,6 +135,9 @@ def persist_experiment(experiment):
     Args:
         experiment: The experiment we want to persist.
     """
+    # pylint: disable=import-outside-toplevel
+    from sqlalchemy.exc import IntegrityError
+
     from benchbuild.utils.schema import Experiment, Session
 
     session = Session()

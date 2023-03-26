@@ -11,6 +11,7 @@ from plumbum import TEE, local
 # the project and the compiler.
 os.environ["BB_PLUGINS_AUTOLOAD"] = "False"
 
+from benchbuild.settings import CFG
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos
@@ -29,7 +30,8 @@ def update_project(argv):
                 name = project_p.basename
                 break
         PROJECT.name = name
-        persist_project(PROJECT)
+        if CFG["db"]["enabled"]:
+            persist_project(PROJECT)
 
 
 def main(argv):

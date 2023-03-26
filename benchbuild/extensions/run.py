@@ -5,6 +5,7 @@ import yaml
 from plumbum import local
 
 from benchbuild.extensions import base
+from benchbuild.settings import CFG
 from benchbuild.utils import db, run
 from benchbuild.utils.settings import get_number_of_jobs
 
@@ -45,9 +46,10 @@ class RuntimeExtension(base.Extension):
                 )
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
-                db.persist_config(
-                    run_info.db_run, run_info.session, self.config
-                )
+                if CFG["db"]["enabled"]:
+                    db.persist_config(
+                        run_info.db_run, run_info.session, self.config
+                    )
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res

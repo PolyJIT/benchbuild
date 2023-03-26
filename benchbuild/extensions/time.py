@@ -4,6 +4,7 @@ import typing as tp
 import parse
 
 from benchbuild.extensions import base
+from benchbuild.settings import CFG
 from benchbuild.utils import db
 from benchbuild.utils.cmd import time
 
@@ -20,6 +21,9 @@ class RunWithTime(base.Extension):
 
         def handle_timing(run_infos):
             """Takes care of the formating for the timing statistics."""
+            if not CFG["db"]["enabled"]:
+                return run_infos
+
             from benchbuild.utils import schema as s
 
             session = s.Session()

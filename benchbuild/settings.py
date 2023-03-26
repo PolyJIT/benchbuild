@@ -145,9 +145,13 @@ CFG["env"] = {
 }
 
 CFG['db'] = {
+    "enabled": {
+        "desc": "Whether the database is enabled.",
+        "default": False
+    },
     "connect_string": {
         "desc": "sqlalchemy connect string",
-        "default": "sqlite://"
+        "default": ""
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
@@ -381,7 +385,7 @@ CFG["container"] = {
     "storage_driver": {
         "default": "vfs",
         "desc": "Storage driver for containers."
-     },
+    },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."

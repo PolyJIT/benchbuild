@@ -43,6 +43,12 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 
 LOG = logging.getLogger(__name__)
 
+# Configure default settings for dill pickle/unpickle, globally
+dill.settings['ignore'] = True
+dill.settings['recurse'] = True
+dill.settings['protocol'] = -1
+dill.settings['byref'] = True
+
 if tp.TYPE_CHECKING:
     import benchbuild.project.Project  # pylint: disable=unused-import
 

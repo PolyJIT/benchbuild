@@ -249,7 +249,7 @@ class Clean(ProjectStep):
             root: All UnionFS-mountpoints under this directory will be
                   unmounted.
         """
-        import psutil
+        import psutil  # pylint: disable=import-outside-toplevel
 
         umount_paths = []
         real_root = os.path.realpath(root)

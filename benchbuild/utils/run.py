@@ -69,6 +69,7 @@ class RunInfo:
         if not CFG["db"]["enabled"]:
             return
 
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils import schema as s
         from benchbuild.utils.db import create_run
 
@@ -101,6 +102,7 @@ class RunInfo:
         if not CFG["db"]["enabled"]:
             return
 
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.schema import RunLog
 
         run_id = self.db_run.id
@@ -133,6 +135,7 @@ class RunInfo:
         if not CFG["db"]["enabled"]:
             return
 
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.schema import RunLog
         run_id = self.db_run.id
 
@@ -242,6 +245,7 @@ def begin_run_group(project, experiment):
         ``(group, session)`` where group is the created group in the
         database and session is the database session this group lives in.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils.db import create_run_group
 
     group, session = create_run_group(project, experiment)
@@ -356,6 +360,7 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     Returns:
         The updated command.
     """
+    # pylint: disable=import-outside-toplevel
     from plumbum.commands.base import BoundCommand, BoundEnvCommand
     if isinstance(cmd, BoundCommand):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)

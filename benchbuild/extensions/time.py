@@ -24,6 +24,7 @@ class RunWithTime(base.Extension):
             if not CFG["db"]["enabled"]:
                 return run_infos
 
+            # pylint: disable=import-outside-toplevel
             from benchbuild.utils import schema as s
 
             session = s.Session()

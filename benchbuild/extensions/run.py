@@ -71,6 +71,7 @@ class WithTimeout(base.Extension):
         self.limit = limit
 
     def __call__(self, binary_command, *args, **kwargs):
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.cmd import timeout
         return self.call_next(
             timeout[self.limit, binary_command], *args, **kwargs
@@ -85,8 +86,6 @@ class SetThreadLimit(base.Extension):
     """
 
     def __call__(self, binary_command, *args, **kwargs):
-        from benchbuild.settings import CFG
-
         config = self.config
         if config is not None and 'jobs' in config.keys():
             jobs = get_number_of_jobs(config)

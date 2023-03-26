@@ -32,10 +32,9 @@ setup(
     install_requires=[
         "Jinja2>=3", "PyYAML>=6", "attrs>=22", "dill>=0.3.6", "pathos>=0.3",
         "parse>=1.14", "plumbum>=1.8", "psutil>=5.6", "psycopg2-binary>=2.8",
-        "pygit2>=1.11.0", "pygtrie>=2.3", "pyparsing>=3", "rich>=13.0",
-        "SQLAlchemy~=1.4.46",
-        "typing-extensions>=4.3.1.0", "virtualenv>=20", "schema>=0.7.4",
-        "result>=0.9"
+        "pygit2>=1", "pygtrie>=2.3", "pyparsing>=3", "rich>=13.0",
+        "SQLAlchemy~=1.4.46", "typing-extensions>=4.3.1.0", "virtualenv>=20",
+        "schema>=0.7.4", "result>=0.9"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

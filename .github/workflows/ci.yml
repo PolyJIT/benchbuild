@@ -78,14 +78,15 @@ jobs:
       env:
         BB_CONTAINER_ROOT: '/tmp'
         BB_CONTAINER_RUNROOT: '/tmp'
+        BB_VERBOSITY: 5
       run: |
         coverage run -p `which benchbuild` bootstrap -s
         coverage run -p `which benchbuild` config view
         coverage run -p `which benchbuild` experiment view
         coverage run -p `which benchbuild` project view
-        coverage run -p `which benchbuild` -vvvvv run --full test
-        coverage run -p `which benchbuild` -vvvvv slurm -E empty test
-        coverage run -p `which benchbuild` -vvvvv slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p `which benchbuild` run --full test
+        coverage run -p `which benchbuild` slurm -E empty test
+        coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
         coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild

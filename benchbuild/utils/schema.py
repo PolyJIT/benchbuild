@@ -27,7 +27,6 @@ import sys
 import typing as tp
 import uuid
 
-import migrate.versioning.api as migrate
 import sqlalchemy as sa
 from sqlalchemy import (
     Column,
@@ -364,86 +363,6 @@ def needed_schema(connection, meta):
     return True
 
 
-def get_version_data():
-    """Retreive migration information."""
-    connect_str = str(settings.CFG["db"]["connect_string"])
-    repo_url = path.template_path("../db/")
-    return (connect_str, repo_url)
-
-
-@exceptions(
-    error_messages={
-        sa.exc.ProgrammingError: (
-            'Could not enforce versioning. Are you allowed to modify '
-            'the database?'
-        )
-    }
-)
-def enforce_versioning(force=False):
-    """Install versioning on the db."""
-    connect_str, repo_url = get_version_data()
-    LOG.debug("Your database uses an unversioned benchbuild schema.")
-    if not force and not ui.ask(
-        "Should I enforce version control on your schema?"
-    ):
-        LOG.error("User declined schema versioning.")
-        return None
-    repo_version = migrate.version(repo_url, url=connect_str)
-    migrate.version_control(connect_str, repo_url, version=repo_version)
-    return repo_version
-
-
-def setup_versioning():
-    connect_str, repo_url = get_version_data()
-    repo_version = migrate.version(repo_url, url=connect_str)
-    db_version = None
-    requires_versioning = False
-    try:
-        db_version = migrate.db_version(connect_str, repo_url)
-    except migrate.exceptions.DatabaseNotControlledError:
-        requires_versioning = True
-
-    if requires_versioning:
-        db_version = enforce_versioning()
-
-    return (repo_version, db_version)
-
-
-@exceptions(
-    error_messages={
-        sa.exc.ProgrammingError:
-            "Update failed."
-            " Base schema version diverged from the expected structure."
-    }
-)
-def maybe_update_db(repo_version, db_version):
-    if db_version is None:
-        return
-    if db_version == repo_version:
-        return
-
-    LOG.warning(
-        "Your database contains version '%s' of benchbuild's schema.",
-        db_version
-    )
-    LOG.warning(
-        "Benchbuild currently requires version '%s' to work correctly.",
-        repo_version
-    )
-    if not ui.ask(
-        "Should I attempt to update your schema to version '{0}'?".
-        format(repo_version)
-    ):
-        LOG.error("User declined schema upgrade.")
-        return
-
-    connect_str = str(settings.CFG["db"]["connect_string"])
-    repo_url = path.template_path("../db/")
-    LOG.info("Upgrading to newest version...")
-    migrate.upgrade(connect_str, repo_url)
-    LOG.info("Complete.")
-
-
 class SessionManager:
 
     def connect_engine(self):
@@ -500,10 +419,6 @@ class SessionManager:
 
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
-            repo_version = enforce_versioning(force=True)
-        else:
-            repo_version, db_version = setup_versioning()
-            maybe_update_db(repo_version, db_version)
 
     def get(self):
         return sessionmaker(bind=self.connection)

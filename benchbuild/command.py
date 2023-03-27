@@ -775,6 +775,6 @@ def filter_workload_index(
     This removes all command lists from the index not matching `only`.
     """
 
-    keys = {k for k in index if k and ((only and (k & only)) or (not only))}
+    keys = [k for k in index if k and ((only and (k & only)) or (not only))]
     for k in keys:
         yield index[k]

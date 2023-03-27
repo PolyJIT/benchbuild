@@ -41,6 +41,12 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 
 LOG = logging.getLogger(__name__)
 
+# Configure default settings for dill pickle/unpickle, globally
+dill.settings['ignore'] = True
+dill.settings['recurse'] = True
+dill.settings['protocol'] = -1
+dill.settings['byref'] = True
+
 if tp.TYPE_CHECKING:
     import jinja2
 
@@ -69,16 +75,6 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     if prefix in ipath.parents:
         return Path("/") / ipath.relative_to(prefix)
     return ipath
-
-
-def unpickle(pickle_file: str) -> tp.Any:
-    """Unpickle a python object from the given path."""
-    pickle = None
-    with open(pickle_file, "rb") as pickle_f:
-        pickle = dill.load(pickle_f)
-    if not pickle:
-        LOG.error("Could not load python object from file")
-    return pickle
 
 
 def __create_jinja_env() -> 'jinja2.Environment':

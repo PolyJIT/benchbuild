@@ -13,6 +13,6 @@ PyYAML>=6.0
 result>=0
 rich>=12
 schema>=0
-SQLAlchemy~=1.4.46
+SQLAlchemy>=2
 typing-extensions>=4
 virtualenv>=20

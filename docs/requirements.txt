@@ -1,0 +1,9 @@
+linkify
+mkdocs
+myst-parser[linkify]
+pymdown-extensions
+sphinx
+sphinx-autodoc-typehints
+sphinx-book-theme
+sphinx-markdown
+sphinxcontrib-programoutput

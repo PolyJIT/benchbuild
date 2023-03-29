@@ -152,7 +152,7 @@ def is_yaml(cfg_file: str) -> bool:
     return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
 
 
-class ConfigLoader(yaml.SafeLoader):
+class ConfigLoader(yaml.CSafeLoader):
     """Avoid polluting yaml's namespace with our modifications."""
 
 
@@ -332,17 +332,16 @@ class Configuration(Indexable):
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            if self.has_value():
-                env_val = self.node['value']
-            else:
-                env_val = self.node['default']
-            env_val = os.getenv(env_var, to_yaml(env_val))
-            try:
-                self.node['value'] = yaml.load(
-                    str(env_val), Loader=ConfigLoader
-                )
-            except ValueError:
-                self.node['value'] = env_val
+            if not self.has_value():
+                self.node['value'] = self.node['default']
+            env_val = os.getenv(env_var, None)
+            if env_val is not None:
+                try:
+                    self.node['value'] = yaml.load(
+                        str(env_val), Loader=ConfigLoader
+                    )
+                except ValueError:
+                    self.node['value'] = env_val
         else:
             if isinstance(self.node, dict):
                 for k in self.node:

@@ -152,7 +152,7 @@ def is_yaml(cfg_file: str) -> bool:
     return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
 
 
-class ConfigLoader(yaml.CSafeLoader):
+class ConfigLoader(yaml.CSafeLoader):  # type: ignore
     """Avoid polluting yaml's namespace with our modifications."""
 
 

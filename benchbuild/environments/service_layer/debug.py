@@ -1,6 +1,5 @@
 from plumbum import ProcessExecutionError
 from rich import print
-from rich.markdown import Markdown
 
 from benchbuild.environments.adapters.common import bb_buildah
 from benchbuild.environments.domain import events
@@ -25,6 +24,8 @@ def debug_image_kept(
     """
     Spawn a debug session of the kept image and provide diagnostics.
     """
+    # pylint: disable=import-outside-toplevel
+    from rich.markdown import Markdown
     with uow:
         container = uow.create(event.image_name, event.failed_image_name)
         if container is None:

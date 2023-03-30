@@ -5,7 +5,6 @@ import typing as tp
 from plumbum import local, ProcessExecutionError
 from result import Result, Err, Ok
 from rich import print
-from rich.markdown import Markdown
 
 from benchbuild.environments.adapters import buildah
 from benchbuild.environments.adapters.common import (
@@ -173,6 +172,9 @@ class PodmanRegistry(ContainerRegistry):
                     '--mount', f'type=bind,src={source},target={target}']
 
         if interactive:
+            # pylint: disable=import-outside-toplevel
+            from rich.markdown import Markdown
+
             entrypoint = buildah.find_entrypoint(image.name)
             print(
                 Markdown(

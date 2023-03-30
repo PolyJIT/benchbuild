@@ -25,7 +25,6 @@ import traceback
 import typing as tp
 from datetime import datetime
 
-import pathos.multiprocessing as mp
 from plumbum import ProcessExecutionError
 
 from benchbuild import command, signals, source
@@ -481,6 +480,9 @@ class Experiment(Any):
             LOG.error(inv_req)
 
     def __run_children(self, num_processes: int) -> tp.List[StepResult]:
+        # pylint: disable=import-outside-toplevel
+        import pathos.multiprocessing as mp
+
         results = []
         actions = self.actions
 

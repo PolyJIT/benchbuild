@@ -5,6 +5,7 @@ import yaml
 from plumbum import local
 
 from benchbuild.extensions import base
+from benchbuild.settings import CFG
 from benchbuild.utils import db, run
 from benchbuild.utils.settings import get_number_of_jobs
 
@@ -45,9 +46,10 @@ class RuntimeExtension(base.Extension):
                 )
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
-                db.persist_config(
-                    run_info.db_run, run_info.session, self.config
-                )
+                if CFG["db"]["enabled"]:
+                    db.persist_config(
+                        run_info.db_run, run_info.session, self.config
+                    )
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
@@ -69,6 +71,7 @@ class WithTimeout(base.Extension):
         self.limit = limit
 
     def __call__(self, binary_command, *args, **kwargs):
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.cmd import timeout
         return self.call_next(
             timeout[self.limit, binary_command], *args, **kwargs
@@ -83,8 +86,6 @@ class SetThreadLimit(base.Extension):
     """
 
     def __call__(self, binary_command, *args, **kwargs):
-        from benchbuild.settings import CFG
-
         config = self.config
         if config is not None and 'jobs' in config.keys():
             jobs = get_number_of_jobs(config)

@@ -25,8 +25,6 @@ import traceback
 import typing as tp
 from datetime import datetime
 
-import pathos.multiprocessing as mp
-import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
 from benchbuild import command, signals, source
@@ -250,7 +248,7 @@ class Clean(ProjectStep):
             root: All UnionFS-mountpoints under this directory will be
                   unmounted.
         """
-        import psutil
+        import psutil  # pylint: disable=import-outside-toplevel
 
         umount_paths = []
         real_root = os.path.realpath(root)
@@ -341,22 +339,27 @@ class Run(ProjectStep):
         self.experiment = experiment
 
     def __call__(self) -> StepResult:
-        group, session = run.begin_run_group(self.project, self.experiment)
-        signals.handlers.register(run.fail_run_group, group, session)
+        if CFG["db"]["enabled"]:
+            group, session = run.begin_run_group(self.project, self.experiment)
+            signals.handlers.register(run.fail_run_group, group, session)
         try:
             self.project.run_tests()
-            run.end_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.end_run_group(group, session)
             self.status = StepResult.OK
         except ProcessExecutionError:
-            run.fail_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.fail_run_group(group, session)
             self.status = StepResult.ERROR
             raise
         except KeyboardInterrupt:
-            run.fail_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.fail_run_group(group, session)
             self.status = StepResult.ERROR
             raise
         finally:
-            signals.handlers.deregister(run.fail_run_group)
+            if CFG["db"]["enabled"]:
+                signals.handlers.deregister(run.fail_run_group)
 
         return self.status
 
@@ -444,6 +447,7 @@ class Experiment(Any):
     def begin_transaction(
         self,
     ) -> tp.Tuple["benchbuild.utils.schema.Experiment", tp.Any]:
+        import sqlalchemy as sa  # pylint: disable=import-outside-toplevel
         experiment, session = db.persist_experiment(self.experiment)
         if experiment.begin is None:
             experiment.begin = datetime.now()
@@ -467,6 +471,7 @@ class Experiment(Any):
     def end_transaction(
         experiment: "benchbuild.utils.schema.Experiment", session: tp.Any
     ) -> None:
+        import sqlalchemy as sa  # pylint: disable=import-outside-toplevel
         try:
             experiment.end = max(experiment.end, datetime.now())
             session.add(experiment)
@@ -475,6 +480,9 @@ class Experiment(Any):
             LOG.error(inv_req)
 
     def __run_children(self, num_processes: int) -> tp.List[StepResult]:
+        # pylint: disable=import-outside-toplevel
+        import pathos.multiprocessing as mp
+
         results = []
         actions = self.actions
 
@@ -496,12 +504,14 @@ class Experiment(Any):
     def __call__(self) -> StepResult:
         results = []
         session = None
-        experiment, session = self.begin_transaction()
+        if CFG["db"]["enabled"]:
+            experiment, session = self.begin_transaction()
         try:
             results = self.__run_children(int(CFG["parallel_processes"]))
         finally:
-            self.end_transaction(experiment, session)
-            signals.handlers.deregister(self.end_transaction)
+            if CFG["db"]["enabled"]:
+                self.end_transaction(experiment, session)
+                signals.handlers.deregister(self.end_transaction)
         self.status = max(results) if results else StepResult.OK
         return self.status
 
@@ -636,22 +646,27 @@ class RunWorkloads(MultiStep):
             ])
 
     def __call__(self) -> StepResult:
-        group, session = run.begin_run_group(self.project, self.experiment)
-        signals.handlers.register(run.fail_run_group, group, session)
+        if CFG["db"]["enabled"]:
+            group, session = run.begin_run_group(self.project, self.experiment)
+            signals.handlers.register(run.fail_run_group, group, session)
         try:
             self.status = max([workload() for workload in self.actions],
                               default=StepResult.OK)
-            run.end_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.end_run_group(group, session)
         except ProcessExecutionError:
-            run.fail_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.fail_run_group(group, session)
             self.status = StepResult.ERROR
             raise
         except KeyboardInterrupt:
-            run.fail_run_group(group, session)
+            if CFG["db"]["enabled"]:
+                run.fail_run_group(group, session)
             self.status = StepResult.ERROR
             raise
         finally:
-            signals.handlers.deregister(run.fail_run_group)
+            if CFG["db"]["enabled"]:
+                signals.handlers.deregister(run.fail_run_group)
 
         return self.status
 

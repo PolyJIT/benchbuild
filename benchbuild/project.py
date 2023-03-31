@@ -336,7 +336,8 @@ class Project(
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self) -> None:
-        db.persist_project(self)
+        if CFG["db"]["enabled"]:
+            db.persist_project(self)
 
         # select container image
         if isinstance(type(self).CONTAINER, ContainerImage):
@@ -345,7 +346,7 @@ class Project(
             )
         else:
             primary_source = primary(*self.SOURCE)
-            if isinstance(primary_source,source.BaseVersionFilter):
+            if isinstance(primary_source, source.BaseVersionFilter):
                 primary_source = primary_source.child
             if not isinstance(primary_source, Git):
                 raise AssertionError(
@@ -360,7 +361,6 @@ class Project(
                     if rev.startswith(version):
                         self.container = copy.deepcopy(image)
                         break
-
 
     def clean(self) -> None:
         """Clean the project build directory."""

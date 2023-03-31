@@ -28,8 +28,8 @@ from .utils.wrapping import wrap as wrap
 
 def __init__() -> None:
     """Initialize all plugins and settings."""
-    __PLUGINS__.discover()
-    __SETTINGS__.setup_config(CFG)
+    if __PLUGINS__.discover():
+        __SETTINGS__.setup_config(CFG)
 
 
 __init__()

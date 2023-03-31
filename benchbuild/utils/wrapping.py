@@ -27,10 +27,8 @@ import os
 import sys
 import typing as tp
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import dill
-import jinja2
 import plumbum as pb
 from plumbum import local
 from plumbum.commands.base import BoundCommand
@@ -50,6 +48,8 @@ dill.settings['protocol'] = -1
 dill.settings['byref'] = True
 
 if tp.TYPE_CHECKING:
+    import jinja2
+
     import benchbuild.project.Project  # pylint: disable=unused-import
 
 
@@ -77,7 +77,8 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     return ipath
 
 
-def __create_jinja_env() -> jinja2.Environment:
+def __create_jinja_env() -> 'jinja2.Environment':
+    import jinja2  # pylint: disable=import-outside-toplevel
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,

@@ -22,7 +22,6 @@ import attr
 import schema
 import six
 import yaml
-from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import LocalPath, local
 
 import benchbuild.utils.user_interface as ui
@@ -36,11 +35,22 @@ class Indexable:
         pass
 
 
-try:
-    __version__ = get_distribution("benchbuild").version
-except DistributionNotFound:
-    __version__ = "unknown"
-    LOG.error("could not find version information.")
+# Importing pkg_resources is slow. Starting with Python 3.8, there is a better
+# option.
+if sys.version_info >= (3, 8):
+    from importlib.metadata import version, PackageNotFoundError
+    try:
+        __version__ = version("benchbuild")
+    except PackageNotFoundError:
+        __version__ = "unknown"
+        LOG.error("could not find version information.")
+else:
+    from pkg_resources import DistributionNotFound, get_distribution
+    try:
+        __version__ = get_distribution("benchbuild").version
+    except DistributionNotFound:
+        __version__ = "unknown"
+        LOG.error("could not find version information.")
 
 
 def available_cpu_count() -> int:
@@ -142,7 +152,7 @@ def is_yaml(cfg_file: str) -> bool:
     return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
 
 
-class ConfigLoader(yaml.SafeLoader):
+class ConfigLoader(yaml.CSafeLoader):  # type: ignore
     """Avoid polluting yaml's namespace with our modifications."""
 
 
@@ -322,17 +332,16 @@ class Configuration(Indexable):
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            if self.has_value():
-                env_val = self.node['value']
-            else:
-                env_val = self.node['default']
-            env_val = os.getenv(env_var, to_yaml(env_val))
-            try:
-                self.node['value'] = yaml.load(
-                    str(env_val), Loader=ConfigLoader
-                )
-            except ValueError:
-                self.node['value'] = env_val
+            if not self.has_value():
+                self.node['value'] = self.node['default']
+            env_val = os.getenv(env_var, None)
+            if env_val is not None:
+                try:
+                    self.node['value'] = yaml.load(
+                        str(env_val), Loader=ConfigLoader
+                    )
+                except ValueError:
+                    self.node['value'] = env_val
         else:
             if isinstance(self.node, dict):
                 for k in self.node:

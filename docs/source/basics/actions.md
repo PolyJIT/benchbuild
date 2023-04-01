@@ -92,3 +92,10 @@ build directory.
 The match is done exact and matches agains the ``source.versions()`` output of a
 source. Only sources that are marked as expandable (``source.is_expandable``)
 will be checked.
+
+```{eval-rst}
+.. automodule:: benchbuild.utils.actions
+  :members:
+  :undoc-members:
+  :show-inheritance:
+```

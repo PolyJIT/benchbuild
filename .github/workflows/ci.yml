@@ -164,12 +164,3 @@ jobs:
         python -m pip install --upgrade pip
         pip install .
         pip install -r docs/requirements.txt
-
-    #- name: Build documentation
-    #  run: |
-    #    mkdocs build
-
-    #- name: Deploy documentation
-    #  if: ${{ github.event_name == 'push' }}
-    #  run: |
-    #    mkdocs gh-deploy

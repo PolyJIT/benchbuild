@@ -32,6 +32,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
     'sphinx_autodoc_typehints',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosectionlabel',
@@ -39,10 +40,6 @@ extensions = [
     'sphinx.ext.githubpages',
 ]
 
-myst_gfm_only = True
-myst_enable_extensions = ["linkify"]
-
-# templates_path = ['_templates']
 exclude_patterns = []
 
 source_suffix = {
@@ -53,5 +50,13 @@ source_suffix = {
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_book_theme'
+html_theme = 'press'
+pygments_style = 'monokai'
 html_static_path = ['_static']
+
+napoleon_google_docstring = True
+napoleon_use_admonition_for_examples = True
+
+# Configure MyST Parser
+#myst_gfm_only = True
+myst_enable_extensions = ["linkify"]

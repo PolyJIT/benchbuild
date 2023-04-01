@@ -9,10 +9,12 @@ Welcome to bencbuild's documentation!
 .. toctree::
    :caption: Contents:
 
+   about.md
    basics/index.md
    basics/configuration.md
    basics/containers.md
    basics/actions.md
+   concepts/command.md
    concepts/source.md
    concepts/environments.md
    concepts/projects.md
@@ -20,7 +22,6 @@ Welcome to bencbuild's documentation!
    advanced/index.md
    advanced/cli.md
    CHANGELOG.md
-   about.md
 
 Indices and tables
 ==================

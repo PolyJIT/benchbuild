@@ -124,10 +124,10 @@ Podman is supported up to version 2.2.1
   :show-inheritance:
 ```
 
-## Module: benchbuild.environments.domain.declarative
+## Module: benchbuild.environments.domain.model
 
 ```{eval-rst}
-.. automodule:: benchbuild.environments.domain.declarative
+.. automodule:: benchbuild.environments.domain.model
   :members:
   :undoc-members:
   :show-inheritance:

@@ -2,9 +2,9 @@ import logging
 import shutil
 import sys
 import typing as tp
-from collections.abc import Set
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
 from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
@@ -17,11 +17,6 @@ from benchbuild.utils.wrapping import wrap
 
 if tp.TYPE_CHECKING:
     import benchbuild.project.Project  # pylint: disable=unused-import
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol, runtime_checkable
-else:
-    from typing import Protocol, runtime_checkable
 
 LOG = logging.getLogger(__name__)
 
@@ -159,8 +154,7 @@ class SourceRootRenderer:
             LOG.error("Cannot render a source directory without a project.")
             return Path(self.unrendered)
 
-        src_path = project.source_of(self.local)
-        if src_path:
+        if (src_path := project.source_of(self.local)):
             return Path(src_path)
         return Path(project.builddir) / self.local
 
@@ -647,12 +641,6 @@ class ProjectCommand:
 
 
 def _is_relative_to(p: Path, other: Path) -> bool:
-    if sys.version_info < (3, 9):
-        try:
-            p.relative_to(other)
-            return True
-        except ValueError:
-            return False
     return p.is_relative_to(other)
 
 

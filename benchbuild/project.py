@@ -296,8 +296,7 @@ class Project(
 
     @run_uuid.default
     def __default_run_uuid(self):  # pylint: disable=unused-private-member
-        run_group = getenv("BB_DB_RUN_GROUP", None)
-        if run_group:
+        if (run_group := getenv("BB_DB_RUN_GROUP", None)):
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
@@ -412,8 +411,7 @@ class Project(
         except KeyError:
             LOG.debug("%s not found in revision. Skipping.", name)
 
-        all_sources = source.sources_as_dict(*self.source)
-        if name in all_sources:
+        if name in (all_sources := source.sources_as_dict(*self.source)):
             return str(self.builddir / all_sources[name].local)
 
         return None

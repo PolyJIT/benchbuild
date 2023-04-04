@@ -5,6 +5,7 @@ import logging
 import sys
 import typing as t
 from contextlib import contextmanager
+from typing import Protocol
 
 import attr
 from plumbum import TEE, local
@@ -12,11 +13,6 @@ from plumbum.commands import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
 
 CommandResult = t.Tuple[int, str, str]
 

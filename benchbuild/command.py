@@ -594,7 +594,7 @@ class Command:
             command_str = f"{env_str} {command_str}"
         if args_str:
             command_str = f"{command_str} {args_str}"
-        if self.label:
+        if self._label:
             command_str = f"{self._label} {command_str}"
         return command_str
 

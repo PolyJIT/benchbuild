@@ -2,6 +2,7 @@ import abc
 import logging
 import sys
 import typing as tp
+from typing import Protocol
 
 from plumbum import local
 from plumbum.path.utils import delete
@@ -9,11 +10,6 @@ from result import Err
 
 from benchbuild.environments.adapters import common, buildah, podman
 from benchbuild.environments.domain import model, events
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
 
 LOG = logging.getLogger(__name__)
 

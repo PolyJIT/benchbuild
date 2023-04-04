@@ -1,4 +1,4 @@
 [clog]
 repository = "https://github.com/PolyJIT/benchbuild"
-changelog = "docs/CHANGELOG.md"
+changelog = "docs/source/CHANGELOG.md"
 from-latest-tag = true

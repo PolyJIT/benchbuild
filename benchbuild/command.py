@@ -154,8 +154,7 @@ class SourceRootRenderer:
             LOG.error("Cannot render a source directory without a project.")
             return Path(self.unrendered)
 
-        src_path = project.source_of(self.local)
-        if src_path:
+        if (src_path := project.source_of(self.local)):
             return Path(src_path)
         return Path(project.builddir) / self.local
 

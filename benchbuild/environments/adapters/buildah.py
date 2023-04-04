@@ -304,8 +304,7 @@ class ImageRegistry(abc.ABC):
         if tag in self.images:
             return self.images[tag]
 
-        image = self._find(tag)
-        if image:
+        if (image := self._find(tag)):
             self.images[tag] = image
             return image
 
@@ -389,8 +388,7 @@ class ImageRegistry(abc.ABC):
         raise NotImplementedError
 
     def temporary_mount(self, tag: str, source: str, target: str) -> None:
-        image = self.find(tag)
-        if image:
+        if (image := self.find(tag)):
             image.mounts.append(model.Mount(source, target))
 
 
@@ -449,8 +447,7 @@ class BuildahImageRegistry(ImageRegistry):
             LOG.debug("Could not find the image %s", tag)
             return None
 
-        results = res.unwrap()
-        if results:
+        if (results := res.unwrap()):
             json_results = json.loads(results)
             if json_results:
                 #json_image = json_results.pop(0)
@@ -461,8 +458,7 @@ class BuildahImageRegistry(ImageRegistry):
         return None
 
     def _env(self, tag: str, name: str) -> tp.Optional[str]:
-        image = self.find(tag)
-        if image:
+        if (image := self.find(tag)):
             return image.env.get(name)
         return None
 

@@ -516,8 +516,8 @@ class Command:
         self._env.update(kwargs)
 
     @property
-    def label(self) -> tp.Optional[str]:
-        return self._label
+    def label(self) -> str:
+        return self._label if self._label else self.name
 
     @label.setter
     def label(self, new_label: str) -> None:
@@ -594,7 +594,7 @@ class Command:
             command_str = f"{env_str} {command_str}"
         if args_str:
             command_str = f"{command_str} {args_str}"
-        if self.label:
+        if self._label:
             command_str = f"{self._label} {command_str}"
         return command_str
 

@@ -151,7 +151,7 @@ CFG['db'] = {
     },
     "connect_string": {
         "desc": "sqlalchemy connect string",
-        "default": ""
+        "default": "sqlite://"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",

@@ -78,6 +78,7 @@ jobs:
     - name: Run integration tests
       env:
         BB_DB_ENABLED: ${{ matrix.db_support }}
+        BB_DB_CONNECT_STRING: "sqlite://"
         BB_COVERAGE_COLLECT: true
         BB_COVERAGE_PATH: ${{ github.workspace }}
         BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc

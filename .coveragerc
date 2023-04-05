@@ -7,7 +7,7 @@ branch = True
 parallel = True
 
 [paths]
-data_file = $GITHUB_WORKSPACE/.coverage
+data_file = ${GITHUB_WORKSPACE}/.coverage
 source =
   benchbuild/
   */site-packages/benchbuild/

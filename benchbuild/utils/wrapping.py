@@ -133,6 +133,10 @@ def wrap(
 
     env = CFG["env"].value
 
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
+
     bin_path = list_to_path(env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
@@ -149,6 +153,9 @@ def wrap(
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
                 python=python,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 
@@ -208,6 +215,9 @@ def wrap_dynamic(
     project_file = persist(project, suffix=".project")
 
     cfg_env = CFG["env"].value
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
 
     bin_path = list_to_path(cfg_env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
@@ -226,6 +236,9 @@ def wrap_dynamic(
                 home=str(home),
                 python=python,
                 name_filters=name_filters,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 
@@ -266,6 +279,10 @@ def wrap_cc(
 
     project_file = persist(project, suffix=".project")
 
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
+
     with open(filepath, "w") as wrapper:
         wrapper.write(
             template.render(
@@ -273,6 +290,9 @@ def wrap_cc(
                 project_file=str(project_file),
                 python=python,
                 detect_project=detect_project,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 

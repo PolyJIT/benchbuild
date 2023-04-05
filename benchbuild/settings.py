@@ -513,5 +513,20 @@ CFG["versions"] = {
     }
 }
 
+CFG["coverage"] = {
+    "collect": {
+        "desc": "Should benchuild collect coverage inside wrapped binaries.",
+        "default": False
+    },
+    "config": {
+        "desc": "Where is the coverage config?",
+        "default": ".coveragerc"
+    },
+    "path": {
+        "desc": "Where should the coverage files be placed?",
+        "default": None
+    }
+}
+
 s.setup_config(CFG)
 s.update_env(CFG)

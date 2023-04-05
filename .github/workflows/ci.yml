@@ -77,8 +77,8 @@ jobs:
     - name: Run integration tests
       env:
         BB_COVERAGE_COLLECT: true
-        BB_COVERAGE_PATH: '$GITHUB_WORKSPACE'
-        BB_COVERAGE_CONFIG: '$GITHUB_WORKSPACE/.coveragerc'
+        BB_COVERAGE_PATH: "${GITHUB_WORKSPACE}"
+        BB_COVERAGE_CONFIG: "${GITHUB_WORKSPACE}/.coveragerc"
         BB_CONTAINER_ROOT: '/tmp'
         BB_CONTAINER_RUNROOT: '/tmp'
         BB_VERBOSITY: 5

@@ -2,6 +2,11 @@
 #
 import os
 import sys
+
+{% if collect_coverage %}
+import coverage
+{% endif %}
+
 os.environ["OPENBLAS_NUM_THREADS"] = "4"
 
 from plumbum import TEE, local
@@ -57,4 +62,18 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+{% if collect_coverage %}
+    cov = coverage.Coverage(
+      config_file="{{ coverage_config }}",
+      data_file="{{ coverage_path }}/.coverage",
+      data_suffix=True,
+      branch=True
+    )
+    cov.start()
+{% endif %}
+    ret = main(sys.argv)
+{% if collect_coverage %}
+    cov.stop()
+    cov.save()
+{% endif %}
+    sys.exit(ret)

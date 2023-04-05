@@ -151,7 +151,7 @@ CFG['db'] = {
     },
     "connect_string": {
         "desc": "sqlalchemy connect string",
-        "default": ""
+        "default": "sqlite://"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
@@ -510,6 +510,21 @@ CFG["versions"] = {
     "full": {
         "default": False,
         "desc": "Ignore default sampling and provide full version exploration."
+    }
+}
+
+CFG["coverage"] = {
+    "collect": {
+        "desc": "Should benchuild collect coverage inside wrapped binaries.",
+        "default": False
+    },
+    "config": {
+        "desc": "Where is the coverage config?",
+        "default": ".coveragerc"
+    },
+    "path": {
+        "desc": "Where should the coverage files be placed?",
+        "default": None
     }
 }
 

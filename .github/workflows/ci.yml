@@ -54,6 +54,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10"]
+        db_support: [true, false]
 
     steps:
     - uses: actions/checkout@v2
@@ -76,8 +77,13 @@ jobs:
 
     - name: Run integration tests
       env:
-        BB_CONTAINER_ROOT: '/tmp'
-        BB_CONTAINER_RUNROOT: '/tmp'
+        BB_DB_ENABLED: ${{ matrix.db_support }}
+        BB_DB_CONNECT_STRING: "sqlite://"
+        BB_COVERAGE_COLLECT: true
+        BB_COVERAGE_PATH: ${{ github.workspace }}
+        BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
+        BB_CONTAINER_ROOT: ${{ runner.temp }}
+        BB_CONTAINER_RUNROOT: ${{ runner.temp }}
         BB_VERBOSITY: 5
       run: |
         coverage run -p `which benchbuild` bootstrap -s
@@ -93,6 +99,7 @@ jobs:
         coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
         coverage combine
+        coverage report -m
 
     - uses: actions/upload-artifact@master
       with:

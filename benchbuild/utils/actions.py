@@ -315,6 +315,7 @@ class Compile(ProjectStep):
 
         except ProcessExecutionError:
             self.status = StepResult.ERROR
+            raise
         self.status = StepResult.OK
 
         return self.status

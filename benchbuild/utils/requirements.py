@@ -1,9 +1,9 @@
 import abc
 import copy
 import logging
-import typing as tp
 import math
 import re
+import typing as tp
 from enum import Enum
 
 import attr
@@ -36,8 +36,9 @@ class Requirement:
     @classmethod
     @abc.abstractmethod
     def merge_requirements(
-            cls: tp.Type[RequirementSubType], lhs_option: RequirementSubType,
-            rhs_option: RequirementSubType) -> RequirementSubType:
+        cls: tp.Type[RequirementSubType], lhs_option: RequirementSubType,
+        rhs_option: RequirementSubType
+    ) -> RequirementSubType:
         """
         Merge the requirements of the same type together.
         """
@@ -94,8 +95,9 @@ class SlurmCoresPerSocket(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-            cls, lhs_option: 'SlurmCoresPerSocket',
-            rhs_option: 'SlurmCoresPerSocket') -> 'SlurmCoresPerSocket':
+        cls, lhs_option: 'SlurmCoresPerSocket',
+        rhs_option: 'SlurmCoresPerSocket'
+    ) -> 'SlurmCoresPerSocket':
         """
         Merge the requirements of the same type together.
         """
@@ -117,8 +119,9 @@ class SlurmExclusive(SlurmRequirement):
         return "Exclusive"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'SlurmExclusive',
-                           rhs_option: 'SlurmExclusive') -> 'SlurmExclusive':
+    def merge_requirements(
+        cls, lhs_option: 'SlurmExclusive', rhs_option: 'SlurmExclusive'
+    ) -> 'SlurmExclusive':
         """
         Merge the requirements of the same type together.
         """
@@ -140,14 +143,17 @@ class SlurmNiceness(SlurmRequirement):
         return f"--nice={self.niceness}"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'SlurmNiceness',
-                           rhs_option: 'SlurmNiceness') -> 'SlurmNiceness':
+    def merge_requirements(
+        cls, lhs_option: 'SlurmNiceness', rhs_option: 'SlurmNiceness'
+    ) -> 'SlurmNiceness':
         """
         Merge the requirements of the same type together.
         """
         if lhs_option.niceness != rhs_option.niceness:
-            LOG.info("Multiple different slurm niceness values specifcied, "
-                     "choosing the smaller value.")
+            LOG.info(
+                "Multiple different slurm niceness values specifcied, "
+                "choosing the smaller value."
+            )
 
         return SlurmNiceness(min(lhs_option.niceness, rhs_option.niceness))
 
@@ -189,8 +195,9 @@ class SlurmHint(SlurmRequirement):
         return f"Hint ({str(self)})"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'SlurmHint',
-                           rhs_option: 'SlurmHint') -> 'SlurmHint':
+    def merge_requirements(
+        cls, lhs_option: 'SlurmHint', rhs_option: 'SlurmHint'
+    ) -> 'SlurmHint':
         """
         Merge the requirements of the same type together.
         """
@@ -199,7 +206,8 @@ class SlurmHint(SlurmRequirement):
 
         if not cls.__hints_not_mutually_exclusive(combined_hints):
             raise ValueError(
-                "Two mutally exclusive hints for slurm have be specified.")
+                "Two mutally exclusive hints for slurm have be specified."
+            )
 
         return SlurmHint(combined_hints)
 
@@ -212,11 +220,15 @@ class SlurmHint(SlurmRequirement):
         Returns:
             True, if no mutally exclusive hints are in the list
         """
-        if (SlurmHint.SlurmHints.compute_bound in hints and
-                SlurmHint.SlurmHints.memory_bound in hints):
+        if (
+            SlurmHint.SlurmHints.compute_bound in hints and
+            SlurmHint.SlurmHints.memory_bound in hints
+        ):
             return False
-        if (SlurmHint.SlurmHints.nomultithread in hints and
-                SlurmHint.SlurmHints.multithread in hints):
+        if (
+            SlurmHint.SlurmHints.nomultithread in hints and
+            SlurmHint.SlurmHints.multithread in hints
+        ):
             return False
 
         return True
@@ -320,8 +332,9 @@ class SlurmTime(SlurmRequirement):
         return f"--time={self.to_slurm_time_format()}"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'SlurmTime',
-                           rhs_option: 'SlurmTime') -> 'SlurmTime':
+    def merge_requirements(
+        cls, lhs_option: 'SlurmTime', rhs_option: 'SlurmTime'
+    ) -> 'SlurmTime':
         """
         Merge the requirements of the same type together.
         """
@@ -361,8 +374,7 @@ def _to_bytes(byte_str: str) -> int:
     >>> _to_bytes("10G")
     10737418240
     """
-    match = _BYTE_RGX.search(byte_str)
-    if match:
+    if (match := _BYTE_RGX.search(byte_str)):
         size = int(match.group("size"))
         byte_suffix = match.group("byte_suffix")
         return size * _get_byte_size_factor(byte_suffix)
@@ -410,16 +422,18 @@ class SlurmMem(SlurmRequirement):
         return f"--mem={byte_size_tuple[0]}{byte_size_tuple[1]}"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'SlurmMem',
-                           rhs_option: 'SlurmMem') -> 'SlurmMem':
+    def merge_requirements(
+        cls, lhs_option: 'SlurmMem', rhs_option: 'SlurmMem'
+    ) -> 'SlurmMem':
         """
         Merge the requirements of the same type together.
         """
         return copy.deepcopy(max(lhs_option, rhs_option))
 
 
-def merge_slurm_options(list_1: tp.List[Requirement],
-                        list_2: tp.List[Requirement]) -> tp.List[Requirement]:
+def merge_slurm_options(
+    list_1: tp.List[Requirement], list_2: tp.List[Requirement]
+) -> tp.List[Requirement]:
     """
     Merged two lists of SlurmOptions into one.
     """
@@ -430,7 +444,8 @@ def merge_slurm_options(list_1: tp.List[Requirement],
         if key in merged_options:
             current_opt = merged_options[key]
             merged_options[key] = current_opt.merge_requirements(
-                current_opt, opt)
+                current_opt, opt
+            )
         else:
             merged_options[key] = opt
 

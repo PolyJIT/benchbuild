@@ -3,21 +3,21 @@ BenchBuild supports containerized execution of all experiments. This gives you
 full control about the environment your [projects](/concepts/projects/) and
 [experiments](/concepts/experiments/) may run in.
 
-The following example uses the latest ``alpine:latest``
+The following example uses the latest ``alpine:latest``:
 
-Example:
-```python
-ContainerImage().from_('alpine:latest')
-    .run('apk', 'update')
-    .run('apk', 'add', 'python3')
-```
+.. code-block:: python
+
+    ContainerImage().from_('alpine:latest')
+        .run('apk', 'update')
+        .run('apk', 'add', 'python3')
+
 """
 
 import logging
 import typing as tp
 
-from benchbuild.settings import CFG
 from benchbuild.environments.adapters.common import buildah_version
+from benchbuild.settings import CFG
 
 from . import model
 
@@ -169,7 +169,7 @@ class ContainerImage(list):
 
 DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
     'benchbuild:alpine': ContainerImage() \
-            .from_("docker.io/alpine:edge") \
+            .from_("docker.io/alpine:3.17") \
             .run('apk', 'update') \
             .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
                  'linux-headers', 'musl-dev', 'git', 'gcc', 'g++',

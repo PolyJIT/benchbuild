@@ -7,11 +7,13 @@ import abc
 import typing as tp
 from enum import IntFlag
 
-import pygit2
 from plumbum.machines import LocalCommand
 
 from benchbuild.source import Git
 from benchbuild.utils.cmd import git as local_git
+
+if tp.TYPE_CHECKING:
+    import pygit2
 
 
 def _get_git_for_path(repo_path: str) -> LocalCommand:
@@ -158,9 +160,9 @@ class CommitState(IntFlag):
 
 
 def _find_blocked_commits(
-    commit: pygit2.Commit, good: tp.List[pygit2.Commit],
-    bad: tp.List[pygit2.Commit]
-) -> tp.List[pygit2.Commit]:
+    commit: 'pygit2.Commit', good: tp.List['pygit2.Commit'],
+    bad: tp.List['pygit2.Commit']
+) -> tp.List['pygit2.Commit']:
     """
     Find all commits affected by a bad commit and not yet "fixed" by a
     good commit. This is done by performing a backwards search starting
@@ -175,8 +177,8 @@ def _find_blocked_commits(
         All transitive parents of commit that have an ancestor from bad
         that is not fixed by some commit from good.
     """
-    stack: tp.List[pygit2.Commit] = [commit]
-    blocked: tp.Dict[pygit2.Commit, CommitState] = {}
+    stack: tp.List['pygit2.Commit'] = [commit]
+    blocked: tp.Dict['pygit2.Commit', CommitState] = {}
 
     while stack:
         current_commit = stack.pop()
@@ -239,6 +241,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         self.__revision_list: tp.Optional[tp.List[str]] = None
 
     def init_cache(self, repo_path: str) -> None:
+        import pygit2  # pylint: disable=import-outside-toplevel
         self.__revision_list = []
         repo = pygit2.Repository(repo_path)
         git = _get_git_for_path(repo_path)

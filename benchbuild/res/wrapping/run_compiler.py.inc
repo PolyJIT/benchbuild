@@ -2,10 +2,21 @@
 #
 import os
 import sys
+
+{% if collect_coverage %}
+import coverage
+{% endif %}
+
 os.environ["OPENBLAS_NUM_THREADS"] = "4"
 
 from plumbum import TEE, local
 
+# Performance optimization for benchbuild: don't import any experiments or
+# projects. Everything necessary should be imported when loading (unpickling)
+# the project and the compiler.
+os.environ["BB_PLUGINS_AUTOLOAD"] = "False"
+
+from benchbuild.settings import CFG
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos
@@ -24,7 +35,8 @@ def update_project(argv):
                 name = project_p.basename
                 break
         PROJECT.name = name
-        persist_project(PROJECT)
+        if CFG["db"]["enabled"]:
+            persist_project(PROJECT)
 
 
 def main(argv):
@@ -50,4 +62,18 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+{% if collect_coverage %}
+    cov = coverage.Coverage(
+      config_file="{{ coverage_config }}",
+      data_file="{{ coverage_path }}/.coverage",
+      data_suffix=True,
+      branch=True
+    )
+    cov.start()
+{% endif %}
+    ret = main(sys.argv)
+{% if collect_coverage %}
+    cov.stop()
+    cov.save()
+{% endif %}
+    sys.exit(ret)

@@ -2,9 +2,9 @@ import logging
 import shutil
 import sys
 import typing as tp
-from collections.abc import Set
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
 from plumbum import local
 from plumbum.commands.base import BoundEnvCommand
@@ -17,11 +17,6 @@ from benchbuild.utils.wrapping import wrap
 
 if tp.TYPE_CHECKING:
     import benchbuild.project.Project  # pylint: disable=unused-import
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol, runtime_checkable
-else:
-    from typing import Protocol, runtime_checkable
 
 LOG = logging.getLogger(__name__)
 
@@ -159,8 +154,7 @@ class SourceRootRenderer:
             LOG.error("Cannot render a source directory without a project.")
             return Path(self.unrendered)
 
-        src_path = project.source_of(self.local)
-        if src_path:
+        if (src_path := project.source_of(self.local)):
             return Path(src_path)
         return Path(project.builddir) / self.local
 
@@ -516,8 +510,8 @@ class Command:
         self._env.update(kwargs)
 
     @property
-    def label(self) -> tp.Optional[str]:
-        return self._label
+    def label(self) -> str:
+        return self._label if self._label else self.name
 
     @label.setter
     def label(self, new_label: str) -> None:
@@ -594,7 +588,7 @@ class Command:
             command_str = f"{env_str} {command_str}"
         if args_str:
             command_str = f"{command_str} {args_str}"
-        if self.label:
+        if self._label:
             command_str = f"{self._label} {command_str}"
         return command_str
 
@@ -647,12 +641,6 @@ class ProjectCommand:
 
 
 def _is_relative_to(p: Path, other: Path) -> bool:
-    if sys.version_info < (3, 9):
-        try:
-            p.relative_to(other)
-            return True
-        except ValueError:
-            return False
     return p.is_relative_to(other)
 
 
@@ -775,6 +763,6 @@ def filter_workload_index(
     This removes all command lists from the index not matching `only`.
     """
 
-    keys = {k for k in index if k and ((only and (k & only)) or (not only))}
+    keys = [k for k in index if k and ((only and (k & only)) or (not only))]
     for k in keys:
         yield index[k]

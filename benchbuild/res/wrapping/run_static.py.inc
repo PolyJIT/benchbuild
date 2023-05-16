@@ -1,8 +1,18 @@
 #!{{ python|default("/usr/bin/env python3") }}
 #
+import os
 import sys
 
+{% if collect_coverage %}
+import coverage
+{% endif %}
+
 from plumbum import TEE, local
+
+# Performance optimization for benchbuild: don't import any experiments or
+# projects. Everything necessary should be imported when loading (unpickling)
+# the project.
+os.environ["BB_PLUGINS_AUTOLOAD"] = "False"
 
 from benchbuild.utils import log
 from benchbuild.utils.run import exit_code_from_run_infos
@@ -32,4 +42,18 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+{% if collect_coverage %}
+    cov = coverage.Coverage(
+      config_file="{{ coverage_config }}",
+      data_file="{{ coverage_path }}/.coverage",
+      data_suffix=True,
+      branch=True
+    )
+    cov.start()
+{% endif %}
+    ret = main(sys.argv)
+{% if collect_coverage %}
+    cov.stop()
+    cov.save()
+{% endif %}
+    sys.exit(ret)

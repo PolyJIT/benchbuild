@@ -17,12 +17,6 @@ def __create_handler__() -> RichHandler:
     )
 
 
-def configure_migrate_log():
-    migrate_log = logging.getLogger("migrate.versioning")
-    migrate_log.setLevel(logging.ERROR)
-    migrate_log.propagate = True
-
-
 def configure_plumbum_log():
     plumbum_format = logging.Formatter('$> %(message)s')
     handler = __create_handler__()
@@ -69,7 +63,6 @@ def configure():
     root_logger.setLevel(log_levels[int(settings.CFG["verbosity"])])
 
     configure_plumbum_log()
-    configure_migrate_log()
     configure_parse_log()
 
 

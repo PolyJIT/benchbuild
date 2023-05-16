@@ -145,6 +145,10 @@ CFG["env"] = {
 }
 
 CFG['db'] = {
+    "enabled": {
+        "desc": "Whether the database is enabled.",
+        "default": False
+    },
     "connect_string": {
         "desc": "sqlalchemy connect string",
         "default": "sqlite://"
@@ -378,6 +382,10 @@ CFG["container"] = {
         "default": s.ConfigPath(os.getcwd()),
         "desc": "Path to benchbuild's source directory"
     },
+    "storage_driver": {
+        "default": "vfs",
+        "desc": "Storage driver for containers."
+    },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."
@@ -502,6 +510,21 @@ CFG["versions"] = {
     "full": {
         "default": False,
         "desc": "Ignore default sampling and provide full version exploration."
+    }
+}
+
+CFG["coverage"] = {
+    "collect": {
+        "desc": "Should benchuild collect coverage inside wrapped binaries.",
+        "default": False
+    },
+    "config": {
+        "desc": "Where is the coverage config?",
+        "default": ".coveragerc"
+    },
+    "path": {
+        "desc": "Where should the coverage files be placed?",
+        "default": None
     }
 }
 

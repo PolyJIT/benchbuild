@@ -5,7 +5,6 @@ import typing as tp
 from plumbum import local, ProcessExecutionError
 from result import Result, Err, Ok
 from rich import print
-from rich.markdown import Markdown
 
 from benchbuild.environments.adapters import buildah
 from benchbuild.environments.adapters.common import (
@@ -84,8 +83,7 @@ class ContainerRegistry(abc.ABC):
         if container_id in self.containers:
             return self.containers[container_id]
 
-        container = self._find(container_id)
-        if container is not None:
+        if (container := self._find(container_id)) is not None:
             self.containers[container_id] = container
             return container
 
@@ -166,13 +164,15 @@ class PodmanRegistry(ContainerRegistry):
             for mount in mounts:
                 create_cmd = create_cmd['--mount', mount]
 
-        cfg_mounts = list(CFG['container']['mounts'].value)
-        if cfg_mounts:
+        if (cfg_mounts := list(CFG['container']['mounts'].value)):
             for source, target in cfg_mounts:
                 create_cmd = create_cmd[
                     '--mount', f'type=bind,src={source},target={target}']
 
         if interactive:
+            # pylint: disable=import-outside-toplevel
+            from rich.markdown import Markdown
+
             entrypoint = buildah.find_entrypoint(image.name)
             print(
                 Markdown(

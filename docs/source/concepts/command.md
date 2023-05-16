@@ -48,3 +48,12 @@ example of an available token is the above ``SourceRoot``.
 BenchBuild offers project authors a way to tokenize path components for
 commands. These can be used to refer to a project's root directory or
 source directory in a generic way.
+
+## Module: command
+
+```{eval-rst}
+.. automodule:: benchbuild.command
+  :members:
+  :undoc-members:
+  :show-inheritance:
+```

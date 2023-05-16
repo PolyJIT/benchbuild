@@ -1,3 +1,46 @@
+<a name="6.7"></a>
+## 6.7 (2023-04-04)
+
+
+#### Features
+
+*   run auto-walrus over all of benchbuild's file ([79ac33d8](https://github.com/PolyJIT/benchbuild/commit/79ac33d8d69974fb6a1d049f75c5f013e444b2ce))
+*   add support for auto-walrus as pre-commit hook ([d7a2165b](https://github.com/PolyJIT/benchbuild/commit/d7a2165bb22467754fd329fedc0c0f8330336e3f))
+*   drop support for python 3.7 and 3.8 ([90308f2a](https://github.com/PolyJIT/benchbuild/commit/90308f2ae141fd4443f08ef55a4155e433fad929))
+* **ci:**
+  *  update setup-python to v4 ([3e943df6](https://github.com/PolyJIT/benchbuild/commit/3e943df657cb06a4f2b47104a4e3dcb77f16793c))
+  *  update github setup actions to v3 ([dfa4cb81](https://github.com/PolyJIT/benchbuild/commit/dfa4cb8135d3c0256c6b99dbe40771d8ce1e5a5d))
+* **command:**  use name as default value for a command's label ([07f74dd4](https://github.com/PolyJIT/benchbuild/commit/07f74dd4932eecdfbd902d231242a65984501007))
+* **environments:**  force base image to alpine:3.17 ([fe5d6155](https://github.com/PolyJIT/benchbuild/commit/fe5d615574130260e1af1aaa49b1058600ed9668))
+* **setup:**
+  *  widen allowed versions to major versions ([5d29079a](https://github.com/PolyJIT/benchbuild/commit/5d29079a973dc1d8650ee9083090eaa7bd99cbfc))
+  *  unlock latest versions of all packages ([7b5a704f](https://github.com/PolyJIT/benchbuild/commit/7b5a704f843872c90fa2a23eb738db4262883076))
+* **wrapping:**  enforce global defaults for dill module ([489e3039](https://github.com/PolyJIT/benchbuild/commit/489e3039f8bb1ccee40219d1c27ca999cd8a3623))
+
+#### Bug Fixes
+
+*   python version for setup-python@v4 has to be string ([7a1db742](https://github.com/PolyJIT/benchbuild/commit/7a1db74237e6b35687213920bb534b5308773615))
+*   remove python 3.7 and 3.8 from all workflows ([aaabc1b5](https://github.com/PolyJIT/benchbuild/commit/aaabc1b5e7a817304f9e948feb565f37916c68bb))
+*   bump pathos & dill to unbreak gitlab ci ([bce45d8a](https://github.com/PolyJIT/benchbuild/commit/bce45d8a148e41914d6f56a18933f9faf26f58bf))
+* **ci:**
+  *  disable mkdocs in github ci ([8540f880](https://github.com/PolyJIT/benchbuild/commit/8540f880607ddeae293fc6b9feb1f751fd9cc721))
+  *  reorder CI steps (test) ([74379d53](https://github.com/PolyJIT/benchbuild/commit/74379d5350c35cc2c76600ae7784b78aefd1a7db))
+  *  increase verbosity to max for all integation tasks ([b6625d31](https://github.com/PolyJIT/benchbuild/commit/b6625d31d444e2ea51dc923a80438f0eed4a962d))
+* **command:**  use private label when fetching string representation ([d83aa666](https://github.com/PolyJIT/benchbuild/commit/d83aa6661d3e2e08a0849bd3b23f557bd086e5b6))
+* **commands:**  preserve workload order when filtering ([3648dd5e](https://github.com/PolyJIT/benchbuild/commit/3648dd5e8d0c20a07141a05a94a4e1223f575399))
+* **setup:**  unlock any major version of pygit2 ([b09d9248](https://github.com/PolyJIT/benchbuild/commit/b09d92489a57897d4e0ad39dcb8b99ce08133d36))
+* **wrapping:**  remove unused code ([0d1c890d](https://github.com/PolyJIT/benchbuild/commit/0d1c890db0f674aab13b12432394699030114087))
+
+
+
+# Changelog
+
+<a name="6.6.4"></a>
+## 6.6.4 (2023-03-16)
+
+
+
+
 <a name="6.6.3"></a>
 ## 6.6.3 (2023-03-06)
 

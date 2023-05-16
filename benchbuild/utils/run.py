@@ -5,6 +5,7 @@ import logging
 import sys
 import typing as t
 from contextlib import contextmanager
+from typing import Protocol
 
 import attr
 from plumbum import TEE, local
@@ -12,11 +13,6 @@ from plumbum.commands import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
 
 CommandResult = t.Tuple[int, str, str]
 
@@ -66,6 +62,10 @@ class RunInfo:
             (run, session), where run is the generated run instance and
             session the associated transaction for later use.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils import schema as s
         from benchbuild.utils.db import create_run
 
@@ -95,6 +95,10 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.schema import RunLog
 
         run_id = self.db_run.id
@@ -124,6 +128,10 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+        if not CFG["db"]["enabled"]:
+            return
+
+        # pylint: disable=import-outside-toplevel
         from benchbuild.utils.schema import RunLog
         run_id = self.db_run.id
 
@@ -157,8 +165,9 @@ class RunInfo:
         )
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
-        run_id = self.db_run.id
-        settings.CFG["db"]["run_id"] = run_id
+        if CFG["db"]["enabled"]:
+            run_id = self.db_run.id
+            settings.CFG["db"]["run_id"] = run_id
 
     def add_payload(self, name, payload):
         if self == payload:
@@ -214,7 +223,8 @@ class RunInfo:
         return self
 
     def commit(self):
-        self.session.commit()
+        if CFG["db"]["enabled"]:
+            self.session.commit()
 
 
 def begin_run_group(project, experiment):
@@ -231,6 +241,7 @@ def begin_run_group(project, experiment):
         ``(group, session)`` where group is the created group in the
         database and session is the database session this group lives in.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils.db import create_run_group
 
     group, session = create_run_group(project, experiment)
@@ -345,6 +356,7 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     Returns:
         The updated command.
     """
+    # pylint: disable=import-outside-toplevel
     from plumbum.commands.base import BoundCommand, BoundEnvCommand
     if isinstance(cmd, BoundCommand):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)

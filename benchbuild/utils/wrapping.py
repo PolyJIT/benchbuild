@@ -27,10 +27,8 @@ import os
 import sys
 import typing as tp
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import dill
-import jinja2
 import plumbum as pb
 from plumbum import local
 from plumbum.commands.base import BoundCommand
@@ -43,7 +41,15 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 
 LOG = logging.getLogger(__name__)
 
+# Configure default settings for dill pickle/unpickle, globally
+dill.settings['ignore'] = True
+dill.settings['recurse'] = True
+dill.settings['protocol'] = -1
+dill.settings['byref'] = True
+
 if tp.TYPE_CHECKING:
+    import jinja2
+
     import benchbuild.project.Project  # pylint: disable=unused-import
 
 
@@ -71,17 +77,8 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     return ipath
 
 
-def unpickle(pickle_file: str) -> tp.Any:
-    """Unpickle a python object from the given path."""
-    pickle = None
-    with open(pickle_file, "rb") as pickle_f:
-        pickle = dill.load(pickle_f)
-    if not pickle:
-        LOG.error("Could not load python object from file")
-    return pickle
-
-
-def __create_jinja_env() -> jinja2.Environment:
+def __create_jinja_env() -> 'jinja2.Environment':
+    import jinja2  # pylint: disable=import-outside-toplevel
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,
@@ -136,6 +133,10 @@ def wrap(
 
     env = CFG["env"].value
 
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
+
     bin_path = list_to_path(env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
@@ -152,6 +153,9 @@ def wrap(
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
                 python=python,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 
@@ -211,6 +215,9 @@ def wrap_dynamic(
     project_file = persist(project, suffix=".project")
 
     cfg_env = CFG["env"].value
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
 
     bin_path = list_to_path(cfg_env.get("PATH", []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
@@ -229,6 +236,9 @@ def wrap_dynamic(
                 home=str(home),
                 python=python,
                 name_filters=name_filters,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 
@@ -269,6 +279,10 @@ def wrap_cc(
 
     project_file = persist(project, suffix=".project")
 
+    collect_coverage = bool(CFG["coverage"]["collect"])
+    coverage_config = str(CFG["coverage"]["config"])
+    coverage_path = str(CFG["coverage"]["path"])
+
     with open(filepath, "w") as wrapper:
         wrapper.write(
             template.render(
@@ -276,6 +290,9 @@ def wrap_cc(
                 project_file=str(project_file),
                 python=python,
                 detect_project=detect_project,
+                collect_coverage=collect_coverage,
+                coverage_config=coverage_config,
+                coverage_path=coverage_path
             )
         )
 

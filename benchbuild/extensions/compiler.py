@@ -6,11 +6,12 @@ import yaml
 from plumbum.commands.base import BoundCommand
 
 from benchbuild.extensions import base
+from benchbuild.settings import CFG
 from benchbuild.utils import db, run
 
 if TYPE_CHECKING:
-    from benchbuild.project import Project
     from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
 
 LOG = logging.getLogger(__name__)
 
@@ -65,9 +66,10 @@ class RunCompiler(base.Extension):
                         default_flow_style=False
                     )
                 )
-                db.persist_config(
-                    run_info.db_run, run_info.session, self.config
-                )
+                if CFG["db"]["enabled"]:
+                    db.persist_config(
+                        run_info.db_run, run_info.session, self.config
+                    )
 
             if run_info.has_failed:
                 with run.track_execution(

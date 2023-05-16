@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -53,7 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10"]
+        db_support: [true, false]
 
     steps:
     - uses: actions/checkout@v2
@@ -76,21 +77,29 @@ jobs:
 
     - name: Run integration tests
       env:
-        BB_CONTAINER_ROOT: '/tmp'
-        BB_CONTAINER_RUNROOT: '/tmp'
+        BB_DB_ENABLED: ${{ matrix.db_support }}
+        BB_DB_CONNECT_STRING: "sqlite://"
+        BB_COVERAGE_COLLECT: true
+        BB_COVERAGE_PATH: ${{ github.workspace }}
+        BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
+        BB_CONTAINER_ROOT: ${{ runner.temp }}
+        BB_CONTAINER_RUNROOT: ${{ runner.temp }}
+        BB_VERBOSITY: 5
       run: |
         coverage run -p `which benchbuild` bootstrap -s
         coverage run -p `which benchbuild` config view
         coverage run -p `which benchbuild` experiment view
         coverage run -p `which benchbuild` project view
-        coverage run -p `which benchbuild` -vvvvv run --full test
-        coverage run -p `which benchbuild` -vvvvv slurm -E empty test
-        coverage run -p `which benchbuild` -vvvvv slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p `which benchbuild` run --full test
+        coverage run -p `which benchbuild` slurm -E empty test
+        coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p `which benchbuild` run -E raw bzip2/benchbuild
+        coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
         coverage combine
+        coverage report -m
 
     - uses: actions/upload-artifact@master
       with:
@@ -143,12 +152,12 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -161,14 +170,4 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-        pip install -r requirements.txt
-        pip install -r doc-requirements.txt
-
-    - name: Build documentation
-      run: |
-        mkdocs build
-
-    - name: Deploy documentation
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        mkdocs gh-deploy
+        pip install -r docs/requirements.txt

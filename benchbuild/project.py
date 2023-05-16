@@ -296,8 +296,7 @@ class Project(
 
     @run_uuid.default
     def __default_run_uuid(self):  # pylint: disable=unused-private-member
-        run_group = getenv("BB_DB_RUN_GROUP", None)
-        if run_group:
+        if (run_group := getenv("BB_DB_RUN_GROUP", None)):
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
@@ -336,7 +335,8 @@ class Project(
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self) -> None:
-        db.persist_project(self)
+        if CFG["db"]["enabled"]:
+            db.persist_project(self)
 
         # select container image
         if isinstance(type(self).CONTAINER, ContainerImage):
@@ -344,18 +344,22 @@ class Project(
                 ContainerImage, copy.deepcopy(type(self).CONTAINER)
             )
         else:
-            if not isinstance(primary(*self.SOURCE), Git):
+            primary_source = primary(*self.SOURCE)
+            if isinstance(primary_source, source.BaseVersionFilter):
+                primary_source = primary_source.child
+            if not isinstance(primary_source, Git):
                 raise AssertionError(
                     "Container selection by version is only allowed if the"
                     "primary source is a git repository."
                 )
             version = self.version_of_primary
-            cache_path = str(primary(*self.SOURCE).fetch())
+            cache_path = str(primary_source.fetch())
             for rev_range, image in type(self).CONTAINER:
                 rev_range.init_cache(cache_path)
-                if version in rev_range:
-                    self.container = copy.deepcopy(image)
-                    break
+                for rev in rev_range:
+                    if rev.startswith(version):
+                        self.container = copy.deepcopy(image)
+                        break
 
     def clean(self) -> None:
         """Clean the project build directory."""
@@ -407,8 +411,7 @@ class Project(
         except KeyError:
             LOG.debug("%s not found in revision. Skipping.", name)
 
-        all_sources = source.sources_as_dict(*self.source)
-        if name in all_sources:
+        if name in (all_sources := source.sources_as_dict(*self.source)):
             return str(self.builddir / all_sources[name].local)
 
         return None

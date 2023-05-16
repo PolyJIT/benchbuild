@@ -5,16 +5,12 @@ import abc
 import itertools
 import sys
 import typing as tp
+from typing import Protocol
 
 import attr
 import plumbum as pb
 
 from benchbuild.settings import CFG
-
-if sys.version_info <= (3, 8):
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
 
 if tp.TYPE_CHECKING:
     from benchbuild.project import Project

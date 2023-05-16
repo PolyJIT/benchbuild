@@ -1,8 +1,6 @@
 """Database support module for the benchbuild study."""
 import logging
 
-from sqlalchemy.exc import IntegrityError
-
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
@@ -39,6 +37,7 @@ def create_run(cmd, project, exp, grp):
         The inserted tuple representing the run and the session opened with
         the new run. Don't forget to commit it at some point.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
     session = s.Session()
@@ -73,6 +72,7 @@ def create_run_group(prj, experiment):
         A tuple (group, session) containing both the newly created run_group and
         the transaction object.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
     session = s.Session()
@@ -137,6 +137,9 @@ def persist_experiment(experiment):
     Args:
         experiment: The experiment we want to persist.
     """
+    # pylint: disable=import-outside-toplevel
+    from sqlalchemy.exc import IntegrityError
+
     from benchbuild.utils.schema import Experiment, Session
 
     session = Session()
@@ -177,6 +180,7 @@ def persist_time(run, session, timings):
         session: The db transaction we belong to.
         timings: The timing measurements we want to store.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
     for timing in timings:
@@ -203,6 +207,7 @@ def persist_perf(run, session, svg_path):
         session: The db transaction we belong to.
         svg_path: The path to the SVG file we want to store.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
     with open(svg_path, 'r') as svg_file:
@@ -235,6 +240,7 @@ def persist_config(run, session, cfg):
         session: The db transaction we belong to.
         cfg: The configuration we want to persist.
     """
+    # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
     for cfg_elem in cfg:

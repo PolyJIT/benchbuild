@@ -50,6 +50,7 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
         root = CFG['container']['root']
         runroot = CFG['container']['runroot']
         storage_driver = CFG['container']['storage_driver']
+        storage_opts = CFG['container']['storage_opts'].value
 
         if path_longer_than_50_chars(str(root)):
             LOG.error(
@@ -63,8 +64,16 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
 
         opts = [
             '--root', root, '--runroot', runroot,
-            '--storage-driver', storage_driver
+            '--storage-driver', storage_driver,
         ]
+
+        if storage_opts is None:
+            # ignore options set in 'storage.conf'
+            opts.append("--storage-opt=''")
+
+        for opt in storage_opts:
+            opts.append('--storage-opt')
+            opts.append(opt)
 
         cmd = base[opts]
         return cmd[args]

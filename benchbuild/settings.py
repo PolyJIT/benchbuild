@@ -386,6 +386,11 @@ CFG["container"] = {
         "default": "vfs",
         "desc": "Storage driver for containers."
     },
+    "storage_opts": {
+        "default": [],
+        "desc": "Storage options for containers."
+                "If 'null', ignore 'storage.conf'."
+    },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."

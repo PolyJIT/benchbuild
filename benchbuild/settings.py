@@ -383,8 +383,14 @@ CFG["container"] = {
         "desc": "Path to benchbuild's source directory"
     },
     "storage_driver": {
-        "default": "vfs",
+        "default": None,
         "desc": "Storage driver for containers."
+                "If 'null' use podman's default."
+    },
+    "storage_opts": {
+        "default": [],
+        "desc": "Storage options for containers."
+                "If 'null', ignore 'storage.conf'."
     },
     "input": {
         "default": "container.tar.bz2",

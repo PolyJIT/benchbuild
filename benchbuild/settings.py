@@ -234,11 +234,11 @@ CFG["slurm"] = {
         "default": True
     },
     "multithread": {
-        "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
+        "desc": "Hint SLURM to disable multithreading. False adds --hint=nomultithread.",
         "default": False
     },
     "turbo": {
-        "desc": "Disable Intel Turbo Boost via SLURM. (--pstate-turbo=off)",
+        "desc": "Enable Intel Turbo Boost via SLURM. False adds --pstate-turbo=off.",
         "default": False
     },
     "logs": {

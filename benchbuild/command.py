@@ -603,7 +603,7 @@ class Command:
             if isinstance(arg, ArgsToken):
                 args.extend(arg.render(**kwargs))
             else:
-                args.append(arg)
+                args.append(str(arg))
         cmd_w_args = cmd[args]
         cmd_w_output = cmd_w_args
         if self.output:

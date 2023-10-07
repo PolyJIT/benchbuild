@@ -33,7 +33,7 @@ class ArgsRenderStrategy(Protocol):
         Returns an unrendered representation of this strategy.
         """
 
-    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str]:
+    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
         """Renders this strategy."""
 
 
@@ -193,7 +193,7 @@ class ArgsToken:
     def __init__(self, renderer: ArgsRenderStrategy) -> None:
         self.renderer = renderer
 
-    def render(self, **kwargs: tp.Any) -> tp.Tuple[str]:
+    def render(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
         """
         Renders the PathToken as a standard pathlib Path.
 

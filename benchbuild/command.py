@@ -22,6 +22,22 @@ LOG = logging.getLogger(__name__)
 
 
 @runtime_checkable
+class ArgsRenderStrategy(Protocol):
+    """
+    Rendering strategy protocol for command line argument tokens.
+    """
+
+    @property
+    def unrendered(self) -> str:
+        """
+        Returns an unrendered representation of this strategy.
+        """
+
+    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str]:
+        """Renders this strategy."""
+
+
+@runtime_checkable
 class PathRenderStrategy(Protocol):
     """
     Rendering strategy protocol for path components.
@@ -160,6 +176,36 @@ class SourceRootRenderer:
 
     def __str__(self) -> str:
         return self.unrendered
+
+
+class ArgsToken:
+    """
+    Base class for tokens that can be rendered into command-line arguments.
+    """
+    renderer: ArgsRenderStrategy
+
+    @classmethod
+    def make_token(
+        cls, renderer: ArgsRenderStrategy
+    ) -> 'ArgsToken':
+        return ArgsToken(renderer)
+
+    def __init__(self, renderer: ArgsRenderStrategy) -> None:
+        self.renderer = renderer
+
+    def render(self, **kwargs: tp.Any) -> tp.Tuple[str]:
+        """
+        Renders the PathToken as a standard pathlib Path.
+
+        Any kwargs will be forwarded to the PathRenderStrategy.
+        """
+        return self.renderer.rendered(**kwargs)
+
+    def __str__(self) -> str:
+        return self.renderer.unrendered
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class PathToken:
@@ -462,7 +508,7 @@ class Command:
             return token
 
         self._path = path
-        self._args = tuple(str(arg) for arg in args)
+        self._args = args
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
@@ -551,7 +597,14 @@ class Command:
         assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
 
         cmd = local[str(cmd_path)]
-        cmd_w_args = cmd[self._args]
+
+        args = []
+        for arg in self._args:
+            if isinstance(arg, ArgsToken):
+                args.extend(arg.render(**kwargs))
+            else:
+                args.append(arg)
+        cmd_w_args = cmd[args]
         cmd_w_output = cmd_w_args
         if self.output:
             output_path = self.output.render(**kwargs)

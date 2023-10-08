@@ -580,6 +580,17 @@ class Command:
         cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
+    def rendered_args(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+        args = []
+
+        for arg in self._args:
+            if isinstance(arg, ArgsToken):
+                args.extend(arg.render(**kwargs))
+            else:
+                args.append(str(arg))
+
+        return tuple(args)
+
     def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:
         """
         Convert this command into a plumbum compatible command.
@@ -597,14 +608,7 @@ class Command:
         assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
 
         cmd = local[str(cmd_path)]
-
-        args = []
-        for arg in self._args:
-            if isinstance(arg, ArgsToken):
-                args.extend(arg.render(**kwargs))
-            else:
-                args.append(str(arg))
-        cmd_w_args = cmd[args]
+        cmd_w_args = cmd[self.rendered_args(**kwargs)]
         cmd_w_output = cmd_w_args
         if self.output:
             output_path = self.output.render(**kwargs)

@@ -508,7 +508,7 @@ class Command:
             return token
 
         self._path = path
-        self._args = args
+        self._args = tuple(args)
         self._output = output
 
         self._output_param = output_param if output_param is not None else []

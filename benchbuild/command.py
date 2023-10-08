@@ -581,7 +581,7 @@ class Command:
         return watch(cmd_w_output)(*args)
 
     def rendered_args(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
-        args = []
+        args: tp.List[str] = []
 
         for arg in self._args:
             if isinstance(arg, ArgsToken):

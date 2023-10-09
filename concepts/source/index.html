@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>Source</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../_static/documentation_options.js?v=68fef311"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../about/" />
+  <link rel="index" title="Index" href="../../genindex/" />
+  <link rel="search" title="Search" href="../../search/" />
+  <link rel="next" title="Environment" href="../environments/" />
+  <link rel="prev" title="Commands" href="../command/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Source</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.source.base" class="reference internal">Base</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.source.git" class="reference internal">Git</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.source.http" class="reference internal">HTTP</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.source.rsync" class="reference internal">RSync</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.source" class="reference internal">Module: source</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../">Docs</a> &raquo;</li>
+    
+    <li>Source</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../command/"
+       title="previous chapter">← Commands</a>
+  </li>
+  <li class="next">
+    <a href="../environments/"
+       title="next chapter">Environment →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="source">
+<h1>Source<a class="headerlink" href="#source" title="Link to this heading">¶</a></h1>
+<section id="module-benchbuild.source.base">
+<span id="base"></span><h2>Base<a class="headerlink" href="#module-benchbuild.source.base" title="Link to this heading">¶</a></h2>
+<p>Provide a base interface for downloadable sources.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.BaseSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">BaseSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#BaseSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.BaseSource" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.base.Expandable" title="benchbuild.source.base.Expandable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expandable</span></code></a>, <a class="reference internal" href="#benchbuild.source.base.Versioned" title="benchbuild.source.base.Versioned"><code class="xref py py-class docutils literal notranslate"><span class="pre">Versioned</span></code></a>, <a class="reference internal" href="#benchbuild.source.base.ContextAwareSource" title="benchbuild.source.base.ContextAwareSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextAwareSource</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Composition of source protocols.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextAwareSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">ContextAwareSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextAwareSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextAwareSource" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextAwareSource.is_context_free">
+<span class="sig-name descname"><span class="pre">is_context_free</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextAwareSource.is_context_free"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextAwareSource.is_context_free" title="Link to this definition">¶</a></dt>
+<dd><p>Return, if this source needs context to evaluate it’s own
+list of available versions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextAwareSource.versions_with_context">
+<span class="sig-name descname"><span class="pre">versions_with_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextAwareSource.versions_with_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextAwareSource.versions_with_context" title="Link to this definition">¶</a></dt>
+<dd><p>Augment the given revision with new variants associated with this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="#benchbuild.source.base.Revision" title="benchbuild.source.base.Revision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Revision</span></code></a>) – the project revision, containing information about every
+context-free variant.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a sequence of project revisions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextEnumeratorFn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">ContextEnumeratorFn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextEnumeratorFn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextEnumeratorFn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextFreeMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">ContextFreeMixin</span></span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextFreeMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextFreeMixin" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Make a context-free source context-aware.</p>
+<p>This will setup default implementations that avoids interaction with any context.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextFreeMixin.is_context_free">
+<span class="sig-name descname"><span class="pre">is_context_free</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextFreeMixin.is_context_free"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextFreeMixin.is_context_free" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.ContextFreeMixin.versions_with_context">
+<span class="sig-name descname"><span class="pre">versions_with_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#ContextFreeMixin.versions_with_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.ContextFreeMixin.versions_with_context" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.EnumeratorFn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">EnumeratorFn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#EnumeratorFn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.EnumeratorFn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.Expandable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">Expandable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Expandable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Expandable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Expandable.is_expandable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_expandable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#benchbuild.source.base.Expandable.is_expandable" title="Link to this definition">¶</a></dt>
+<dd><p>Returns true, if this source should take part in version expansion.</p>
+<p>Some sources may only be treated as virtual and would not take part
+in the version expansion of an associated project.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Expandable.versions">
+<span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Expandable.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Expandable.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.Fetchable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">Fetchable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Fetchable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Fetchable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Fetchable.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Fetchable.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Fetchable.fetch" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the necessary source files into benchbuild’s cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Fetchable.key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.source.base.Fetchable.key" title="Link to this definition">¶</a></dt>
+<dd><p>Return the source’s key property.</p>
+<p>This provides you with a key component that identifes a single source.
+It should (no guarantee) be unique among all sources for this project.</p>
+<p>While this make no further assumption, but a good candidate is a
+file-system name/path.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Fetchable.local">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.source.base.Fetchable.local" title="Link to this definition">¶</a></dt>
+<dd><p>The source location (path-like) after fetching it from its remote.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Fetchable.remote">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#benchbuild.source.base.Fetchable.remote" title="Link to this definition">¶</a></dt>
+<dd><p>The source location in the remote location.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">FetchableSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#FetchableSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.FetchableSource" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.base.ContextFreeMixin" title="benchbuild.source.base.ContextFreeMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextFreeMixin</span></code></a></p>
+<p>Base class for fetchable sources.</p>
+<dl class="simple">
+<dt>Subclasses have to provide the following protocols:</dt><dd><ul class="simple">
+<li><p>Expandable</p></li>
+<li><p>Fetchable</p></li>
+<li><p>Versioned</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.default">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.base.FetchableSource.default" title="Link to this definition">¶</a></dt>
+<dd><p>The default version for this source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.explore">
+<span class="sig-name descname"><span class="pre">explore</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#FetchableSource.explore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.FetchableSource.explore" title="Link to this definition">¶</a></dt>
+<dd><p>Explore revisions of this source.</p>
+<p>This provides access to all revisions this source can offer.
+BenchBuild own filters will not block any revision here.</p>
+<p>Custom sources or source filters can opt in to block revisions
+anyways.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of versions to explore.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.fetch">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#FetchableSource.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.FetchableSource.fetch" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the necessary source files into benchbuild’s cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.is_expandable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_expandable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#benchbuild.source.base.FetchableSource.is_expandable" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.source.base.FetchableSource.key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.local">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.source.base.FetchableSource.local" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.remote">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#benchbuild.source.base.FetchableSource.remote" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.version">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#FetchableSource.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.FetchableSource.version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the requested version and place it in the target_dir</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em>) – The filesystem path where the version should be placed in.</p></li>
+<li><p><strong>version</strong> (<em>str</em>) – The version that should be fetched from the local cache.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.FetchableSource.versions">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#FetchableSource.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.FetchableSource.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.NoSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">NoSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#NoSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.NoSource" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.NoSource.default">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.base.NoSource.default" title="Link to this definition">¶</a></dt>
+<dd><p>The default version for this source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.NoSource.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#NoSource.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.NoSource.fetch" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the necessary source files into benchbuild’s cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.NoSource.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#NoSource.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.NoSource.version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the requested version and place it in the target_dir</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em>) – The filesystem path where the version should be placed in.</p></li>
+<li><p><strong>version</strong> (<em>str</em>) – The version that should be fetched from the local cache.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.NoSource.versions">
+<span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#NoSource.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.NoSource.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">Revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_primary</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">variants</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A revision captures all variants that form a single project revision.</p>
+<p>A project may have an arbitrary number of input sources that are
+required for it’s defined workloads, e.g., test input files, optional
+dependencies, or submodules.</p>
+<p>BenchBuild considers each source to have different version numbers,
+encoded as “Variants”. The complete set of “Variants” for a project
+then forms a project revision.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">variants</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.extend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.extend" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.has_variant">
+<span class="sig-name descname"><span class="pre">has_variant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.has_variant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.has_variant" title="Link to this definition">¶</a></dt>
+<dd><p>Check if a variant with the given source name exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The local name of the source.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True, should a variant with the given name exists</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.primary">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">primary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.base.Revision.primary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.project_cls">
+<span class="sig-name descname"><span class="pre">project_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code><span class="pre">[Project]</span></em><a class="headerlink" href="#benchbuild.source.base.Revision.project_cls" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.sorted">
+<span class="sig-name descname"><span class="pre">sorted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.sorted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.sorted" title="Link to this definition">¶</a></dt>
+<dd><p>Return an ordered list of Variants from this revision.</p>
+<p>The order is defined by the order in the SOURCE attribute of the
+associated project class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.source_by_name">
+<span class="sig-name descname"><span class="pre">source_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.source_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.source_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Return the source object that matches the key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The local name of the source.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the found source object</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong><strong>, </strong><strong>if we cannot find the source with this name.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revision</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.update" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.variant_by_name">
+<span class="sig-name descname"><span class="pre">variant_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Revision.variant_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Revision.variant_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Return the variant for the given source name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The local name of the source.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>then version of the found source.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.source.base.Revision.variants">
+<span class="sig-name descname"><span class="pre">variants</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.source.base.Revision.variants" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.RevisionStr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">RevisionStr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#RevisionStr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.RevisionStr" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.source.base.RevisionStr.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.source.base.RevisionStr.value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.Variant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">Variant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Variant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Variant" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provide a ‘string’-like wrapper around source version information.</p>
+<p>Use this, whenever you need a ‘version’ string somewhere in benchbuild.
+In terms of output/logging or use as program arguments, this should not
+carry more semantics than a simple version string.</p>
+<p>However, this wrapper is linked to its ‘owner’. The owner serves as
+the back-reference to the source code where it originated from.</p>
+<p>This can serve as a ‘hook’ to deal with version information the
+same way as a program variant like a specific configuraiton.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Variant.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Variant.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Variant.name" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.source.base.Variant.owner">
+<span class="sig-name descname"><span class="pre">owner</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></em><a class="headerlink" href="#benchbuild.source.base.Variant.owner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Variant.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Variant.source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Variant.source" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.source.base.Variant.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.source.base.Variant.version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.base.Versioned">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">Versioned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Versioned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Versioned" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.base.Versioned.default">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.base.Versioned.default" title="Link to this definition">¶</a></dt>
+<dd><p>The default version for this source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Versioned.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Versioned.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Versioned.version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the requested version and place it in the target_dir</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em>) – The filesystem path where the version should be placed in.</p></li>
+<li><p><strong>version</strong> (<em>str</em>) – The version that should be fetched from the local cache.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.base.Versioned.versions">
+<span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#Versioned.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.Versioned.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.enumerate_revisions">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">enumerate_revisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_free_enumerator=&lt;function</span> <span class="pre">_default_enumerator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_aware_enumerator=&lt;function</span> <span class="pre">_default_caw_enumerator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#enumerate_revisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.enumerate_revisions" title="Link to this definition">¶</a></dt>
+<dd><p>Enumerates the given sources.</p>
+<p>The enumeration requires two phases.
+1. A phase for all sources that do not require a context to evaluate.
+2. A phase for all sources that require a static context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#benchbuild.source.base.Revision" title="benchbuild.source.base.Revision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Revision</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.nosource">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">nosource</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#nosource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.nosource" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#benchbuild.source.base.NoSource" title="benchbuild.source.base.NoSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoSource</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.primary">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">primary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.primary" title="Link to this definition">¶</a></dt>
+<dd><p>Return the implicit ‘main’ source of a project.</p>
+<p>We define the main source as the first source listed in a project.</p>
+<p>If you define a new project and rely on the existence of a ‘main’
+source code repository, make sure to define it as the first one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">SourceT</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.product">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.product" title="Link to this definition">¶</a></dt>
+<dd><p>Return the cross product of the given sources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code></a>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An iterable containing the cross product of all source variants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.revision_from_str">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">revision_from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_cls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#revision_from_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.revision_from_str" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Revision from a sequence of revision strings.</p>
+<p>A valid Revision can only be created, if the number of valid revision
+strings is equivalent to the number of sources.
+A valid revision string is one that has been found in the a source’s
+version.
+It is required that each revision string is found in a different source
+version.</p>
+<p>We assume that the first source is the primary source of the revision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>revs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#benchbuild.source.base.RevisionStr" title="benchbuild.source.base.RevisionStr"><code class="xref py py-class docutils literal notranslate"><span class="pre">RevisionStr</span></code></a>]) – sequence of revision strings, e.g. a commit-hash.</p></li>
+<li><p><strong>*sources</strong> – sources of a project.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#benchbuild.source.base.Revision" title="benchbuild.source.base.Revision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Revision</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A variant context.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.secondaries">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">secondaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#secondaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.secondaries" title="Link to this definition">¶</a></dt>
+<dd><p>Return the complement to the primary source of a project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">SourceT</span></code>)]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of all sources not considered primary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.sources_as_dict">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">sources_as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#sources_as_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.sources_as_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert fetchables to a dictionary.</p>
+<p>The dictionary will be indexed by the Fetchable’s local attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*sources</strong> (<a class="reference internal" href="#benchbuild.source.base.Fetchable" title="benchbuild.source.base.Fetchable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fetchable</span></code></a>) – Fetchables stored in the dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#benchbuild.source.base.Fetchable" title="benchbuild.source.base.Fetchable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fetchable</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.target_prefix">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">target_prefix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#target_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.target_prefix" title="Link to this definition">¶</a></dt>
+<dd><p>Return the prefix directory for all downloads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the prefix where we download everything to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.base.to_str">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.base.</span></span><span class="sig-name descname"><span class="pre">to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">variants</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/base/#to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.base.to_str" title="Link to this definition">¶</a></dt>
+<dd><p>Convert an arbitrary number of variants into their string representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>string representation of all input variants joined by ‘,’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.source.git">
+<span id="git"></span><h2>Git<a class="headerlink" href="#module-benchbuild.source.git" title="Link to this heading">¶</a></h2>
+<p>Declare a git source.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.git.Git">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.git.</span></span><span class="sig-name descname"><span class="pre">Git</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refspec='HEAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shallow=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_filter=&lt;function</span> <span class="pre">Git.&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#Git"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.Git" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></p>
+<p>Fetch the downloadable source via git.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.git.Git.default">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.git.Git.default" title="Link to this definition">¶</a></dt>
+<dd><p>Return current HEAD as default version for this Git project.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.git.Git.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#Git.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.Git.fetch" title="Link to this definition">¶</a></dt>
+<dd><p>Clone the repository, if needed.</p>
+<p>This will create a git clone inside the global cache directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – [description]. Defaults to None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.git.Git.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HEAD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#Git.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.Git.version" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new git worktree pointing to the requested version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em>) – The filesystem path where the new worktree should live.</p></li>
+<li><p><strong>version</strong> (<em>str</em>) – The desired version the new worktree needs to point to.
+Defaults to ‘HEAD’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.git.Git.versions">
+<span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#Git.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.Git.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.git.GitSubmodule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.git.</span></span><span class="sig-name descname"><span class="pre">GitSubmodule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refspec='HEAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shallow=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_filter=&lt;function</span> <span class="pre">Git.&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#GitSubmodule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.GitSubmodule" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.git.Git" title="benchbuild.source.git.Git"><code class="xref py py-class docutils literal notranslate"><span class="pre">Git</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.git.GitSubmodule.is_expandable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_expandable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#benchbuild.source.git.GitSubmodule.is_expandable" title="Link to this definition">¶</a></dt>
+<dd><p>Submodules will not participate in version expansion.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.git.clone_needed">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.git.</span></span><span class="sig-name descname"><span class="pre">clone_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repository</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_loc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#clone_needed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.clone_needed" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.git.maybe_shallow">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.git.</span></span><span class="sig-name descname"><span class="pre">maybe_shallow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/git/#maybe_shallow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.git.maybe_shallow" title="Link to this definition">¶</a></dt>
+<dd><p>Conditionally add the shallow clone to the given git command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> (<a class="reference internal" href="../../basics/actions/#benchbuild.utils.actions.Any" title="benchbuild.utils.actions.Any"><em>Any</em></a>) – A git clone command (shallow doesn’t make sense anywhere else.</p></li>
+<li><p><strong>shallow</strong> (<em>bool</em>) – Should we add the shallow options?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new git clone command, with shallow clone enabled, if selected.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../../basics/actions/#benchbuild.utils.actions.Any" title="benchbuild.utils.actions.Any">Any</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.source.http">
+<span id="http"></span><h2>HTTP<a class="headerlink" href="#module-benchbuild.source.http" title="Link to this heading">¶</a></h2>
+<p>Declare a http source.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">HTTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTP" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.base.FetchableSource" title="benchbuild.source.base.FetchableSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchableSource</span></code></a></p>
+<p>Fetch the downloadable source via http.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP.default">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.source.base.Variant" title="benchbuild.source.base.Variant"><span class="pre">Variant</span></a></em><a class="headerlink" href="#benchbuild.source.http.HTTP.default" title="Link to this definition">¶</a></dt>
+<dd><p>The default version for this source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTP.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTP.fetch" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch via http using default version string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP.fetch_version">
+<span class="sig-name descname"><span class="pre">fetch_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTP.fetch_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTP.fetch_version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch via http using given version string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the version string to pull via http.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>local path to fetched version.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTP.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTP.version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the requested version and place it in the target_dir</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em>) – The filesystem path where the version should be placed in.</p></li>
+<li><p><strong>version</strong> (<em>str</em>) – The version that should be fetched from the local cache.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTP.versions">
+<span class="sig-name descname"><span class="pre">versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTP.versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTP.versions" title="Link to this definition">¶</a></dt>
+<dd><p>List all available versions of this source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of all available versions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTPMultiple">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">HTTPMultiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTPMultiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTPMultiple" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.http.HTTP" title="benchbuild.source.http.HTTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">HTTP</span></code></a></p>
+<p>Fetch and download multiple files via HTTP.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTPMultiple.fetch_version">
+<span class="sig-name descname"><span class="pre">fetch_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTPMultiple.fetch_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTPMultiple.fetch_version" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch via http using given version string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the version string to pull via http.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>local path to fetched version.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTPUntar">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">HTTPUntar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTPUntar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTPUntar" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.source.http.HTTP" title="benchbuild.source.http.HTTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">HTTP</span></code></a></p>
+<p>Fetch and download source via http and auto-unpack using GNU tar</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.source.http.HTTPUntar.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#HTTPUntar.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.HTTPUntar.version" title="Link to this definition">¶</a></dt>
+<dd><p>Setup the given version of this HTTPUntar source.</p>
+<p>This will fetch the given version from the remote source and unpack the
+archive into the build directory using tar.</p>
+<p>The location matches the behavior of other sources. However, you need
+to consider that benchbuild will return a directory instead of a file path.</p>
+<p>When using workloads, you can refer to a directory with the SourceRootRenderer using
+<code class="docutils literal notranslate"><span class="pre">benchbuild.command.source_root</span></code>.
+:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code></p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>You specify a remote version 1.0 of an archive compression.tar.gz and
+a local name of “compression.tar.gz”.
+The build directory will look as follows:</p>
+<p>&lt;builddir&gt;/1.0-compression.dir/
+&lt;builddir&gt;/1.0-compression.tar.gz
+&lt;builddir&gt;/compression.tar.gz -&gt; ./1.0-compression.tar.dir</p>
+<p>The content of the archive is found in the directory compression.tar.gz.
+Your workloads need to make sure to reference this directory (e.g. using tokens),
+e.g., <code class="docutils literal notranslate"><span class="pre">source_root(&quot;compression.tar.gz&quot;)</span></code></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.http.download_required">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">download_required</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#download_required"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.download_required" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.http.download_single_version">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">download_single_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#download_single_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.download_single_version" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.http.normalize_remotes">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">normalize_remotes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#normalize_remotes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.normalize_remotes" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.source.http.versioned_target_name">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.source.http.</span></span><span class="sig-name descname"><span class="pre">versioned_target_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/source/http/#versioned_target_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.source.http.versioned_target_name" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.source.rsync">
+<span id="rsync"></span><h2>RSync<a class="headerlink" href="#module-benchbuild.source.rsync" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-benchbuild.source">
+<span id="module-source"></span><h2>Module: source<a class="headerlink" href="#module-benchbuild.source" title="Link to this heading">¶</a></h2>
+<p>Declarative API for downloading sources required by benchbuild.</p>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../command/"
+       title="previous chapter">← Commands</a>
+  </li>
+  <li class="next">
+    <a href="../environments/"
+       title="next chapter">Environment →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

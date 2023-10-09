@@ -638,7 +638,7 @@ class Command:
 
     def __str__(self) -> str:
         env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
-        args_str = " ".join([str(arg) for arg in self._args])
+        args_str = " ".join(tuple([str(arg) for arg in self._args]))
 
         command_str = f"{self._path}"
         if env_str:

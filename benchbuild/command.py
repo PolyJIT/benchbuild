@@ -626,7 +626,7 @@ class Command:
         if self._label:
             repr_str = f"{self._label} {repr_str}"
         if self._args:
-            repr_str += f" args={tuple([str(arg) for arg in self._args])}"
+            repr_str += f" args={tuple(str(arg) for arg in self._args)}"
         if self._env:
             repr_str += f" env={self._env}"
         if self._output:
@@ -638,7 +638,7 @@ class Command:
 
     def __str__(self) -> str:
         env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
-        args_str = " ".join(tuple([str(arg) for arg in self._args]))
+        args_str = " ".join(tuple(str(arg) for arg in self._args))
 
         command_str = f"{self._path}"
         if env_str:

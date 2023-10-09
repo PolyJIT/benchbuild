@@ -1,3 +1,28 @@
+<a name="6.8"></a>
+## 6.8 (2023-10-09)
+
+
+#### Features
+
+* **ci:**  test with both db support and without ([af7bfd90](https://github.com/PolyJIT/benchbuild/commit/af7bfd90caf2c8fc56eb71de67384f15c6569838))
+* **coverage:**
+  *  test with database support enabled ([0b8d6034](https://github.com/PolyJIT/benchbuild/commit/0b8d6034b3c8d58ab8034a3bdda6cc7509c25e9c))
+  *  add cli coverage report ([64ce9f87](https://github.com/PolyJIT/benchbuild/commit/64ce9f87cdcd32cda8665e17b84651abebead604))
+  *  add wrapped binaries to coverage ([d4c6841d](https://github.com/PolyJIT/benchbuild/commit/d4c6841d09fcb0c77564d5faaa29e69b4ff40822))
+* **db:**  revert default setting for connect_string to sqlite:// ([806520d6](https://github.com/PolyJIT/benchbuild/commit/806520d6f34e85bdb3709e37465f7982b6d4db36))
+
+#### Bug Fixes
+
+*   use context vars instead of env vars ([e3ea47f0](https://github.com/PolyJIT/benchbuild/commit/e3ea47f01e4d85ddfedeb104ae6184d43e6957ef))
+*   make github ci actually use its own env vars ([e0c7ab67](https://github.com/PolyJIT/benchbuild/commit/e0c7ab676aa3686a78bac97ed87d4c98f71e240d))
+*   use BB_COVERAGE_PATH in .coveragerc ([141afafa](https://github.com/PolyJIT/benchbuild/commit/141afafa7859136bad5952c672448b92082f7551))
+*   coveragerc requires curly braces for env variables ([3ae8b335](https://github.com/PolyJIT/benchbuild/commit/3ae8b3358e0d1e828f2d73f222a563bfcc01f8b6))
+*   coveragerc requires curly braces for env variables ([5b9c9906](https://github.com/PolyJIT/benchbuild/commit/5b9c9906cbb5ff7f4e27a7018e1069ef24fe25bf))
+* **actions:**  re-raise caught exception ([e4bff984](https://github.com/PolyJIT/benchbuild/commit/e4bff984e4f1e523ce9d685a5d3ec9a58c97a18a), closes [#561](https://github.com/PolyJIT/benchbuild/issues/561))
+* **environments:**  buildah cannot find base images. ([eb03c363](https://github.com/PolyJIT/benchbuild/commit/eb03c363eac2a515e830ff3e9f0343c923348763))
+
+
+
 <a name="6.7"></a>
 ## 6.7 (2023-04-04)
 

@@ -626,7 +626,7 @@ class Command:
         if self._label:
             repr_str = f"{self._label} {repr_str}"
         if self._args:
-            repr_str += f" args={[str(arg) for arg in self._args]}"
+            repr_str += f" args={tuple([str(arg) for arg in self._args])}"
         if self._env:
             repr_str += f" env={self._env}"
         if self._output:

@@ -22,6 +22,22 @@ LOG = logging.getLogger(__name__)
 
 
 @runtime_checkable
+class ArgsRenderStrategy(Protocol):
+    """
+    Rendering strategy protocol for command line argument tokens.
+    """
+
+    @property
+    def unrendered(self) -> str:
+        """
+        Returns an unrendered representation of this strategy.
+        """
+
+    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+        """Renders this strategy."""
+
+
+@runtime_checkable
 class PathRenderStrategy(Protocol):
     """
     Rendering strategy protocol for path components.
@@ -160,6 +176,36 @@ class SourceRootRenderer:
 
     def __str__(self) -> str:
         return self.unrendered
+
+
+class ArgsToken:
+    """
+    Base class for tokens that can be rendered into command-line arguments.
+    """
+    renderer: ArgsRenderStrategy
+
+    @classmethod
+    def make_token(
+        cls, renderer: ArgsRenderStrategy
+    ) -> 'ArgsToken':
+        return ArgsToken(renderer)
+
+    def __init__(self, renderer: ArgsRenderStrategy) -> None:
+        self.renderer = renderer
+
+    def render(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+        """
+        Renders the PathToken as a standard pathlib Path.
+
+        Any kwargs will be forwarded to the PathRenderStrategy.
+        """
+        return self.renderer.rendered(**kwargs)
+
+    def __str__(self) -> str:
+        return self.renderer.unrendered
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class PathToken:
@@ -462,7 +508,7 @@ class Command:
             return token
 
         self._path = path
-        self._args = tuple(str(arg) for arg in args)
+        self._args = tuple(args)
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
@@ -534,6 +580,17 @@ class Command:
         cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
+    def rendered_args(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+        args: tp.List[str] = []
+
+        for arg in self._args:
+            if isinstance(arg, ArgsToken):
+                args.extend(arg.render(**kwargs))
+            else:
+                args.append(str(arg))
+
+        return tuple(args)
+
     def as_plumbum(self, **kwargs: tp.Any) -> BoundEnvCommand:
         """
         Convert this command into a plumbum compatible command.
@@ -551,7 +608,7 @@ class Command:
         assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
 
         cmd = local[str(cmd_path)]
-        cmd_w_args = cmd[self._args]
+        cmd_w_args = cmd[self.rendered_args(**kwargs)]
         cmd_w_output = cmd_w_args
         if self.output:
             output_path = self.output.render(**kwargs)
@@ -569,7 +626,7 @@ class Command:
         if self._label:
             repr_str = f"{self._label} {repr_str}"
         if self._args:
-            repr_str += f" args={self._args}"
+            repr_str += f" args={tuple(str(arg) for arg in self._args)}"
         if self._env:
             repr_str += f" env={self._env}"
         if self._output:
@@ -581,7 +638,7 @@ class Command:
 
     def __str__(self) -> str:
         env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
-        args_str = " ".join(self._args)
+        args_str = " ".join(tuple(str(arg) for arg in self._args))
 
         command_str = f"{self._path}"
         if env_str:

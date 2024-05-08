@@ -18,6 +18,7 @@ LOG = logging.getLogger(__name__)
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
+_fetched_cache : tp.Set['Git'] = set()
 
 class Git(base.FetchableSource):
     """
@@ -72,8 +73,13 @@ class Git(base.FetchableSource):
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)
         else:
-            with pb.local.cwd(cache_path):
-                fetch()
+            if self in _fetched_cache:
+                LOG.debug('Already fetched %s, skipping.', self.local)
+            else:
+                LOG.debug('Fetching %s.', self.local)
+                _fetched_cache.add(self)
+                with pb.local.cwd(cache_path):
+                    fetch()
 
         return cache_path
 

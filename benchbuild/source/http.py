@@ -17,6 +17,15 @@ class HTTP(base.FetchableSource):
     Fetch the downloadable source via http.
     """
 
+    def __init__(
+        self,
+        local: str,
+        remote: tp.Union[str, tp.Dict[str, str]],
+        check_certificate: bool = True
+    ):
+        super().__init__(local, remote)
+        self.__check_certificate = check_certificate
+
     @property
     def default(self) -> base.Variant:
         return self.versions()[0]
@@ -118,9 +127,10 @@ class HTTPMultiple(HTTP):
         self,
         local: str,
         remote: tp.Union[str, tp.Dict[str, str]],
-        files: tp.List[str]
+        files: tp.List[str],
+        check_certificate: bool = True
     ):
-        super().__init__(local, remote)
+        super().__init__(local, remote, check_certificate)
         self._files = files
 
     def fetch_version(self, version: str) -> pb.LocalPath:
@@ -153,11 +163,17 @@ def versioned_target_name(target_name: str, version: str) -> str:
     return "{}-{}".format(version, target_name)
 
 
-def download_single_version(url: str, target_path: str) -> str:
+def download_single_version(
+    url: str, target_path: str, check_certificate: bool
+) -> str:
     if not download_required(target_path):
         return target_path
 
-    wget(url, '-O', target_path)
+    if check_certificate:
+        wget(url, '-O', target_path)
+    else:
+        wget(url, '--no-check-certificate', '-O', target_path)
+
     from benchbuild.utils.download import update_hash
     update_hash(target_path)
     return target_path

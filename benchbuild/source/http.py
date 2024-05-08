@@ -102,7 +102,7 @@ class HTTPUntar(HTTP):
         active_loc = pb.local.path(target_dir) / self.local
 
         mkdir(target_path)
-        tar("-x", "-C", target_path, "-f", archive_path)
+        tar("-x", "--no-same-owner", "-C", target_path, "-f", archive_path)
 
         ln('-sf', target_path, active_loc)
 

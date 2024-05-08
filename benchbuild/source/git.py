@@ -1,9 +1,9 @@
 """
 Declare a git source.
 """
+import logging
 import os
 import typing as tp
-import logging
 from pathlib import Path
 
 import plumbum as pb
@@ -18,7 +18,8 @@ LOG = logging.getLogger(__name__)
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
-_fetched_cache : tp.Set['Git'] = set()
+_fetched_cache: tp.Set['Git'] = set()
+
 
 class Git(base.FetchableSource):
     """

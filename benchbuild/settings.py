@@ -392,6 +392,10 @@ CFG["container"] = {
         "desc": "Storage options for containers."
                 "If 'null', ignore 'storage.conf'."
     },
+    "seccomp_config": {
+        "default": None,
+        "desc": "Path to a custom seccomp.json to use."
+    },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."

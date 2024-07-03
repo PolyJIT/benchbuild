@@ -24,7 +24,7 @@ class HTTP(base.FetchableSource):
         check_certificate: bool = True
     ):
         super().__init__(local, remote)
-        self.__check_certificate = check_certificate
+        self._check_certificate = check_certificate
 
     @property
     def default(self) -> base.Variant:
@@ -52,7 +52,7 @@ class HTTP(base.FetchableSource):
         url = remotes[version]
         target_name = versioned_target_name(self.local, version)
         cache_path = pb.local.path(prefix) / target_name
-        download_single_version(url, cache_path)
+        download_single_version(url, cache_path, self._check_certificate)
 
         return cache_path
 
@@ -144,7 +144,9 @@ class HTTPMultiple(HTTP):
         mkdir('-p', cache_path)
 
         for file in self._files:
-            download_single_version(f'{url}/{file}', cache_path / file)
+            download_single_version(
+                f'{url}/{file}', cache_path / file, self._check_certificate
+            )
 
         return cache_path
 

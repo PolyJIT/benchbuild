@@ -16,3 +16,4 @@ schema>=0
 SQLAlchemy>=2
 typing-extensions>=4
 virtualenv>=20
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability

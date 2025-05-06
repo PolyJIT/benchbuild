@@ -68,11 +68,15 @@ class Git(base.FetchableSource):
             git['clone', '--recurse-submodules'], self.shallow
         )
         fetch = git['fetch', '--update-shallow', '--all']
+        checkout = git['checkout', '-f', '--recurse-submodules']
         flat_local = self.local.replace(os.sep, '-')
         cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)
+            if "HEAD" not in self.refspec:
+                with pb.local.cwd(cache_path):
+                    checkout(self.refspec.split('/')[-1])
         else:
             if self in _fetched_cache:
                 LOG.debug('Already fetched %s, skipping.', self.local)
@@ -106,7 +110,7 @@ class Git(base.FetchableSource):
         clone = git['clone']
         pull = git['pull']
         rev_parse = git['rev-parse']
-        checkout = git['checkout']
+        checkout = git['checkout', '-f', '--recurse-submodules']
 
         with pb.local.cwd(src_loc):
             is_shallow = rev_parse('--is-shallow-repository').strip()

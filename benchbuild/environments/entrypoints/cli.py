@@ -72,13 +72,15 @@ class BenchBuildContainerRun(cli.Application):
                            requires=['experiment', 'debug'],
                            help='Run a container interactively.')
 
-    no_mount_build_dir = cli.Flag(['no-mount-build-dir'],
-                           default=True,
-                           help="Do not mount benchbuild's build directory.")
+    no_mount_build_dir = cli.Flag(
+        ['no-mount-build-dir'],
+        default=True,
+        help="Do not mount benchbuild's build directory."
+    )
 
     mount_tmp_dir = cli.Flag(['mount-tmp-dir'],
-                           default=False,
-                           help="Mount benchbuild's tmp directory.")
+                             default=False,
+                             help="Mount benchbuild's tmp directory.")
 
     def main(self, *projects: str) -> int:
         plugins.discover()
@@ -124,7 +126,8 @@ class BenchBuildContainerRun(cli.Application):
                 ),
             "Run":
                 partial(
-                    run_experiment_images, wanted_experiments, wanted_projects, not self.no_mount_build_dir, self.mount_tmp_dir
+                    run_experiment_images, wanted_experiments, wanted_projects,
+                    not self.no_mount_build_dir, self.mount_tmp_dir
                 )
         }
 
@@ -501,7 +504,8 @@ def create_experiment_images(
 
 
 def run_experiment_images(
-    experiments: ExperimentIndex, projects: ProjectIndex, mount_build_dir: bool, mount_tmp_dir: bool
+    experiments: ExperimentIndex, projects: ProjectIndex, mount_build_dir: bool,
+    mount_tmp_dir: bool
 ) -> None:
     """
     Run experiments on given projects.
@@ -527,7 +531,8 @@ def run_experiment_images(
 
             publish(
                 commands.RunProjectContainer(
-                    image_tag, container_name, build_dir, tmp_dir, mount_build_dir, mount_tmp_dir
+                    image_tag, container_name, build_dir, tmp_dir,
+                    mount_build_dir, mount_tmp_dir
                 )
             )
 

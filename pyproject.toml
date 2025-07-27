@@ -37,6 +37,9 @@ dependencies = [
   "virtualenv>=20",
 ]
 
+[project.urls]
+Repository = "https://github.com/PolyJIT/benchbuild"
+
 [project.scripts]
 benchbuild = "benchbuild.driver:main"
 container = "benchbuild.container:main"
@@ -47,6 +50,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 version_file = "benchbuild/_version.py"
+local_scheme = "no-local-version"
 
 [tool.setuptools.package-data]
 benchbuild = [

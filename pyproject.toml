@@ -1,0 +1,39 @@
+[project]
+name = "benchbuild"
+dynamic = ["version"]
+readme = "README.md"
+description = "This is the experiment driver for the benchbuild study"
+authors = [
+    { name = "Andreas Simbuerger", email = "simbuerg@lairosiel.de" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "attrs>=22",
+    "dill>=0",
+    "jinja2>=3",
+    "parse>=1",
+    "pathos>=0",
+    "plumbum>=1",
+    "psutil>=5",
+    "psycopg2-binary>=2",
+    "pygit2>=1",
+    "pygtrie>=2",
+    "pyparsing>=3",
+    "pyyaml>=6.0",
+    "result>=0",
+    "rich>=12",
+    "schema>=0",
+    "sqlalchemy>=2",
+    "typing-extensions>=4",
+    "virtualenv>=20",
+]
+
+[project.scripts]
+benchbuild = "benchbuild:main"
+
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "benchbuild/_version.py"

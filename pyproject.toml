@@ -23,6 +23,7 @@ dependencies = [
     "result>=0",
     "rich>=12",
     "schema>=0",
+    "six>=1.17.0",
     "sqlalchemy>=2",
     "typing-extensions>=4",
     "virtualenv>=20",

@@ -15,7 +15,6 @@ classifiers = [
   'Programming Language :: Python :: 3'
 ]
 keywords = ["benchbuild", "experiments", "run-time"]
-url = "https://github.com/PolyJIT/benchbuild"
 dependencies = [
   "attrs>=22",
   "dill>=0",

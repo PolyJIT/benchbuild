@@ -9,12 +9,12 @@
 import logging
 import os
 
-from importlib.metadata import version
+import importlib.metadata
 
 import benchbuild.utils
 
 # pylint: skip-file
-__version__ = version("benchbuild")
+__version__ = importlib.metadata.version("benchbuild")
 
 project = 'BenchBuild'
 copyright = '2025, Andreas Simbürger'

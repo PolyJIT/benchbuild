@@ -71,3 +71,15 @@ benchbuild = [
     "res/wrapping/run_dynamic.py.inc",
     "res/patches/linpack.patch"
 ]
+
+[dependency-groups]
+dev = [
+    "codecov>=2.1.13",
+    "faker>=37.4.2",
+    "gitpython>=3.1.45",
+    "mock>=5.2.0",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "pytest-describe>=2.2.0",
+    "pytest-git>=1.8.0",
+]

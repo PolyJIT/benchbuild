@@ -2,6 +2,7 @@
 """
 Declarative API for downloading sources required by benchbuild.
 """
+
 from .base import FetchableSource as FetchableSource
 from .base import Expandable as Expandable
 from .base import ContextAwareSource as ContextAwareSource

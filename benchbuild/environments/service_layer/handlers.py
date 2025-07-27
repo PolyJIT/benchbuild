@@ -10,33 +10,28 @@ from . import ensure
 LOG = logging.getLogger(__name__)
 
 MessageHandler = tp.Callable[[unit_of_work.EventCollector, model.Message], None]
-MessageHandlerWithUOW = tp.Callable[[model.Message], tp.Generator[model.Message,
-                                                                  None, None]]
+MessageHandlerWithUOW = tp.Callable[
+    [model.Message], tp.Generator[model.Message, None, None]
+]
 
 
-def bootstrap(
-    handler, uow: unit_of_work.EventCollector
-) -> MessageHandlerWithUOW:
+def bootstrap(handler, uow: unit_of_work.EventCollector) -> MessageHandlerWithUOW:
     """
     Bootstrap prepares a message handler with a unit of work.
     """
 
-    def wrapped_handler(
-        msg: model.Message
-    ) -> tp.Generator[model.Message, None, None]:
+    def wrapped_handler(msg: model.Message) -> tp.Generator[model.Message, None, None]:
         handler(uow, msg)
         return uow.collect_new_events()
 
     return wrapped_handler
 
 
-def create_image(
-    uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateImage
-) -> None:
+def create_image(uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateImage) -> None:
     """
     Create a container image using a pre-configured registry.
     """
-    replace = CFG['container']['replace']
+    replace = CFG["container"]["replace"]
     with uow:
         image = uow.registry.find(cmd.name)
         if image and not replace:
@@ -70,14 +65,12 @@ def run_project_container(
     with uow:
         ensure.container_image_exists(cmd.image, uow)
 
-        build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
+        build_dir = uow.registry.env(cmd.image, "BB_BUILD_DIR")
         if build_dir:
             uow.registry.mount(cmd.image, cmd.build_dir, build_dir)
         else:
-            LOG.warning(
-                'The image misses a configured "BB_BUILD_DIR" variable.'
-            )
-            LOG.warning('No result artifacts will be copied out.')
+            LOG.warning('The image misses a configured "BB_BUILD_DIR" variable.')
+            LOG.warning("No result artifacts will be copied out.")
 
         container = uow.create(cmd.image, cmd.name, cmd.args)
         uow.start(container)

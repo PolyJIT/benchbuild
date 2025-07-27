@@ -1,6 +1,7 @@
 """
 Declare a http source.
 """
+
 import typing as tp
 
 import plumbum as pb
@@ -54,8 +55,8 @@ class HTTP(base.FetchableSource):
         target_path = pb.local.path(target_dir) / target_name
         active_loc = pb.local.path(target_dir) / self.local
 
-        cp('-ar', cache_path, target_path)
-        ln('-sf', target_name, active_loc)
+        cp("-ar", cache_path, target_path)
+        ln("-sf", target_name, active_loc)
 
         return target_path
 
@@ -104,7 +105,7 @@ class HTTPUntar(HTTP):
         mkdir(target_path)
         tar("-x", "-C", target_path, "-f", archive_path)
 
-        ln('-sf', target_path, active_loc)
+        ln("-sf", target_path, active_loc)
 
         return target_path
 
@@ -115,10 +116,7 @@ class HTTPMultiple(HTTP):
     """
 
     def __init__(
-        self,
-        local: str,
-        remote: tp.Union[str, tp.Dict[str, str]],
-        files: tp.List[str]
+        self, local: str, remote: tp.Union[str, tp.Dict[str, str]], files: tp.List[str]
     ):
         super().__init__(local, remote)
         self._files = files
@@ -131,17 +129,17 @@ class HTTPMultiple(HTTP):
         target_name = versioned_target_name(self.local, version)
 
         cache_path = pb.local.path(prefix) / target_name
-        mkdir('-p', cache_path)
+        mkdir("-p", cache_path)
 
         for file in self._files:
-            download_single_version(f'{url}/{file}', cache_path / file)
+            download_single_version(f"{url}/{file}", cache_path / file)
 
         return cache_path
 
 
 def normalize_remotes(remote: VarRemotes) -> Remotes:
     if isinstance(remote, str):
-        raise TypeError('\'remote\' needs to be a mapping type')
+        raise TypeError("'remote' needs to be a mapping type")
 
     # FIXME: What the hell?
     _remotes: Remotes = {}
@@ -157,12 +155,14 @@ def download_single_version(url: str, target_path: str) -> str:
     if not download_required(target_path):
         return target_path
 
-    wget(url, '-O', target_path)
+    wget(url, "-O", target_path)
     from benchbuild.utils.download import update_hash
+
     update_hash(target_path)
     return target_path
 
 
 def download_required(target_path: str) -> bool:
     from benchbuild.utils.download import source_required
+
     return source_required(target_path)

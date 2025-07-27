@@ -26,10 +26,10 @@ class RunCompiler(base.Extension):
 
     def __init__(
         self,
-        project: 'Project',
-        experiment: 'Experiment',
+        project: "Project",
+        experiment: "Experiment",
         *extensions: base.Extension,
-        config: tp.Optional[tp.Dict[str, str]] = None
+        config: tp.Optional[tp.Dict[str, str]] = None,
     ):
         self.project = project
         self.experiment = experiment
@@ -40,9 +40,9 @@ class RunCompiler(base.Extension):
         self,
         command: BoundCommand,
         *args: str,
-        project: tp.Optional['Project'] = None,
+        project: tp.Optional["Project"] = None,
         rerun_on_error: bool = True,
-        **kwargs: tp.Any
+        **kwargs: tp.Any,
     ) -> tp.List[run.RunInfo]:
         if project:
             self.project = project
@@ -59,17 +59,10 @@ class RunCompiler(base.Extension):
             run_info = _run()
             if self.config:
                 LOG.info(
-                    yaml.dump(
-                        self.config,
-                        width=40,
-                        indent=4,
-                        default_flow_style=False
-                    )
+                    yaml.dump(self.config, width=40, indent=4, default_flow_style=False)
                 )
                 if CFG["db"]["enabled"]:
-                    db.persist_config(
-                        run_info.db_run, run_info.session, self.config
-                    )
+                    db.persist_config(run_info.db_run, run_info.session, self.config)
 
             if run_info.has_failed:
                 with run.track_execution(

@@ -9,6 +9,7 @@ Inner nodes in the dictionary tree can be any dictionary.
 A leaf node in the dictionary tree is represented by an inner node that
 contains a value key.
 """
+
 import copy
 import logging
 import os
@@ -31,8 +32,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Indexable:
-
-    def __getitem__(self: 'Indexable', key: str) -> 'Indexable':
+    def __getitem__(self: "Indexable", key: str) -> "Indexable":
         pass
 
 
@@ -59,11 +59,10 @@ def available_cpu_count() -> int:
     # cpuset may restrict the number of *available* processors
     try:
         match = re.search(
-            r'(?m)^Cpus_allowed:\s*(.*)$',
-            open('/proc/self/status').read()
+            r"(?m)^Cpus_allowed:\s*(.*)$", open("/proc/self/status").read()
         )
         if match:
-            res = bin(int(match.group(1).replace(',', ''), 16)).count('1')
+            res = bin(int(match.group(1).replace(",", ""), 16)).count("1")
             if res > 0:
                 return res
     except IOError:
@@ -72,13 +71,14 @@ def available_cpu_count() -> int:
     # http://code.google.com/p/psutil/
     try:
         import psutil
+
         return int(psutil.cpu_count())  # psutil.NUM_CPUS on old versions
     except (ImportError, AttributeError):
         LOG.debug("Could not get the number of allowed CPUs")
 
     # POSIX
     try:
-        res = int(os.sysconf('SC_NPROCESSORS_ONLN'))
+        res = int(os.sysconf("SC_NPROCESSORS_ONLN"))
 
         if res > 0:
             return res
@@ -87,14 +87,14 @@ def available_cpu_count() -> int:
 
     # Linux
     try:
-        res = open('/proc/cpuinfo').read().count('processor\t:')
+        res = open("/proc/cpuinfo").read().count("processor\t:")
 
         if res > 0:
             return res
     except IOError:
         LOG.debug("Could not get the number of allowed CPUs")
 
-    raise Exception('Can not determine number of CPUs on this system')
+    raise Exception("Can not determine number of CPUs on this system")
 
 
 def current_available_threads() -> int:
@@ -102,7 +102,7 @@ def current_available_threads() -> int:
     return len(os.sched_getaffinity(0))
 
 
-def get_number_of_jobs(config: 'Configuration') -> int:
+def get_number_of_jobs(config: "Configuration") -> int:
     """Returns the number of jobs set in the config."""
     jobs_configured = int(config["jobs"])
     if jobs_configured == 0:
@@ -121,7 +121,7 @@ def escape_yaml(raw_str: str) -> str:
     Args:
         raw_str: The unescaped string.
     """
-    escape_list = [char for char in raw_str if char in ['!', '{', '[']]
+    escape_list = [char for char in raw_str if char in ["!", "{", "["]]
     if len(escape_list) == 0:
         return raw_str
 
@@ -201,17 +201,18 @@ InnerNode = tp.Dict[str, tp.Any]
 #  CFG['container']['strategy']['polyjit'] = {
 #    'sync': { 'default': True', 'desc': '...' }
 #  }
-_INNER_NODE_VALUE = schema.Schema({
-    schema.Or('default', 'value'): object,
-    schema.Optional('desc'): str
-})
-_INNER_NODE_SCHEMA = schema.Schema({
-    schema.And(str, len): {
-        schema.Or('default', 'value'): object,
-        schema.Optional('desc'): str,
-        schema.Optional(str): dict
+_INNER_NODE_VALUE = schema.Schema(
+    {schema.Or("default", "value"): object, schema.Optional("desc"): str}
+)
+_INNER_NODE_SCHEMA = schema.Schema(
+    {
+        schema.And(str, len): {
+            schema.Or("default", "value"): object,
+            schema.Optional("desc"): str,
+            schema.Optional(str): dict,
+        }
     }
-})
+)
 
 
 class Configuration(Indexable):
@@ -234,8 +235,8 @@ class Configuration(Indexable):
         self,
         parent_key: str,
         node: tp.Optional[InnerNode] = None,
-        parent: tp.Optional['Configuration'] = None,
-        init: bool = True
+        parent: tp.Optional["Configuration"] = None,
+        init: bool = True,
     ):
         self.parent = parent
         self.parent_key = parent_key
@@ -260,31 +261,28 @@ class Configuration(Indexable):
             self.__dict__ = selfcopy.__dict__
 
     def store(self, config_file: LocalPath) -> None:
-        """ Store the configuration dictionary to a file."""
+        """Store the configuration dictionary to a file."""
 
         selfcopy = copy.deepcopy(self)
         selfcopy.filter_exports()
 
-        with open(config_file, 'w') as outf:
+        with open(config_file, "w") as outf:
             yaml.dump(
                 selfcopy.node,
                 outf,
                 width=80,
                 indent=4,
                 default_flow_style=False,
-                Dumper=ConfigDumper
+                Dumper=ConfigDumper,
             )
 
     def load(self, _from: LocalPath) -> None:
         """Load the configuration dictionary from file."""
 
-        def load_rec(
-            inode: tp.Dict[str, tp.Any], config: Configuration
-        ) -> None:
+        def load_rec(inode: tp.Dict[str, tp.Any], config: Configuration) -> None:
             """Recursive part of loading."""
             for k in config:
-                if isinstance(config[k], dict) and \
-                   k not in ['value', 'default']:
+                if isinstance(config[k], dict) and k not in ["value", "default"]:
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
@@ -292,19 +290,19 @@ class Configuration(Indexable):
                 else:
                     inode[k] = config[k]
 
-        with open(str(_from), 'r') as infile:
+        with open(str(_from), "r") as infile:
             obj: Configuration = yaml.load(infile, Loader=ConfigLoader)
             upgrade(obj)
             load_rec(self.node, obj)
-            self['config_file'] = os.path.abspath(_from)
+            self["config_file"] = os.path.abspath(_from)
 
     def has_value(self) -> bool:
         """Check, if the node contains a 'value'."""
-        return isinstance(self.node, dict) and 'value' in self.node
+        return isinstance(self.node, dict) and "value" in self.node
 
     def has_default(self) -> bool:
         """Check, if the node contains a 'default' value."""
-        return isinstance(self.node, dict) and 'default' in self.node
+        return isinstance(self.node, dict) and "default" in self.node
 
     def is_leaf(self) -> bool:
         """Check, if the node is a 'leaf' node."""
@@ -320,18 +318,16 @@ class Configuration(Indexable):
         Otherwise, init our children.
         """
 
-        if 'default' in self.node:
+        if "default" in self.node:
             env_var = self.__to_env_var__().upper()
             if not self.has_value():
-                self.node['value'] = self.node['default']
+                self.node["value"] = self.node["default"]
             env_val = os.getenv(env_var, None)
             if env_val is not None:
                 try:
-                    self.node['value'] = yaml.load(
-                        str(env_val), Loader=ConfigLoader
-                    )
+                    self.node["value"] = yaml.load(str(env_val), Loader=ConfigLoader)
                 except ValueError:
-                    self.node['value'] = env_val
+                    self.node["value"] = env_val
         else:
             if isinstance(self.node, dict):
                 for k in self.node:
@@ -342,20 +338,20 @@ class Configuration(Indexable):
         """Return the node value, if we're a leaf node."""
 
         def validate(node_value: tp.Any) -> tp.Any:
-            if hasattr(node_value, 'validate'):
+            if hasattr(node_value, "validate"):
                 node_value.validate()
             return node_value
 
-        if 'value' in self.node:
-            return validate(self.node['value'])
+        if "value" in self.node:
+            return validate(self.node["value"])
         return self
 
-    def __getitem__(self, key: str) -> 'Configuration':
+    def __getitem__(self, key: str) -> "Configuration":
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
                 category=InvalidConfigKey,
-                stacklevel=2
+                stacklevel=2,
             )
             return Configuration(key, init=False)
         return Configuration(key, parent=self, node=self.node[key], init=False)
@@ -364,17 +360,17 @@ class Configuration(Indexable):
         if _INNER_NODE_SCHEMA.is_valid(val) or _INNER_NODE_VALUE.is_valid(val):
             self.node[key] = val
         elif key in self.node:
-            self.node[key]['value'] = val
+            self.node[key]["value"] = val
         else:
-            self.node[key] = {'value': val}
+            self.node[key] = {"value": val}
 
     def __iadd__(self, rhs: tp.Any) -> tp.Any:
         """Append a value to a list value."""
         if not self.has_value():
             raise TypeError("Inner configuration node does not support +=.")
 
-        value = self.node['value']
-        if not hasattr(value, '__iadd__'):
+        value = self.node["value"]
+        if not hasattr(value, "__iadd__"):
             raise TypeError("Configuration node value does not support +=.")
 
         value += rhs
@@ -383,9 +379,7 @@ class Configuration(Indexable):
     def __int__(self) -> int:
         """Convert the node's value to int, if available."""
         if not self.has_value():
-            raise ValueError(
-                'Inner configuration nodes cannot be converted to int.'
-            )
+            raise ValueError("Inner configuration nodes cannot be converted to int.")
         return int(self.value)
 
     def __bool__(self) -> bool:
@@ -398,8 +392,8 @@ class Configuration(Indexable):
         return key in self.node
 
     def __str__(self) -> str:
-        if 'value' in self.node:
-            return str(self.node['value'])
+        if "value" in self.node:
+            return str(self.node["value"])
         return str(self.node)
 
     def __repr__(self) -> str:
@@ -409,9 +403,9 @@ class Configuration(Indexable):
         _repr = []
 
         if self.has_value():
-            return to_env_var(self.__to_env_var__(), self.node['value'])
+            return to_env_var(self.__to_env_var__(), self.node["value"])
         if self.has_default():
-            return to_env_var(self.__to_env_var__(), self.node['default'])
+            return to_env_var(self.__to_env_var__(), self.node["default"])
 
         for k in self.node:
             _repr.append(repr(self[k]))
@@ -427,9 +421,9 @@ class Configuration(Indexable):
     def to_env_dict(self) -> tp.Mapping[str, tp.Any]:
         """Convert configuration object to a flat dictionary."""
         if self.has_value():
-            return {self.__to_env_var__(): self.node['value']}
+            return {self.__to_env_var__(): self.node["value"]}
         if self.has_default():
-            return {self.__to_env_var__(): self.node['default']}
+            return {self.__to_env_var__(): self.node["default"]}
 
         entries: tp.Dict[str, str] = {}
         for k in self.node:
@@ -447,13 +441,14 @@ def convert_components(value: tp.Union[str, tp.List[str]]) -> tp.List[str]:
             new_value = new_value.split(os.path.sep)
         else:
             new_value = [new_value]
-    new_value = [c for c in new_value if c != '']
+    new_value = [c for c in new_value if c != ""]
     return new_value
 
 
 @attr.s(str=False, frozen=True)
 class ConfigPath:
     """Wrapper around paths represented as list of strings."""
+
     components = attr.ib(converter=convert_components)
 
     def validate(self) -> None:
@@ -465,7 +460,7 @@ class ConfigPath:
             yes = ui.ask(
                 "Should I create '%s' for you?" % path,
                 default_answer=True,
-                default_answer_str="yes"
+                default_answer_str="yes",
             )
             if yes:
                 path.mkdir()
@@ -488,11 +483,11 @@ def path_representer(dumper, data):
     """
     Represent a ConfigPath object as a scalar YAML node.
     """
-    return dumper.represent_scalar('!create-if-needed', '%s' % data)
+    return dumper.represent_scalar("!create-if-needed", "%s" % data)
 
 
 def path_constructor(loader, node):
-    """"
+    """ "
     Construct a ConfigPath object form a scalar YAML node.
     """
     value = loader.construct_scalar(node)
@@ -502,7 +497,7 @@ def path_constructor(loader, node):
 def find_config(
     test_file: tp.Optional[str] = None,
     defaults: tp.Optional[tp.List[str]] = None,
-    root: str = os.curdir
+    root: str = os.curdir,
 ) -> tp.Optional[LocalPath]:
     """
     Find the path to the default config file.
@@ -545,7 +540,7 @@ def find_config(
 def setup_config(
     cfg: Configuration,
     config_filenames: tp.Optional[tp.List[str]] = None,
-    env_var_name: tp.Optional[str] = None
+    env_var_name: tp.Optional[str] = None,
 ) -> None:
     """
     This will initialize the given configuration object.
@@ -588,9 +583,7 @@ def update_env(cfg: Configuration) -> None:
     lib_path = env.get("LD_LIBRARY_PATH", "")
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
-        lib_path = os.path.pathsep.join([
-            lib_path, os.environ["LD_LIBRARY_PATH"]
-        ])
+        lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     home = env.get("HOME", None)
@@ -617,24 +610,26 @@ def upgrade(cfg: Configuration) -> None:
             "Converting to new connect_string. "
             "This will *not* be stored in the configuration automatically."
         )
-        cfg["db"]["connect_string"] = \
+        cfg["db"]["connect_string"] = (
             "{dialect}://{user}:{password}@{host}:{port}/{name}".format(
                 dialect=cfg["db"]["dialect"]["value"],
                 user=cfg["db"]["user"]["value"],
                 password=cfg["db"]["pass"]["value"],
                 host=cfg["db"]["host"]["value"],
                 port=cfg["db"]["port"]["value"],
-                name=cfg["db"]["name"]["value"])
+                name=cfg["db"]["name"]["value"],
+            )
+        )
 
 
 def uuid_representer(dumper, data):
     """Represent a uuid.UUID object as a scalar YAML node."""
 
-    return dumper.represent_scalar('!uuid', '%s' % data)
+    return dumper.represent_scalar("!uuid", "%s" % data)
 
 
 def uuid_constructor(loader, node):
-    """"Construct a uuid.UUID object form a scalar YAML node."""
+    """ "Construct a uuid.UUID object form a scalar YAML node."""
 
     value = loader.construct_scalar(node)
     return uuid.UUID(value)
@@ -642,18 +637,18 @@ def uuid_constructor(loader, node):
 
 def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
     """Attach an implicit pattern resolver for UUID objects."""
-    uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
+    uuid_regex = (
+        r"^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$"
+    )
     pattern = re.compile(uuid_regex)
-    yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
+    yaml.add_implicit_resolver("!uuid", pattern, Loader=loader, Dumper=dumper)
 
 
 def __init_module__() -> None:
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
     yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
-    yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
-    yaml.add_constructor(
-        '!create-if-needed', path_constructor, Loader=ConfigLoader
-    )
+    yaml.add_constructor("!uuid", uuid_constructor, Loader=ConfigLoader)
+    yaml.add_constructor("!create-if-needed", path_constructor, Loader=ConfigLoader)
     uuid_add_implicit_resolver()
 
 

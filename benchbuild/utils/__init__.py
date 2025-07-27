@@ -3,6 +3,7 @@ Module handler that makes sure the modules for our commands are build similar
 to plumbum. The built modules are only active during a run of an experiment and
 get deleted afterwards.
 """
+
 import logging
 import os
 import sys
@@ -23,6 +24,7 @@ class ErrorCommand(LocalCommand):
     without the entire study to crash.
     The experiment will fail anyway, but without the entire programm crashing.
     """
+
     EXE = __name__ + ".error_cmd"
 
     def run(self, *args, **kwargs):
@@ -81,7 +83,7 @@ class CommandAlias(ModuleType):
                 alias_cmd = alias_cmd.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path),
-                    HOME=home
+                    HOME=home,
                 )
                 return alias_cmd
             except AttributeError:

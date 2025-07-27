@@ -1,6 +1,7 @@
 """
 LAMMPS (sci-physics/lammps) project within gentoo chroot.
 """
+
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
@@ -10,8 +11,9 @@ from benchbuild.utils.cmd import tar
 
 class Lammps(GentooGroup):
     """
-        sci-physics/lammps
+    sci-physics/lammps
     """
+
     NAME = "lammps"
     DOMAIN = "sci-physics"
 
@@ -30,7 +32,7 @@ class Lammps(GentooGroup):
 
     def run_tests(self):
         builddir = self.builddir
-        lammps = wrapping.wrap(local.path('/usr/bin/lmp'), self)
+        lammps = wrapping.wrap(local.path("/usr/bin/lmp"), self)
         lammps_dir = builddir / "lammps"
 
         with local.cwd(lammps_dir):

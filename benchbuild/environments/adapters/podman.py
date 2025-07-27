@@ -20,7 +20,6 @@ LOG = logging.getLogger(__name__)
 
 
 class ContainerCreateError(Exception):
-
     def __init__(self, name: str, message: str):
         super().__init__()
 
@@ -33,7 +32,7 @@ def save(image_id: str, out_path: str) -> Result[bool, ProcessExecutionError]:
         LOG.warning("No image exported. Image exists.")
         return Ok(True)
 
-    res = run(bb_podman('save')['-o', out_path, image_id])
+    res = run(bb_podman("save")["-o", out_path, image_id])
 
     if isinstance(res, Err):
         LOG.error("Could not save the image %s to %s.", image_id, out_path)
@@ -43,7 +42,7 @@ def save(image_id: str, out_path: str) -> Result[bool, ProcessExecutionError]:
 
 
 def load(load_path: str) -> Result[bool, ProcessExecutionError]:
-    res = run(bb_podman('load')['-i', load_path])
+    res = run(bb_podman("load")["-i", load_path])
     if isinstance(res, Err):
         LOG.error("Could not load the image from %s", load_path)
         LOG.error("Reason: %s", str(res.unwrap_err()))
@@ -52,8 +51,8 @@ def load(load_path: str) -> Result[bool, ProcessExecutionError]:
 
 
 def run_container(name: str) -> Result[str, ProcessExecutionError]:
-    container_start = bb_podman('container', 'start')
-    res = run_tee(container_start['-ai', name])
+    container_start = bb_podman("container", "start")
+    res = run_tee(container_start["-ai", name])
     if isinstance(res, Err):
         LOG.error("Could not run the container %s", name)
         LOG.error("Reason: %s", str(res.unwrap_err()))
@@ -62,7 +61,7 @@ def run_container(name: str) -> Result[str, ProcessExecutionError]:
 
 
 def remove_container(container_id: str) -> Result[str, ProcessExecutionError]:
-    podman_rm = bb_podman('rm')
+    podman_rm = bb_podman("rm")
     res = run(podman_rm[container_id])
     if isinstance(res, Err):
         LOG.error("Could not remove the container %s", container_id)
@@ -121,7 +120,7 @@ class ContainerRegistry(abc.ABC):
 
     def start(self, container: model.Container) -> None:
         if container.name not in self.containers:
-            raise ValueError('container must be created first')
+            raise ValueError("container must be created first")
 
         self._start(container)
 
@@ -146,28 +145,27 @@ error.
 
 
 class PodmanRegistry(ContainerRegistry):
-
     def _create(
         self, image: model.Image, name: str, args: tp.Sequence[str]
     ) -> model.Container:
         mounts = [
-            f'type=bind,src={mnt.source},target={mnt.target}'
-            for mnt in image.mounts
+            f"type=bind,src={mnt.source},target={mnt.target}" for mnt in image.mounts
         ]
-        interactive = bool(CFG['container']['interactive'])
+        interactive = bool(CFG["container"]["interactive"])
 
-        create_cmd = bb_podman('create', '--replace')
+        create_cmd = bb_podman("create", "--replace")
         if interactive:
-            create_cmd = create_cmd['-it', '--entrypoint', '/bin/sh']
+            create_cmd = create_cmd["-it", "--entrypoint", "/bin/sh"]
 
         if mounts:
             for mount in mounts:
-                create_cmd = create_cmd['--mount', mount]
+                create_cmd = create_cmd["--mount", mount]
 
-        if (cfg_mounts := list(CFG['container']['mounts'].value)):
+        if cfg_mounts := list(CFG["container"]["mounts"].value):
             for source, target in cfg_mounts:
                 create_cmd = create_cmd[
-                    '--mount', f'type=bind,src={source},target={target}']
+                    "--mount", f"type=bind,src={source},target={target}"
+                ]
 
         if interactive:
             # pylint: disable=import-outside-toplevel
@@ -179,19 +177,17 @@ class PodmanRegistry(ContainerRegistry):
                     _DEBUG_CONTAINER_SESSION_INTRO.format(
                         container_name=name,
                         entrypoint=entrypoint,
-                        arguments=' '.join(args)
+                        arguments=" ".join(args),
                     )
                 )
             )
 
-            res = run(create_cmd['--name', name, image.name])
+            res = run(create_cmd["--name", name, image.name])
         else:
-            res = run(create_cmd['--name', name, image.name][args])
+            res = run(create_cmd["--name", name, image.name][args])
 
         if isinstance(res, Err):
-            LOG.error(
-                "Could not create the container %s from %s", name, image.name
-            )
+            LOG.error("Could not create the container %s from %s", name, image.name)
             LOG.error("Reason: %s", str(res.unwrap_err()))
 
             raise ContainerCreateError(name, " ".join(res.unwrap_err().argv))
@@ -200,19 +196,19 @@ class PodmanRegistry(ContainerRegistry):
         # The first ID is the old (replaced) container.
         # The second ID is the new container.
         container_id = res.unwrap()
-        new_container_id = container_id.split('\n')[-1]
+        new_container_id = container_id.split("\n")[-1]
 
-        return model.Container(new_container_id, image, '', name)
+        return model.Container(new_container_id, image, "", name)
 
     def _start(self, container: model.Container) -> None:
         container_id = container.container_id
-        container_start = bb_podman('container', 'start')
-        interactive = bool(CFG['container']['interactive'])
+        container_start = bb_podman("container", "start")
+        interactive = bool(CFG["container"]["interactive"])
 
         if interactive:
-            res = run_fg(container_start['-ai', container_id])
+            res = run_fg(container_start["-ai", container_id])
         else:
-            res = run_tee(container_start['-ai', container_id])
+            res = run_tee(container_start["-ai", container_id])
 
         if isinstance(res, Err):
             LOG.error("Could not start the container %s", container_id)
@@ -220,8 +216,7 @@ class PodmanRegistry(ContainerRegistry):
 
             container.events.append(
                 events.ContainerStartFailed(
-                    container.name, container_id,
-                    " ".join(res.unwrap_err().argv)
+                    container.name, container_id, " ".join(res.unwrap_err().argv)
                 )
             )
         else:

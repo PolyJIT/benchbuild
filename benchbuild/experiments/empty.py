@@ -16,9 +16,10 @@ class Empty(Experiment):
     NAME = "empty"
 
     def actions_for_project(self, project):
-        """ Do nothing. """
+        """Do nothing."""
         project.compiler_extension = run.WithTimeout(
-            compiler.RunCompiler(project, self))
+            compiler.RunCompiler(project, self)
+        )
         return [MakeBuildDir(project), Compile(project), Clean(project)]
 
 
@@ -30,6 +31,7 @@ class NoMeasurement(Experiment):
     def actions_for_project(self, project):
         """Execute all actions but don't do anything as extension."""
         project.compiler_extension = run.WithTimeout(
-            compiler.RunCompiler(project, self))
+            compiler.RunCompiler(project, self)
+        )
         project.runtime_extension = run.RuntimeExtension(project, self)
         return self.default_runtime_actions(project)

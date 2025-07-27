@@ -1,4 +1,5 @@
-""" Parsing utilities for Polly's ScheduleTree representation. """
+"""Parsing utilities for Polly's ScheduleTree representation."""
+
 import logging
 import textwrap as t
 
@@ -12,7 +13,7 @@ LOG = logging.getLogger(__name__)
 class Node:
     tok = attr.ib()
 
-    def indent(self, level=0, idt=' '):
+    def indent(self, level=0, idt=" "):
         val = self.tok[2]
         if not isinstance(self.tok[2], str):
             val = self.tok[2].indent(1)
@@ -21,8 +22,7 @@ class Node:
 
 @attr.s
 class CoincidenceNode(Node):
-
-    def indent(self, level=0, idt=' '):
+    def indent(self, level=0, idt=" "):
         ret = [str(child) for child in self.tok[3]]
         ret = ",".join(ret)
 
@@ -31,13 +31,12 @@ class CoincidenceNode(Node):
 
 @attr.s
 class RootNode(Node):
-
-    def indent(self, level=0, idt=' '):
+    def indent(self, level=0, idt=" "):
         ret = []
         ret = [child.indent(level + 2) for child in self.tok[1]]
         ret = ",\n".join(ret)
 
-        return t.indent('{{\n{:s}\n}}'.format(ret), level * idt)
+        return t.indent("{{\n{:s}\n}}".format(ret), level * idt)
 
     def __str__(self):
         return self.indent(0)
@@ -45,20 +44,18 @@ class RootNode(Node):
 
 @attr.s
 class ChildNode(Node):
-
-    def indent(self, level=0, idt=' '):
+    def indent(self, level=0, idt=" "):
         ret = self.tok[0].indent(level)
         return ret
 
 
 @attr.s
 class SequenceNode(Node):
-
-    def indent(self, level=0, idt=' '):
+    def indent(self, level=0, idt=" "):
         ret = '"{:s}": [\n'.format(self.tok[0])
         for child in self.tok[3]:
-            ret += child.indent(0) + ',\n'
-        ret += '\n]'
+            ret += child.indent(0) + ",\n"
+        ret += "\n]"
         return t.indent(ret, level * idt)
 
 
@@ -93,8 +90,18 @@ EXTENSION = KW_EXTENSION + ":" + STR
 SEQ_ELEM_LIST = p.delimitedList(ROOT)
 SEQUENCE = KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(ROOT)) + "]"
 CHILD = KW_CHILD + ":" + ROOT
-CHILD_NODE << (CHILD | COINCIDENT | DOMAIN | EXTENSION | FILTER | MARK |
-               OPTIONS | PERMUTABLE | SCHEDULE | SEQUENCE)
+CHILD_NODE << (
+    CHILD
+    | COINCIDENT
+    | DOMAIN
+    | EXTENSION
+    | FILTER
+    | MARK
+    | OPTIONS
+    | PERMUTABLE
+    | SCHEDULE
+    | SEQUENCE
+)
 ROOT << ("{" + p.Group(p.delimitedList(CHILD_NODE)) + "}")
 
 CHILD.addParseAction(Node)

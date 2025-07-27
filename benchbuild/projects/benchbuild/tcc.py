@@ -9,29 +9,29 @@ from benchbuild.utils.cmd import make, mkdir, tar
 
 
 class TCC(bb.Project):
-    VERSION = '0.9.26'
-    NAME = 'tcc'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
+    VERSION = "0.9.26"
+    NAME = "tcc"
+    DOMAIN = "compilation"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
             remote={
-                '0.9.26': (
-                    'http://download-mirror.savannah.gnu.org/releases/'
-                    'tinycc/tcc-0.9.26.tar.bz2'
+                "0.9.26": (
+                    "http://download-mirror.savannah.gnu.org/releases/"
+                    "tinycc/tcc-0.9.26.tar.bz2"
                 )
             },
-            local='tcc.tar.bz2'
+            local="tcc.tar.bz2",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        tcc_source = local.path(self.source_of('tcc.tar.bz2'))
-        tcc_version = self.version_of('tcc.tar.bz2')
+        tcc_source = local.path(self.source_of("tcc.tar.bz2"))
+        tcc_version = self.version_of("tcc.tar.bz2")
 
         tar("xf", tcc_source)
-        unpack_dir = local.path(f'tcc-{tcc_version}.tar.bz2')
+        unpack_dir = local.path(f"tcc-{tcc_version}.tar.bz2")
 
         clang = bb.compiler.cc(self)
 
@@ -46,8 +46,8 @@ class TCC(bb.Project):
                 _make()
 
     def run_tests(self):
-        tcc_version = self.version_of('tcc.tar.bz2')
-        unpack_dir = local.path(f'tcc-{tcc_version}.tar.bz2')
+        tcc_version = self.version_of("tcc.tar.bz2")
+        unpack_dir = local.path(f"tcc-{tcc_version}.tar.bz2")
         with local.cwd(unpack_dir):
             with local.cwd("build"):
                 bb.wrap("tcc", self)

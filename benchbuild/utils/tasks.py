@@ -1,6 +1,7 @@
 """
 The task module distributes benchbuild's excution plans over processes.
 """
+
 import typing as tp
 
 import benchbuild.utils.actions as actns
@@ -16,7 +17,7 @@ StepResults = tp.List[actns.StepResult]
 
 
 def execute_plan(plan: Actions) -> StepResults:
-    """"Execute the plan.
+    """ "Execute the plan.
 
     Args:
         plan: The plan we want to execute.

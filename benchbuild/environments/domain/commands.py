@@ -12,11 +12,11 @@ def fs_compliant_name(name: str) -> str:
     Convert a name to a valid filename.
     """
     value = str(name)
-    value = unicodedata.normalize('NFKD',
-                                  value).encode('ascii',
-                                                'ignore').decode('ascii')
-    value = re.sub(r'[^\w\s-]', '', value.lower())
-    return re.sub(r'[-\s]+', '-', value).strip('-_')
+    value = (
+        unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    )
+    value = re.sub(r"[^\w\s-]", "", value.lower())
+    return re.sub(r"[-\s]+", "-", value).strip("-_")
 
 
 def oci_compliant_name(name: str) -> str:

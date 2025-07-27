@@ -9,18 +9,15 @@
 import logging
 import os
 
-from pkg_resources import DistributionNotFound, get_distribution
+from importlib.metadata import version
 
 import benchbuild.utils
 
 # pylint: skip-file
-try:
-    __version__ = get_distribution("benchbuild").version
-except DistributionNotFound:
-    pass
+__version__ = version("benchbuild")
 
 project = 'BenchBuild'
-copyright = '2023, Andreas Simbürger'
+copyright = '2025, Andreas Simbürger'
 author = 'Andreas Simbürger'
 release = __version__
 

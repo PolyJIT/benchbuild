@@ -14,7 +14,7 @@ classifiers = [
   'License :: OSI Approved :: MIT License',
   'Programming Language :: Python :: 3'
 ]
-keywords = "benchbuild experiments run-time"
+keywords = ["benchbuild", "experiments", "run-time"]
 url = "https://github.com/PolyJIT/benchbuild"
 dependencies = [
   "attrs>=22",

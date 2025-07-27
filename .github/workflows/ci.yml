@@ -24,12 +24,12 @@ jobs:
       run: |
         sudo apt-get install time unionfs-fuse libfuse-dev clang
 
-    - name: Install dependencies
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
+    - name: Install the project
       run: |
-        python -m pip install --upgrade pip wheel
-        pip install .
-        pip install -r requirements.txt
-        pip install -r test-requirements.txt
+        uv sync --locked --all-extras --dev
 
     - name: Run unittests
       env:
@@ -40,8 +40,8 @@ jobs:
       run: |
         git config --global protocol.file.allow always
 
-        pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
-        pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
+        uv run pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
+        uv run pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
 
     - uses: actions/upload-artifact@master
       with:
@@ -68,12 +68,9 @@ jobs:
       run: |
         sudo apt-get install time unionfs-fuse libfuse-dev clang slurm-client
 
-    - name: Install dependencies
+    - name: Install the project
       run: |
-        python -m pip install --upgrade pip wheel
-        pip install .
-        pip install -r requirements.txt
-        pip install -r test-requirements.txt
+        uv sync --locked --all-extras --dev
 
     - name: Run integration tests
       env:
@@ -86,20 +83,20 @@ jobs:
         BB_CONTAINER_RUNROOT: ${{ runner.temp }}
         BB_VERBOSITY: 5
       run: |
-        coverage run -p `which benchbuild` bootstrap -s
-        coverage run -p `which benchbuild` config view
-        coverage run -p `which benchbuild` experiment view
-        coverage run -p `which benchbuild` project view
-        coverage run -p `which benchbuild` run --full test
-        coverage run -p `which benchbuild` slurm -E empty test
-        coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        coverage run -p `which benchbuild` run -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
-        coverage combine
-        coverage report -m
+        uv run coverage run -p `which benchbuild` bootstrap -s
+        uv run coverage run -p `which benchbuild` config view
+        uv run coverage run -p `which benchbuild` experiment view
+        uv run coverage run -p `which benchbuild` project view
+        uv run coverage run -p `which benchbuild` run --full test
+        uv run coverage run -p `which benchbuild` slurm -E empty test
+        uv run coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        uv run coverage run -p `which benchbuild` run -E raw bzip2/benchbuild
+        uv run coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
+        uv run coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
+        uv run coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
+        uv run coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
+        uv run coverage combine
+        uv run coverage report -m
 
     - uses: actions/upload-artifact@master
       with:
@@ -133,10 +130,10 @@ jobs:
 
     - run: |
         ls -lah .
-        python -m pip install --upgrade pip wheel
-        pip install coverage
-        coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
-        coverage xml
+        uv sync --locked --all-extras --dev
+        uv pip install coverage
+        uv run coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
+        uv run coverage xml
 
     - name: Upload coverage report
       uses: codecov/codecov-action@v5
@@ -166,8 +163,6 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
 
-    - name: Install dependencies
+    - name: Install the project
       run: |
-        python -m pip install --upgrade pip
-        pip install .
-        pip install -r docs/requirements.txt
+        uv sync --locked --all-extras --group docs

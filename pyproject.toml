@@ -6,27 +6,36 @@ description = "This is the experiment driver for the benchbuild study"
 authors = [
     { name = "Andreas Simbuerger", email = "simbuerg@lairosiel.de" }
 ]
+license = "MIT"
 requires-python = ">=3.12"
+classifiers = [
+  'Development Status :: 4 - Beta', 'Intended Audience :: Developers',
+  'Topic :: Software Development :: Testing',
+  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python :: 3'
+]
+keywords = "benchbuild experiments run-time"
+url = "https://github.com/PolyJIT/benchbuild"
 dependencies = [
-    "attrs>=22",
-    "dill>=0",
-    "jinja2>=3",
-    "parse>=1",
-    "pathos>=0",
-    "plumbum>=1",
-    "psutil>=5",
-    "psycopg2-binary>=2",
-    "pygit2>=1",
-    "pygtrie>=2",
-    "pyparsing>=3",
-    "pyyaml>=6.0",
-    "result>=0",
-    "rich>=12",
-    "schema>=0",
-    "six>=1.17.0",
-    "sqlalchemy>=2",
-    "typing-extensions>=4",
-    "virtualenv>=20",
+  "attrs>=22",
+  "dill>=0",
+  "jinja2>=3",
+  "parse>=1",
+  "pathos>=0",
+  "plumbum>=1",
+  "psutil>=5",
+  "psycopg2-binary>=2",
+  "pygit2>=1",
+  "pygtrie>=2",
+  "pyparsing>=3",
+  "pyyaml>=6.0",
+  "result>=0",
+  "rich>=12",
+  "schema>=0",
+  "six>=1.17.0",
+  "sqlalchemy>=2",
+  "typing-extensions>=4",
+  "virtualenv>=20",
 ]
 
 [project.scripts]
@@ -34,8 +43,32 @@ benchbuild = "benchbuild.driver:main"
 container = "benchbuild.container:main"
 
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8"]
+requires = ["setuptools>=64", "setuptools-scm>=8", "pytest-runner"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 version_file = "benchbuild/_version.py"
+
+[tool.setuptools.package-data]
+benchbuild = [
+    "res/misc/slurm.sh.inc",
+    "res/sql/func.compare_region_wise2.sql",
+    "res/sql/func.experiments.sql",
+    "res/sql/func.recompilation.sql",
+    "res/sql/func.run_regions.sql",
+    "res/sql/func.total_dyncov_clean.sql",
+    "res/sql/func.total_speedup.sql",
+    "res/sql/func.compare_region_wise.sql",
+    "res/sql/func.project_region_time.sql",
+    "res/sql/func.run_durations.sql",
+    "res/sql/func.speedup.sql",
+    "res/sql/func.total_dyncov.sql",
+    "res/sql/func.pj-test-eval.sql",
+    "res/sql/func.compilestats_eval.sql",
+    "res/sql/func.polly_mse.sql",
+    "res/sql/func.profileScopDetection-eval.sql",
+    "res/wrapping/run_compiler.py.inc",
+    "res/wrapping/run_static.py.inc",
+    "res/wrapping/run_dynamic.py.inc",
+    "res/patches/linpack.patch"
+]

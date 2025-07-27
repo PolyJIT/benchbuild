@@ -6,7 +6,7 @@ description = "This is the experiment driver for the benchbuild study"
 authors = [
     { name = "Andreas Simbuerger", email = "simbuerg@lairosiel.de" }
 ]
-license = "MIT"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.12"
 classifiers = [
   'Development Status :: 4 - Beta', 'Intended Audience :: Developers',
@@ -42,7 +42,7 @@ benchbuild = "benchbuild.driver:main"
 container = "benchbuild.container:main"
 
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8", "pytest-runner"]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]

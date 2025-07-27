@@ -6,7 +6,7 @@ import typing as tp
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir, mv
+from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]

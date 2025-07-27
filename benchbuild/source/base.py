@@ -3,7 +3,6 @@ Provide a base interface for downloadable sources.
 """
 import abc
 import itertools
-import sys
 import typing as tp
 from typing import Protocol
 

@@ -1,6 +1,5 @@
 import logging
 import shutil
-import sys
 import typing as tp
 from contextlib import contextmanager
 from pathlib import Path

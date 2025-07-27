@@ -1,6 +1,5 @@
 import abc
 import logging
-import sys
 import typing as tp
 from typing import Protocol
 

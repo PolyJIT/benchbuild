@@ -32,7 +32,6 @@ from benchbuild.utils.wrapping import wrap_cc
 
 if TYPE_CHECKING:
     from benchbuild.project import Project
-    from benchbuild.experiment import Experiment
 
 
 def cc(project: 'Project', detect_project: bool = False) -> BoundCommand:

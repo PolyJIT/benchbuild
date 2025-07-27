@@ -385,7 +385,7 @@ def create_base_images(
         if do_import:
             import_image(image.base)
 
-        if not image.base in declarative.DEFAULT_BASES:
+        if image.base not in declarative.DEFAULT_BASES:
             continue
 
         layers = declarative.DEFAULT_BASES[image.base]

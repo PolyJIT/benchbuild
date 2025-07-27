@@ -10,30 +10,30 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class X264(bb.Project):
-    """ x264 """
+    """x264"""
 
     NAME = "x264"
     DOMAIN = "multimedia"
-    GROUP = 'benchbuild'
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://code.videolan.org/videolan/x264.git',
-            local='x264.git',
-            refspec='HEAD',
-            limit=5
+            remote="https://code.videolan.org/videolan/x264.git",
+            local="x264.git",
+            refspec="HEAD",
+            limit=5,
         ),
         HTTP(
-            remote={'tbbt-small': 'http://lairosiel.de/dist/tbbt-small.y4m'},
-            local='tbbt-small.y4m'
+            remote={"tbbt-small": "http://lairosiel.de/dist/tbbt-small.y4m"},
+            local="tbbt-small.y4m",
         ),
         HTTP(
-            remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
-            local='sintel.raw'
+            remote={"sintel": "http://lairosiel.de/dist/Sintel.2010.720p.raw"},
+            local="sintel.raw",
         ),
     ]
 
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
-    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = declarative.ContainerImage().from_("benchbuild:alpine")
 
     # yapf: disable
     WORKLOADS = {
@@ -77,7 +77,7 @@ class X264(bb.Project):
     # yapf: enable
 
     def compile(self):
-        x264_repo = local.path(self.source_of('x264.git'))
+        x264_repo = local.path(self.source_of("x264.git"))
         clang = bb.compiler.cc(self)
 
         with local.cwd(x264_repo):
@@ -85,9 +85,7 @@ class X264(bb.Project):
             _configure = bb.watch(configure)
 
             with local.env(CC=str(clang)):
-                _configure(
-                    "--disable-thread", "--disable-opencl", "--enable-pic"
-                )
+                _configure("--disable-thread", "--disable-opencl", "--enable-pic")
 
             _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))

@@ -1,6 +1,5 @@
 """Subcommand for project handling."""
 import typing as tp
-from functools import reduce
 
 from plumbum import cli
 

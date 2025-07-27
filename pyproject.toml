@@ -30,7 +30,8 @@ dependencies = [
 ]
 
 [project.scripts]
-benchbuild = "benchbuild:main"
+benchbuild = "benchbuild.driver:main"
+container = "benchbuild.container:main"
 
 [build-system]
 requires = ["setuptools>=64", "setuptools-scm>=8"]

@@ -14,9 +14,7 @@ class CleanupOnSignal:
     def stored_procedures(self):
         return self.__stored_procedures
 
-    def register(
-        self, callback: tp.Callable, *args: tp.Any, **kwargs: tp.Any
-    ) -> None:
+    def register(self, callback: tp.Callable, *args: tp.Any, **kwargs: tp.Any) -> None:
         new_func = functools.partial(callback, *args, **kwargs)
         self.__stored_procedures[callback] = new_func
 

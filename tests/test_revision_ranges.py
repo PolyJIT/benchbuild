@@ -1,4 +1,5 @@
 """Test the revision_ranges module."""
+
 from pathlib import Path
 import unittest
 from unittest import mock
@@ -8,6 +9,7 @@ import benchbuild.utils.revision_ranges as ranges
 
 class TestRevisionRanges(unittest.TestCase):
     """Test the revision range classes."""
+
     def test_single_revision(self):
         revision_range = ranges.SingleRevision("1234abc")
         self.assertIn("1234abc", revision_range)
@@ -29,8 +31,16 @@ class TestRevisionRanges(unittest.TestCase):
     @mock.patch("pygit2.Commit")
     @mock.patch("pygit2.Commit")
     @mock.patch("pygit2.Commit")
-    def test_find_blocked_commits(self, commit_head, commit_good, commit_bad,
-                                  commit_r, commit_s, commit_x, commit_y):
+    def test_find_blocked_commits(
+        self,
+        commit_head,
+        commit_good,
+        commit_bad,
+        commit_r,
+        commit_s,
+        commit_x,
+        commit_y,
+    ):
         """
         X---R---G---HEAD
         \\ /   /   /
@@ -46,8 +56,7 @@ class TestRevisionRanges(unittest.TestCase):
         commit_x.parents = []
         commit_y.parents = []
 
-        result = ranges._find_blocked_commits(commit_head, [commit_good],
-                                              [commit_bad])
+        result = ranges._find_blocked_commits(commit_head, [commit_good], [commit_bad])
         self.assertIn(commit_r, result)
         self.assertIn(commit_s, result)
         self.assertIn(commit_bad, result)

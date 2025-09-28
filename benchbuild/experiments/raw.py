@@ -15,6 +15,7 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
+
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.experiment import Experiment
 from benchbuild.extensions import compiler, run, time
@@ -30,7 +31,9 @@ class RawRuntime(Experiment):
         """Compile & Run the experiment with -O3 enabled."""
         project.cflags = ["-O3", "-fno-omit-frame-pointer"]
         project.runtime_extension = time.RunWithTime(
-            run.RuntimeExtension(project, self))
+            run.RuntimeExtension(project, self)
+        )
         project.compiler_extension = run.WithTimeout(
-            compiler.RunCompiler(project, self))
+            compiler.RunCompiler(project, self)
+        )
         return self.default_runtime_actions(project)

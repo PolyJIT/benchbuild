@@ -10,8 +10,10 @@ class VersionSource(FetchableSource):
     known_versions: tp.List[str]
 
     def __init__(
-        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
-        known_versions: tp.List[str]
+        self,
+        local: str,
+        remote: tp.Union[str, tp.Dict[str, str]],
+        known_versions: tp.List[str],
     ):
         super().__init__(local, remote)
 
@@ -22,10 +24,10 @@ class VersionSource(FetchableSource):
 
     @property
     def default(self) -> Variant:
-        return Variant(owner=self, version='1')
+        return Variant(owner=self, version="1")
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        return '.'
+        return "."
 
     def versions(self) -> tp.List[Variant]:
         return [Variant(self, str(v)) for v in self.known_versions]
@@ -41,7 +43,7 @@ def make_source():
 
     def _make_version_source(versions: tp.List[int]):
         str_versions = [str(v) for v in versions]
-        return VersionSource('ls', 'rs', str_versions)
+        return VersionSource("ls", "rs", str_versions)
 
     return _make_version_source
 
@@ -80,7 +82,6 @@ class Config0(CAWSource):
     """
 
     def versions_with_context(self, ctx: Revision) -> tp.Sequence[Variant]:
-
         if ctx.primary.version == "0":
             ret = [Variant(self, "v0.1"), Variant(self, "v0.2")]
             return ret
@@ -95,7 +96,6 @@ class Config1(CAWSource):
     """
 
     def versions_with_context(self, ctx: Revision) -> tp.Sequence[Variant]:
-
         if ctx.primary.version == "1":
             ret = [Variant(self, "v1.1"), Variant(self, "v1.2")]
             return ret
@@ -104,9 +104,9 @@ class Config1(CAWSource):
 
 @pytest.fixture
 def caw_src_0() -> FetchableSource:
-    return Config0(local='local', remote='remote')
+    return Config0(local="local", remote="remote")
 
 
 @pytest.fixture
 def caw_src_1() -> FetchableSource:
-    return Config1(local='local', remote='remote')
+    return Config1(local="local", remote="remote")

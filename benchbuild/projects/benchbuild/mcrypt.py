@@ -10,41 +10,41 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class MCrypt(bb.Project):
-    """ MCrypt benchmark """
+    """MCrypt benchmark"""
 
-    NAME = 'mcrypt'
-    DOMAIN = 'encryption'
-    GROUP = 'benchbuild'
+    NAME = "mcrypt"
+    DOMAIN = "encryption"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
             remote={
-                '2.6.8': (
-                    'http://sourceforge.net/projects/mcrypt/files/MCrypt/'
-                    '2.6.8/mcrypt-2.6.8.tar.gz'
+                "2.6.8": (
+                    "http://sourceforge.net/projects/mcrypt/files/MCrypt/"
+                    "2.6.8/mcrypt-2.6.8.tar.gz"
                 )
             },
-            local='mcrypt.tar.gz'
+            local="mcrypt.tar.gz",
         ),
         HTTP(
             remote={
-                '2.5.8': (
-                    'http://sourceforge.net/projects/mcrypt/files/Libmcrypt/'
-                    '2.5.8/libmcrypt-2.5.8.tar.gz'
+                "2.5.8": (
+                    "http://sourceforge.net/projects/mcrypt/files/Libmcrypt/"
+                    "2.5.8/libmcrypt-2.5.8.tar.gz"
                 )
             },
-            local='libmcrypt.tar.gz'
+            local="libmcrypt.tar.gz",
         ),
         HTTP(
             remote={
-                '0.9.9.9': (
-                    'http://sourceforge.net/projects/mhash/files/mhash/'
-                    '0.9.9.9/mhash-0.9.9.9.tar.gz'
+                "0.9.9.9": (
+                    "http://sourceforge.net/projects/mhash/files/mhash/"
+                    "0.9.9.9/mhash-0.9.9.9.tar.gz"
                 )
             },
-            local='mhash.tar.gz'
-        )
+            local="mhash.tar.gz",
+        ),
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"
@@ -53,13 +53,13 @@ class MCrypt(bb.Project):
     mhash_file = mhash_dir + ".tar.gz"
 
     def compile(self):
-        mcrypt_source = local.path(self.source_of('mcrypt.tar.gz'))
-        libmcrypt_source = local.path(self.source_of('libmcrypt.tar.gz'))
-        mhash_source = local.path(self.source_of('mhash.tar.gz'))
+        mcrypt_source = local.path(self.source_of("mcrypt.tar.gz"))
+        libmcrypt_source = local.path(self.source_of("libmcrypt.tar.gz"))
+        mhash_source = local.path(self.source_of("mhash.tar.gz"))
 
-        tar('xfz', mcrypt_source)
-        tar('xfz', libmcrypt_source)
-        tar('xfz', mhash_source)
+        tar("xfz", mcrypt_source)
+        tar("xfz", libmcrypt_source)
+        tar("xfz", mhash_source)
 
         builddir = local.path(self.builddir)
         mcrypt_dir = builddir / "mcrypt-2.6.8"
@@ -96,17 +96,19 @@ class MCrypt(bb.Project):
             mod_env = dict(
                 CC=_cc,
                 CXX=_cxx,
-                LD_LIBRARY_PATH=path.
-                list_to_path([str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])),
+                LD_LIBRARY_PATH=path.list_to_path(
+                    [str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])
+                ),
                 LDFLAGS="-L" + str(lib_dir),
-                CFLAGS="-I" + str(inc_dir)
+                CFLAGS="-I" + str(inc_dir),
             )
             env.update(mod_env)
             with local.env(**env):
                 _configure(
-                    "--disable-dependency-tracking", "--disable-shared",
+                    "--disable-dependency-tracking",
+                    "--disable-shared",
                     "--with-libmcrypt=" + builddir,
-                    "--with-libmhash=" + builddir
+                    "--with-libmhash=" + builddir,
                 )
             _make("-j", get_number_of_jobs(CFG))
 

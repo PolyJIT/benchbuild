@@ -3,7 +3,6 @@ import unittest
 
 
 class TestPathToList(unittest.TestCase):
-
     def test_path_to_list(self):
         from benchbuild.utils.path import path_to_list
         test_path = f"a{os.pathsep}b"
@@ -18,6 +17,7 @@ class TestPathToList(unittest.TestCase):
 
     def test_list_to_path(self):
         from benchbuild.utils.path import list_to_path
+
         p = list_to_path(["a", "b"])
         expected = f"a{os.pathsep}b"
         self.assertEqual(p, expected)

@@ -1,4 +1,5 @@
-""" Helper functions for bootstrapping external dependencies. """
+"""Helper functions for bootstrapping external dependencies."""
+
 import logging
 import os
 import platform
@@ -27,6 +28,7 @@ def find_package(binary: str) -> bool:
         True, if the binary name can be imported by benchbuild.
     """
     from benchbuild.utils import cmd
+
     c = cmd.__getattr__(binary)
 
     found = not isinstance(c, utils.ErrorCommand)
@@ -43,50 +45,41 @@ PACKAGES = {
         "gentoo base system": ["sys-fs/unionfs-fuse"],
         "ubuntu": ["unionfs-fuse"],
         "debian": ["unionfs-fuse"],
-        "suse": ["unionfs-fuse"]
+        "suse": ["unionfs-fuse"],
     },
     "postgres": {
         "gentoo base system": ["dev-db/postgres", "dev-libs/libpqxx"],
         "ubuntu": ["libpq-dev", "libpqxx-dev"],
         "debian": ["libpq-dev", "libpqxx-dev"],
-        "suse": ["postgresql-devel", "libpqxx-devel"]
+        "suse": ["postgresql-devel", "libpqxx-devel"],
     },
     "fusermount": {
         "gentoo base system": ["sys-fs/fuse"],
         "ubuntu": ["fuse"],
         "debian": ["fuse"],
-        "suse": ["fuse", "fuse-devel"]
+        "suse": ["fuse", "fuse-devel"],
     },
     "cmake": {
         "gentoo base system": ["dev-util/cmake"],
         "ubuntu": ["cmake"],
         "debian": ["cmake"],
-        "suse": ["cmake"]
+        "suse": ["cmake"],
     },
     "autoreconf": {
         "ubuntu": ["autoconf"],
         "debian": ["autoconf"],
-        "suse": ["autoconf"]
-    }
+        "suse": ["autoconf"],
+    },
 }
 
 PACKAGE_MANAGER = {
-    "gentoo base system": {
-        "cmd": "emerge",
-        "args": ["-a"]
-    },
-    "ubuntu": {
-        "cmd": "apt-get",
-        "args": ["install"]
-    },
-    "debian": {
-        "cmd": "apt-get",
-        "args": ["install"]
-    },
+    "gentoo base system": {"cmd": "emerge", "args": ["-a"]},
+    "ubuntu": {"cmd": "apt-get", "args": ["install"]},
+    "debian": {"cmd": "apt-get", "args": ["install"]},
     "suse": {
         "cmd": "zypper",
         "args": ["install"],
-    }
+    },
 }
 
 
@@ -94,10 +87,10 @@ def install_uchroot(_):
     """Installer for erlent (contains uchroot)."""
     builddir = local.path(str(CFG["build_dir"].value))
     with local.cwd(builddir):
-        erlent_src = local.path('erlent')
-        erlent_git = erlent_src / '.git'
-        erlent_repo = str(CFG['uchroot']['repo'])
-        erlent_build = erlent_src / 'build'
+        erlent_src = local.path("erlent")
+        erlent_git = erlent_src / ".git"
+        erlent_repo = str(CFG["uchroot"]["repo"])
+        erlent_build = erlent_src / "build"
         if not erlent_git.exists():
             git("clone", erlent_repo)
         else:
@@ -109,21 +102,17 @@ def install_uchroot(_):
             cmake("../")
             make()
 
-    os.environ["PATH"] = os.path.pathsep.join([
-        erlent_build, os.environ["PATH"]
-    ])
+    os.environ["PATH"] = os.path.pathsep.join([erlent_build, os.environ["PATH"]])
     local.env.update(PATH=os.environ["PATH"])
 
     if not find_package("uchroot"):
-        LOG.error(
-            'uchroot not found, after updating PATH to %s', os.environ['PATH']
-        )
+        LOG.error("uchroot not found, after updating PATH to %s", os.environ["PATH"])
         sys.exit(-1)
 
-    env = CFG['env'].value
-    if 'PATH' not in env:
-        env['PATH'] = []
-    env['PATH'].append(str(erlent_build))
+    env = CFG["env"].value
+    if "PATH" not in env:
+        env["PATH"] = []
+    env["PATH"].append(str(erlent_build))
 
 
 def check_uchroot_config() -> None:
@@ -132,20 +121,18 @@ def check_uchroot_config() -> None:
     """
     print("Checking configuration of 'uchroot'")
 
-    fuse_grep = grep['-q', '-e']
+    fuse_grep = grep["-q", "-e"]
     username = getuser()
 
     if not (fuse_grep["^user_allow_other", "/etc/fuse.conf"] & TF):
         print("uchroot needs 'user_allow_other' enabled in '/etc/fuse.conf'.")
     if not (fuse_grep["^{0}".format(username), "/etc/subuid"] & TF):
         print(
-            "uchroot needs an entry for user '{0}' in '/etc/subuid'.".
-            format(username)
+            "uchroot needs an entry for user '{0}' in '/etc/subuid'.".format(username)
         )
     if not (fuse_grep["^{0}".format(username), "/etc/subgid"] & TF):
         print(
-            "uchroot needs an entry for user '{0}' in '/etc/subgid'.".
-            format(username)
+            "uchroot needs an entry for user '{0}' in '/etc/subgid'.".format(username)
         )
 
 
@@ -156,7 +143,7 @@ def linux_distribution_major() -> tp.Optional[str]:
     Returns:
         The name of the linux distribution, if known.
     """
-    if not platform.system() == 'Linux':
+    if not platform.system() == "Linux":
         return None
 
     # python > 3.7
@@ -180,7 +167,7 @@ def install_package(pkg_name: str) -> bool:
     Args:
         pkg_name: The package name to install.
     """
-    if not bool(CFG['bootstrap']['install']):
+    if not bool(CFG["bootstrap"]["install"]):
         return False
 
     if pkg_name not in PACKAGES:
@@ -191,8 +178,7 @@ def install_package(pkg_name: str) -> bool:
     for pkg_name_on_host in packages:
         print("You are missing the package: '{0}'".format(pkg_name_on_host))
         cmd = local["sudo"]
-        cmd = cmd[package_manager["cmd"], package_manager["args"],
-                  pkg_name_on_host]
+        cmd = cmd[package_manager["cmd"], package_manager["args"], pkg_name_on_host]
         cmd_str = str(cmd)
 
         ret = False
@@ -209,8 +195,7 @@ def install_package(pkg_name: str) -> bool:
 
 
 def provide_package(
-    pkg_name: str,
-    installer: tp.Callable[[str], bool] = install_package
+    pkg_name: str, installer: tp.Callable[[str], bool] = install_package
 ) -> None:
     """
     Make sure the package is provided by the system, if required.

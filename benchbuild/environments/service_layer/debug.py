@@ -26,24 +26,25 @@ def debug_image_kept(
     """
     # pylint: disable=import-outside-toplevel
     from rich.markdown import Markdown
+
     with uow:
         container = uow.create(event.image_name, event.failed_image_name)
         if container is None:
-            raise ValueError('Unable to create debug session.')
+            raise ValueError("Unable to create debug session.")
 
         print(
             Markdown(
                 DEBUG_SESSION_INTRO.format(
                     image_name=event.image_name,
                     failed_image_name=event.failed_image_name,
-                    layer_name=event.failed_layer
+                    layer_name=event.failed_layer,
                 )
             )
         )
-        run_shell = bb_buildah('run')[container.container_id, '--', '/bin/sh']
+        run_shell = bb_buildah("run")[container.container_id, "--", "/bin/sh"]
         try:
             run_shell.run_fg()
             uow.commit()
         except ProcessExecutionError as ex:
-            print(f'Debug session ended with retcode: {ex.retcode}')
-            print('[red]No image will be stored![/red]')
+            print(f"Debug session ended with retcode: {ex.retcode}")
+            print("[red]No image will be stored![/red]")

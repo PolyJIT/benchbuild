@@ -1,6 +1,7 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
+
 import logging
 import typing as tp
 from abc import ABCMeta
@@ -35,17 +36,16 @@ class Extension(metaclass=ABCMeta):
 
     def __init__(
         self,
-        *extensions: 'Extension',
+        *extensions: "Extension",
         config: tp.Optional[tp.Dict[str, str]] = None,
-        **kwargs: tp.Any
+        **kwargs: tp.Any,
     ):
         """Initialize an extension with an arbitrary number of children."""
         del kwargs
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, *args: tp.Any,
-                  **kwargs: tp.Any) -> tp.List[run.RunInfo]:
+    def call_next(self, *args: tp.Any, **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         """Call all child extensions with the given arguments.
 
         This calls all child extensions and collects the results for
@@ -73,7 +73,7 @@ class Extension(metaclass=ABCMeta):
 
         return all_results
 
-    def __lshift__(self, rhs: 'Extension') -> 'Extension':
+    def __lshift__(self, rhs: "Extension") -> "Extension":
         rhs.next_extensions = [self]
         return rhs
 
@@ -83,8 +83,9 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             ext.print(indent=indent + 2)
 
-    def __call__(self, command: BoundCommand, *args: str,
-                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
+    def __call__(
+        self, command: BoundCommand, *args: str, **kwargs: tp.Any
+    ) -> tp.List[run.RunInfo]:
         return self.call_next(*args, **kwargs)
 
     def __str__(self) -> str:

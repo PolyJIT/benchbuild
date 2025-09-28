@@ -7,6 +7,7 @@ loaded automatically. See configuration variables:
  *_PLUGINS_PROJECTS
 
 """
+
 import importlib
 import logging
 

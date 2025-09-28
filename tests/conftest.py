@@ -20,8 +20,7 @@ def mk_git_repo():
     fake.add_provider(file)
 
     def _git_repository(
-        num_commits: int = 2,
-        git_submodule: tp.Optional[git.Repo] = None
+        num_commits: int = 2, git_submodule: tp.Optional[git.Repo] = None
     ) -> RepoT:
         nonlocal tmp_dir
 
@@ -33,22 +32,19 @@ def mk_git_repo():
             some_content = fake.text()
             a_name = fake.file_name()
             a_file = a_repo_base / a_name
-            with open(a_file, 'w') as a_file_handle:
+            with open(a_file, "w") as a_file_handle:
                 a_file_handle.writelines(some_content)
             repo.index.add(a_file)
-            repo.index.commit(f'Add {a_name}')
+            repo.index.commit(f"Add {a_name}")
 
         if git_submodule:
             a_sm_path = fake.file_name()
             a_sm_name = fake.file_name()
             repo.create_submodule(
-                a_sm_name,
-                a_sm_path,
-                url=git_submodule.git_dir,
-                branch='master'
+                a_sm_name, a_sm_path, url=git_submodule.git_dir, branch="master"
             )
             repo.index.commit(
-                f'Add submodule {a_sm_name} to {a_sm_path} from: {repo.git_dir}'
+                f"Add submodule {a_sm_name} to {a_sm_path} from: {repo.git_dir}"
             )
 
             return (tmp_dir, repo)

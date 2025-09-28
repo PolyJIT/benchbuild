@@ -14,13 +14,13 @@ from benchbuild.environments.entrypoints import cli
 def main(*args):
     """Main function."""
 
-    BenchBuild.subcommand('bootstrap', BenchBuildBootstrap)
-    BenchBuild.subcommand('config', BBConfig)
-    BenchBuild.subcommand('container', cli.BenchBuildContainer)
-    BenchBuild.subcommand('experiment', BBExperiment)
-    BenchBuild.subcommand('log', BenchBuildLog)
-    BenchBuild.subcommand('project', BBProject)
-    BenchBuild.subcommand('run', BenchBuildRun)
-    BenchBuild.subcommand('slurm', Slurm)
+    BenchBuild.subcommand("bootstrap", BenchBuildBootstrap)
+    BenchBuild.subcommand("config", BBConfig)
+    BenchBuild.subcommand("container", cli.BenchBuildContainer)
+    BenchBuild.subcommand("experiment", BBExperiment)
+    BenchBuild.subcommand("log", BenchBuildLog)
+    BenchBuild.subcommand("project", BBProject)
+    BenchBuild.subcommand("run", BenchBuildRun)
+    BenchBuild.subcommand("slurm", Slurm)
 
     return BenchBuild.run(*args)

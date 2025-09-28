@@ -45,16 +45,10 @@ class OnlyInWorkloadProject(Project):
 @pytest.fixture
 def project(bb_git_repo: GitRepo) -> ProjectT:
     DefaultWorkloadProject.SOURCE = [
-        Git(
-            remote=bb_git_repo.workspace,
-            local="workload-test.git",
-            shallow=False
-        )
+        Git(remote=bb_git_repo.workspace, local="workload-test.git", shallow=False)
     ]
     DefaultWorkloadProject.WORKLOADS = {
-        WorkloadSet("always"): [
-            Command(SourceRoot("workload-test.git") / "test")
-        ]
+        WorkloadSet("always"): [Command(SourceRoot("workload-test.git") / "test")]
     }
     return DefaultWorkloadProject
 
@@ -62,19 +56,13 @@ def project(bb_git_repo: GitRepo) -> ProjectT:
 @pytest.fixture
 def only_in_project(bb_git_repo: GitRepo) -> ProjectT:
     OnlyInWorkloadProject.SOURCE = [
-        Git(
-            remote=bb_git_repo.workspace,
-            local="workload-test.git",
-            shallow=False
-        )
+        Git(remote=bb_git_repo.workspace, local="workload-test.git", shallow=False)
     ]
     OnlyInWorkloadProject.WORKLOADS = {
         OnlyIn(RevisionRange("HEAD~1", "HEAD"), WorkloadSet("sometimes")): [
             Command(SourceRoot("workload-test.git") / "test")
         ],
-        WorkloadSet("always"): [
-            Command(SourceRoot("workload-test.git") / "test")
-        ]
+        WorkloadSet("always"): [Command(SourceRoot("workload-test.git") / "test")],
     }
     return OnlyInWorkloadProject
 
@@ -91,7 +79,7 @@ def test_workload_can_unwrap(project: ProjectT, only_in_project: ProjectT):
 
 
 # FIXME: Make project unpickleable
-#def test_workload_run(project: ProjectT):
+# def test_workload_run(project: ProjectT):
 #    plan = generate_plan([NoMeasurement], [project])
 #    res = execute_plan(plan)
 #

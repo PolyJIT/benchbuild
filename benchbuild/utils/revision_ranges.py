@@ -31,16 +31,18 @@ def _get_git_for_path(repo_path: str) -> LocalCommand:
     return local_git["-C", repo_path]
 
 
-def _get_all_revisions_between(c_start: str, c_end: str,
-                               git: LocalCommand) -> tp.List[str]:
+def _get_all_revisions_between(
+    c_start: str, c_end: str, git: LocalCommand
+) -> tp.List[str]:
     """
     Returns a list of all revisions that are both descendants of c_start, and
     ancestors of c_end.
     """
     result = [c_start]
     result.extend(
-        git("log", "--pretty=%H", "--ancestry-path",
-            f"{c_start}..{c_end}").strip().split()
+        git("log", "--pretty=%H", "--ancestry-path", f"{c_start}..{c_end}")
+        .strip()
+        .split()
     )
     return result
 
@@ -120,9 +122,7 @@ class RevisionRange(AbstractRevisionRange):
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
 
-    def __init__(
-        self, id_start: str, id_end: str, comment: tp.Optional[str] = None
-    ):
+    def __init__(self, id_start: str, id_end: str, comment: tp.Optional[str] = None):
         super().__init__(comment)
         self.__id_start = id_start
         self.__id_end = id_end
@@ -160,9 +160,10 @@ class CommitState(IntFlag):
 
 
 def _find_blocked_commits(
-    commit: 'pygit2.Commit', good: tp.List['pygit2.Commit'],
-    bad: tp.List['pygit2.Commit']
-) -> tp.List['pygit2.Commit']:
+    commit: "pygit2.Commit",
+    good: tp.List["pygit2.Commit"],
+    bad: tp.List["pygit2.Commit"],
+) -> tp.List["pygit2.Commit"]:
     """
     Find all commits affected by a bad commit and not yet "fixed" by a
     good commit. This is done by performing a backwards search starting
@@ -177,8 +178,8 @@ def _find_blocked_commits(
         All transitive parents of commit that have an ancestor from bad
         that is not fixed by some commit from good.
     """
-    stack: tp.List['pygit2.Commit'] = [commit]
-    blocked: tp.Dict['pygit2.Commit', CommitState] = {}
+    stack: tp.List["pygit2.Commit"] = [commit]
+    blocked: tp.Dict["pygit2.Commit", CommitState] = {}
 
     while stack:
         current_commit = stack.pop()
@@ -209,7 +210,8 @@ def _find_blocked_commits(
                     blocked[current_commit] |= CommitState.BAD
 
     return [
-        commit for commit in blocked
+        commit
+        for commit in blocked
         # for more aggressive blocking use:
         # if blocked[commit] & CommitState.BUGGY
         if blocked[commit] == CommitState.BAD
@@ -232,7 +234,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         self,
         bad_commits: tp.List[str],
         good_commits: tp.List[str],
-        comment: tp.Optional[str] = None
+        comment: tp.Optional[str] = None,
     ):
         super().__init__(comment)
         self.__bad_commit_ids = bad_commits
@@ -242,6 +244,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
 
     def init_cache(self, repo_path: str) -> None:
         import pygit2  # pylint: disable=import-outside-toplevel
+
         self.__revision_list = []
         repo = pygit2.Repository(repo_path)
         git = _get_git_for_path(repo_path)
@@ -252,11 +255,14 @@ class GoodBadSubgraph(AbstractRevisionRange):
         # start search from all branch heads
         heads = git("show-ref", "--heads", "-s").strip().split("\n")
         for head in heads:
-            self.__revision_list.extend([
-                str(commit.id) for commit in _find_blocked_commits(
-                    repo.get(head), good_commits, bad_commits
-                )
-            ])
+            self.__revision_list.extend(
+                [
+                    str(commit.id)
+                    for commit in _find_blocked_commits(
+                        repo.get(head), good_commits, bad_commits
+                    )
+                ]
+            )
 
     @property
     def good_commits(self) -> tp.List[str]:
@@ -277,7 +283,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         return f"{','.join(self.bad_commits)}\\{','.join(self.good_commits)}"
 
 
-class block_revisions():  # pylint: disable=invalid-name
+class block_revisions:  # pylint: disable=invalid-name
     """
     Decorator for git sources for blacklisting/blocking revisions.
 
@@ -293,10 +299,7 @@ class block_revisions():  # pylint: disable=invalid-name
         self.__blocks = blocks
 
     def __call__(self, git_source: Git) -> Git:
-
-        def is_blocked_revision_impl(
-            rev_id: str
-        ) -> tp.Tuple[bool, tp.Optional[str]]:
+        def is_blocked_revision_impl(rev_id: str) -> tp.Tuple[bool, tp.Optional[str]]:
             """
             Checks whether a revision is blocked or not. Also returns the
             reason for the block if available.

@@ -15,6 +15,7 @@ The project definition ensures that all experiments run through the same
 series of commands in both phases and that all experiments run inside
 a separate build directory in isolation of one another.
 """
+
 import copy
 import logging
 import typing as tp
@@ -43,9 +44,9 @@ LOG = logging.getLogger(__name__)
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
 Sources = tp.List[source.FetchableSource]
-ContainerDeclaration = tp.Union[ContainerImage,
-                                tp.List[tp.Tuple[RevisionRange,
-                                                 ContainerImage]]]
+ContainerDeclaration = tp.Union[
+    ContainerImage, tp.List[tp.Tuple[RevisionRange, ContainerImage]]
+]
 Workloads = tp.MutableMapping[SupportsUnwrap, tp.List[Command]]
 
 __REGISTRATION_SEPARATOR = "/"
@@ -98,9 +99,7 @@ class MultiVersioned:
         Returns:
             Active revision context.
         """
-        assert hasattr(
-            self, "revision"
-        ), "revision attribute missing from subclass."
+        assert hasattr(self, "revision"), "revision attribute missing from subclass."
 
         if self._active_revision is None:
             self._active_revision = self.revision
@@ -144,17 +143,16 @@ class PathTracker:
 
 
 class ProjectRunnables:
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        if hasattr(cls, 'run_tests'):
+        if hasattr(cls, "run_tests"):
             f_run_tests = run.in_builddir()(run.store_config(cls.run_tests))
-            setattr(cls, 'run_tests', f_run_tests)
+            setattr(cls, "run_tests", f_run_tests)
 
-        if hasattr(cls, 'compile'):
+        if hasattr(cls, "compile"):
             f_compile = run.in_builddir()(run.store_config(cls.compile))
-            setattr(cls, 'compile', f_compile)
+            setattr(cls, "compile", f_compile)
 
     @abstractmethod
     def compile(self) -> None:
@@ -166,9 +164,7 @@ class ProjectRunnables:
 
 
 @attr.s
-class Project(
-    PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry
-):  # pylint: disable=too-many-instance-attributes
+class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in
@@ -245,9 +241,7 @@ class Project(
         new_self = super(Project, cls).__new__(cls)
         mod_ident = f"{cls.__name__} @ {cls.__module__}"
         if not cls.NAME:
-            raise AttributeError(
-                f"{mod_ident} does not define a NAME class attribute."
-            )
+            raise AttributeError(f"{mod_ident} does not define a NAME class attribute.")
         if not cls.DOMAIN:
             raise AttributeError(
                 f"{mod_ident} does not define a DOMAIN class attribute."
@@ -271,7 +265,7 @@ class Project(
         return source.Revision(
             type(self),
             source.primary(srcs[0]).default,
-            *[src.default for src in source.secondaries(srcs[1:])]
+            *[src.default for src in source.secondaries(srcs[1:])],
         )
 
     name: str = attr.ib(
@@ -296,7 +290,7 @@ class Project(
 
     @run_uuid.default
     def __default_run_uuid(self):  # pylint: disable=unused-private-member
-        if (run_group := getenv("BB_DB_RUN_GROUP", None)):
+        if run_group := getenv("BB_DB_RUN_GROUP", None):
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
@@ -307,8 +301,7 @@ class Project(
 
     builddir: local.path = attr.ib(
         default=attr.Factory(
-            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.
-            run_uuid,
+            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.run_uuid,
             takes_self=True,
         )
     )
@@ -318,8 +311,7 @@ class Project(
     )
 
     workloads: Workloads = attr.ib(
-        default=attr.
-        Factory(lambda self: type(self).WORKLOADS, takes_self=True)
+        default=attr.Factory(lambda self: type(self).WORKLOADS, takes_self=True)
     )
 
     primary_source: str = attr.ib()
@@ -460,9 +452,7 @@ class Project(
 ProjectT = tp.Type[Project]
 
 
-def __split_project_input__(
-    project_input: str
-) -> tp.Tuple[str, tp.Optional[str]]:
+def __split_project_input__(project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
     split_input = project_input.rsplit("@", maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -487,9 +477,7 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     return project
 
 
-def __add_indexed_filters__(
-    project: ProjectT, versions: tp.List[str]
-) -> ProjectT:
+def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> ProjectT:
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     for i in range(min(len(sources), len(versions))):
@@ -499,9 +487,7 @@ def __add_indexed_filters__(
     return project
 
 
-def __add_named_filters__(
-    project: ProjectT, versions: tp.Dict[str, str]
-) -> ProjectT:
+def __add_named_filters__(project: ProjectT, versions: tp.Dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     sources = [src for src in project.SOURCE if src.is_expandable]
     named_sources: tp.Dict[str, source.base.FetchableSource] = {
@@ -563,8 +549,7 @@ ProjectIndex = tp.Mapping[str, ProjectT]
 
 
 def populate(
-    projects_to_filter: ProjectNames,
-    group: MaybeGroupNames = None
+    projects_to_filter: ProjectNames, group: MaybeGroupNames = None
 ) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
@@ -608,13 +593,9 @@ def populate(
 
     if group:
         groupkeys = set(group)
-        prjs = {
-            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
-        }
+        prjs = {name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys}
 
-    populated = {
-        x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f
-    }
+    populated = {x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f}
     return populated
 
 

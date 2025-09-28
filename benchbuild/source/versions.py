@@ -68,14 +68,12 @@ class SingleVersionFilter(BaseVersionFilter):
         self.filter_version = filter_version
 
     def versions(self) -> tp.List[base.Variant]:
-        return [
-            v for v in self.child.versions() if str(v) == self.filter_version
-        ]
+        return [v for v in self.child.versions() if str(v) == self.filter_version]
 
-    def versions_with_context(self,
-                              ctx: base.Revision) -> tp.Sequence[base.Variant]:
+    def versions_with_context(self, ctx: base.Revision) -> tp.Sequence[base.Variant]:
         return [
-            v for v in self.child.versions_with_context(ctx)
+            v
+            for v in self.child.versions_with_context(ctx)
             if str(v) == self.filter_version
         ]
 

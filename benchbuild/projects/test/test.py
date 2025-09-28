@@ -9,7 +9,6 @@ from benchbuild.source import nosource, Variant, FetchableSource, Revision
 
 
 class TestSource(FetchableSource):
-
     _versions: tp.Tuple[Variant, ...]
 
     def __init__(self, *versions: str):
@@ -20,26 +19,23 @@ class TestSource(FetchableSource):
 
         versions_w_default = ("default",) + versions
 
-        self._versions = tuple(
-            Variant(self, version) for version in versions_w_default
-        )
+        self._versions = tuple(Variant(self, version) for version in versions_w_default)
 
     @property
     def default(self) -> Variant:
         return self._versions[0]
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        return 'None'
+        return "None"
 
     def versions(self) -> tp.List[Variant]:
         return list(self._versions)
 
     def fetch(self) -> pb.LocalPath:
-        return 'None'
+        return "None"
 
 
 class CAWTestSource(FetchableSource):
-
     _versions: tp.Dict[Variant, tp.List[Variant]]
 
     def __init__(
@@ -51,12 +47,9 @@ class CAWTestSource(FetchableSource):
         self._local = "test.caw.local"
         self._remote = "test.caw.remote"
 
-        versions_w_default = \
-            (("default", "caw_default"),) + versions
+        versions_w_default = (("default", "caw_default"),) + versions
 
-        self._versions = {
-            Variant(self, lhs): [] for lhs, _ in versions_w_default
-        }
+        self._versions = {Variant(self, lhs): [] for lhs, _ in versions_w_default}
         for lhs, rhs in versions_w_default:
             self._versions[Variant(self, lhs)].append(Variant(self, rhs))
 
@@ -75,13 +68,13 @@ class CAWTestSource(FetchableSource):
         """
         Do not return anything useful for a test here.
         """
-        return 'None'
+        return "None"
 
     def fetch(self) -> pb.LocalPath:
         """
         Do not return anything useful for a test here.
         """
-        return 'None'
+        return "None"
 
     def versions(self) -> tp.List[Variant]:
         raise ValueError("Context-Aware sources must not use versions()!")
@@ -97,15 +90,16 @@ class CAWTestSource(FetchableSource):
 
 class TestProject(project.Project):
     """Test project that does nothing."""
+
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
     SOURCE = [TestSource("1", "2")]
 
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        with open('test.cpp', 'w', encoding="utf-8") as test_source:
+        with open("test.cpp", "w", encoding="utf-8") as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -118,10 +112,10 @@ int main(int argc, char **argv) {
 
         clang = bb.compiler.cxx(self)
         _clang = bb.watch(clang)
-        _clang('test.cpp', "-o", 'test.cpp.out')
+        _clang("test.cpp", "-o", "test.cpp.out")
 
     def run_tests(self):
-        exp = bb.wrap('test.cpp.out', self)
+        exp = bb.wrap("test.cpp.out", self)
         _exp = bb.watch(exp)
         _exp()
 
@@ -134,10 +128,10 @@ class TestProjectRuntimeFail(project.Project):
     GROUP = "test"
     SRC_FILE = "test.cpp"
     SOURCE = [nosource()]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        with open('test.cpp', 'w') as test_source:
+        with open("test.cpp", "w") as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -150,10 +144,10 @@ int main(int argc, char **argv) {
 
         clang = bb.compiler.cxx(self)
         _clang = bb.watch(clang)
-        _clang('test.cpp', "-o", 'test.cpp.out')
+        _clang("test.cpp", "-o", "test.cpp.out")
 
     def run_tests(self):
-        exp = bb.wrap('test.cpp.ou', self)
+        exp = bb.wrap("test.cpp.ou", self)
         _exp = bb.watch(exp)
         _exp()
 
@@ -164,15 +158,12 @@ class CAWTestProject(project.Project):
     NAME = "test-caw"
     DOMAIN = "test"
     GROUP = "test"
-    SOURCE = [
-        TestSource("1", "2", "3"),
-        CAWTestSource(("1", "caw_0"), ("3", "caw_0"))
-    ]
+    SOURCE = [TestSource("1", "2", "3"), CAWTestSource(("1", "caw_0"), ("3", "caw_0"))]
 
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        with open('test.cpp', 'w', encoding="utf-8") as test_source:
+        with open("test.cpp", "w", encoding="utf-8") as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -185,9 +176,9 @@ int main(int argc, char **argv) {
 
         clang = bb.compiler.cxx(self)
         _clang = bb.watch(clang)
-        _clang('test.cpp', "-o", 'test.cpp.out')
+        _clang("test.cpp", "-o", "test.cpp.out")
 
     def run_tests(self):
-        exp = bb.wrap('test.cpp.out', self)
+        exp = bb.wrap("test.cpp.out", self)
         _exp = bb.watch(exp)
         _exp()

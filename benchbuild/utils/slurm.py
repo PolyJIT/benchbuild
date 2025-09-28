@@ -4,6 +4,7 @@ SLURM support for the benchbuild study.
 This module can be used to generate bash scripts that can be executed by
 the SLURM controller either as batch or interactive script.
 """
+
 import logging
 import os
 import sys
@@ -29,7 +30,7 @@ from benchbuild.utils.requirements import (
 LOG = logging.getLogger(__name__)
 
 
-def script(experiment: 'Experiment', *subcommands: str) -> str:
+def script(experiment: "Experiment", *subcommands: str) -> str:
     """
     Prepare a slurm script that executes the experiment for a given project.
 
@@ -39,9 +40,7 @@ def script(experiment: 'Experiment', *subcommands: str) -> str:
     """
     projects = __expand_project_versions__(experiment)
     benchbuild_c = local[local.path(sys.argv[0])]
-    slurm_script = local.cwd / experiment.name + "-" + str(
-        CFG['slurm']['script']
-    )
+    slurm_script = local.cwd / experiment.name + "-" + str(CFG["slurm"]["script"])
 
     srun = cmd["srun"]
     srun_args = []
@@ -68,22 +67,24 @@ def __expand_project_versions__(experiment: Experiment) -> tp.Iterable[str]:
 
 
 def __path():
-    host_path = os.getenv('PATH', default='')
-    env = CFG['env'].value
-    benchbuild_path = list_to_path(env.get('PATH', []))
+    host_path = os.getenv("PATH", default="")
+    env = CFG["env"].value
+    benchbuild_path = list_to_path(env.get("PATH", []))
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
 def __ld_library_path():
-    host_path = os.getenv('LD_LIBRARY_PATH', default='')
-    env = CFG['env'].value
-    benchbuild_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
+    host_path = os.getenv("LD_LIBRARY_PATH", default="")
+    env = CFG["env"].value
+    benchbuild_path = list_to_path(env.get("LD_LIBRARY_PATH", []))
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
 def __save__(
-    script_name: str, benchbuild: BoundCommand, experiment: 'Experiment',
-    projects: tp.Iterable[str]
+    script_name: str,
+    benchbuild: BoundCommand,
+    experiment: "Experiment",
+    projects: tp.Iterable[str],
 ) -> str:
     """
     Dump a bash script that can be given to SLURM.
@@ -98,12 +99,10 @@ def __save__(
         jinja2.exceptions.TemplateNotFound:
             If the modified template location does not exist.
     """
-    logs_dir = Path(str(CFG['slurm']['logs'].value))
-    if logs_dir.suffix != '':
+    logs_dir = Path(str(CFG["slurm"]["logs"].value))
+    if logs_dir.suffix != "":
         logs_dir = logs_dir.parent / logs_dir.stem
-        LOG.warning(
-            'Config slurm:logs should be a folder, defaulting to %s.', logs_dir
-        )
+        LOG.warning("Config slurm:logs should be a folder, defaulting to %s.", logs_dir)
 
     if not logs_dir.exists():
         logs_dir.mkdir()
@@ -116,41 +115,36 @@ def __save__(
         template_name = local.path(template_name).basename
         loader = jinja2.FileSystemLoader(template_path)
     else:
-        loader = jinja2.PackageLoader('benchbuild', 'res')
+        loader = jinja2.PackageLoader("benchbuild", "res")
 
-    env = jinja2.Environment(
-        trim_blocks=True, lstrip_blocks=True, loader=loader
-    )
+    env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, loader=loader)
     template = env.get_template(template_name)
     if len(experiment.projects) > 1:
         project_options = reduce(
             lambda x, y: merge_slurm_options(x, y.REQUIREMENTS),
-            experiment.projects, tp.cast(tp.List[Requirement], [])
+            experiment.projects,
+            tp.cast(tp.List[Requirement], []),
         )
     elif len(experiment.projects) == 1:
         project_options = experiment.projects[0].REQUIREMENTS
     else:
         project_options = []
 
-    slurm_options = merge_slurm_options(
-        project_options, experiment.REQUIREMENTS
-    )
-    slurm_options = merge_slurm_options(
-        slurm_options, get_slurm_options_from_config()
-    )
+    slurm_options = merge_slurm_options(project_options, experiment.REQUIREMENTS)
+    slurm_options = merge_slurm_options(slurm_options, get_slurm_options_from_config())
 
-    prefix = local.path(str(CFG['slurm']['node_dir']), str(experiment.id))
+    prefix = local.path(str(CFG["slurm"]["node_dir"]), str(experiment.id))
 
-    with open(script_name, 'w') as slurm2:
+    with open(script_name, "w") as slurm2:
         slurm2.write(
             template.render(
-                config=["export " + x for x in repr(CFG).split('\n')],
+                config=["export " + x for x in repr(CFG).split("\n")],
                 clean_lockdir=str(prefix),
-                clean_lockfile=prefix.with_suffix('.clean-in-progress.lock'),
-                cpus=int(CFG['slurm']['cpus_per_task']),
-                lockfile=prefix.with_suffix('.lock'),
+                clean_lockfile=prefix.with_suffix(".clean-in-progress.lock"),
+                cpus=int(CFG["slurm"]["cpus_per_task"]),
+                lockfile=prefix.with_suffix(".lock"),
                 log=logs_dir.resolve() / str(experiment.id),
-                max_running=int(CFG['slurm']['max_running']),
+                max_running=int(CFG["slurm"]["max_running"]),
                 name=experiment.name,
                 nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
@@ -159,9 +153,9 @@ def __save__(
                 projects=projects,
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
-                sbatch_options='\n'.join([
-                    s_opt.to_option() for s_opt in slurm_options
-                ]),
+                sbatch_options="\n".join(
+                    [s_opt.to_option() for s_opt in slurm_options]
+                ),
             )
         )
 

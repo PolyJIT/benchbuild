@@ -1,9 +1,9 @@
 """
 Provide a base interface for downloadable sources.
 """
+
 import abc
 import itertools
-import sys
 import typing as tp
 from typing import Protocol
 
@@ -37,13 +37,13 @@ class Variant:
     same way as a program variant like a specific configuraiton.
     """
 
-    owner: 'FetchableSource' = attr.ib(eq=False, repr=False)
+    owner: "FetchableSource" = attr.ib(eq=False, repr=False)
     version: str = attr.ib()
 
     def name(self) -> str:
         return self.owner.local
 
-    def source(self) -> 'FetchableSource':
+    def source(self) -> "FetchableSource":
         return self.owner
 
     def __str__(self) -> str:
@@ -70,8 +70,7 @@ class Revision:
     variants: tp.Sequence[Variant]
 
     def __init__(
-        self, project_cls: tp.Type["Project"], _primary: Variant,
-        *variants: Variant
+        self, project_cls: tp.Type["Project"], _primary: Variant, *variants: Variant
     ) -> None:
         self.project_cls = project_cls
         self.variants = [_primary] + list(variants)
@@ -80,7 +79,6 @@ class Revision:
         self.variants = list(self.variants) + list(variants)
 
     def __update_variant(self, variant: Variant) -> None:
-
         def __replace(elem: Variant):
             if elem.name() == variant.name():
                 return variant
@@ -122,7 +120,7 @@ class Revision:
         """
         return any(variant.owner.key == name for variant in self.variants)
 
-    def source_by_name(self, name: str) -> 'FetchableSource':
+    def source_by_name(self, name: str) -> "FetchableSource":
         """
         Return the source object that matches the key.
 
@@ -179,7 +177,6 @@ def to_str(*variants: Variant) -> str:
 
 
 class Fetchable(Protocol):
-
     @property
     def key(self) -> str:
         """
@@ -211,7 +208,6 @@ class Fetchable(Protocol):
 
 
 class Expandable(Protocol):
-
     @property
     def is_expandable(self) -> bool:
         """
@@ -231,7 +227,6 @@ class Expandable(Protocol):
 
 
 class ContextAwareSource(Protocol):
-
     def is_context_free(self) -> bool:
         """
         Return, if this source needs context to evaluate it's own
@@ -266,7 +261,6 @@ class ContextFreeMixin:
 
 
 class Versioned(Protocol):
-
     @property
     def default(self) -> Variant:
         """
@@ -390,27 +384,26 @@ class FetchableSource(ContextFreeMixin):
         raise NotImplementedError()
 
 
-Sources = tp.List['FetchableSource']
+Sources = tp.List["FetchableSource"]
 
 
 class NoSource(FetchableSource):
-
     @property
     def default(self) -> Variant:
-        return Variant(owner=self, version='None')
+        return Variant(owner=self, version="None")
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
-        return 'None'
+        return "None"
 
     def versions(self) -> tp.List[Variant]:
-        return [Variant(owner=self, version='None')]
+        return [Variant(owner=self, version="None")]
 
     def fetch(self) -> pb.LocalPath:
-        return 'None'
+        return "None"
 
 
 def nosource() -> NoSource:
-    return NoSource('NoSource', 'NoSource')
+    return NoSource("NoSource", "NoSource")
 
 
 def target_prefix() -> str:
@@ -420,10 +413,10 @@ def target_prefix() -> str:
     Returns:
         str: the prefix where we download everything to.
     """
-    return str(CFG['tmp_dir'])
+    return str(CFG["tmp_dir"])
 
 
-SourceT = tp.TypeVar('SourceT')
+SourceT = tp.TypeVar("SourceT")
 
 
 def primary(*sources: SourceT) -> SourceT:
@@ -469,7 +462,6 @@ class BaseSource(Expandable, Versioned, ContextAwareSource, Protocol):
 
 
 class EnumeratorFn(Protocol):
-
     def __call__(self, *source: Expandable) -> NestedVariants:
         """
         Return an enumeration of all variants for each source.
@@ -484,10 +476,11 @@ def _default_enumerator(*sources: Expandable) -> NestedVariants:
 
 
 class ContextEnumeratorFn(Protocol):
-
     def __call__(
-        self, project_cls: tp.Type["Project"], context: Revision,
-        *sources: ContextAwareSource
+        self,
+        project_cls: tp.Type["Project"],
+        context: Revision,
+        *sources: ContextAwareSource,
     ) -> tp.Sequence[Revision]:
         """
         Enumerate all revisions that are valid under the given context.
@@ -495,8 +488,7 @@ class ContextEnumeratorFn(Protocol):
 
 
 def _default_caw_enumerator(
-    project_cls: tp.Type["Project"], context: Revision,
-    *sources: ContextAwareSource
+    project_cls: tp.Type["Project"], context: Revision, *sources: ContextAwareSource
 ) -> tp.Sequence[Revision]:
     """
     Transform given variant into a list of variants to check.
@@ -522,7 +514,7 @@ def _default_caw_enumerator(
 def enumerate_revisions(
     project_cls: tp.Type["Project"],
     context_free_enumerator: EnumeratorFn = _default_enumerator,
-    context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator
+    context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator,
 ) -> tp.Sequence[Revision]:
     """
     Enumerates the given sources.
@@ -533,25 +525,20 @@ def enumerate_revisions(
     """
     sources = project_cls.SOURCE
 
-    context_free_sources = [
-        source for source in sources if source.is_context_free()
-    ]
+    context_free_sources = [source for source in sources if source.is_context_free()]
     context_aware_sources = [
         source for source in sources if not source.is_context_free()
     ]
 
     revisions = context_free_enumerator(*context_free_sources)
-    project_revisions = [
-        Revision(project_cls, *variants) for variants in revisions
-    ]
+    project_revisions = [Revision(project_cls, *variants) for variants in revisions]
 
     if len(context_aware_sources) > 0:
         revs = list(
             itertools.chain(
                 *(
-                    context_aware_enumerator(
-                        project_cls, rev, *context_aware_sources
-                    ) for rev in project_revisions
+                    context_aware_enumerator(project_cls, rev, *context_aware_sources)
+                    for rev in project_revisions
                 )
             )
         )
@@ -602,12 +589,16 @@ def revision_from_str(
 
     for source in sources:
         if source.is_expandable:
-            found.extend([
-                variant for variant in source.explore() for rev in revs
-                if variant.version == rev.value
-            ])
+            found.extend(
+                [
+                    variant
+                    for variant in source.explore()
+                    for rev in revs
+                    if variant.version == rev.value
+                ]
+            )
 
     if len(found) == 0:
-        raise ValueError(f'Revisions {revs} not found in any available source.')
+        raise ValueError(f"Revisions {revs} not found in any available source.")
 
     return Revision(project_cls, primary(*found), *secondaries(*found))

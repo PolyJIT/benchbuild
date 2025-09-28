@@ -22,6 +22,7 @@ Runtime Wrappers:
     of the binary. We cannot guarantee that repeated execution is valid,
     therefore, we let the user decide what the program should do.
 """
+
 import logging
 import os
 import sys
@@ -42,10 +43,10 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 LOG = logging.getLogger(__name__)
 
 # Configure default settings for dill pickle/unpickle, globally
-dill.settings['ignore'] = True
-dill.settings['recurse'] = True
-dill.settings['protocol'] = -1
-dill.settings['byref'] = True
+dill.settings["ignore"] = True
+dill.settings["recurse"] = True
+dill.settings["protocol"] = -1
+dill.settings["byref"] = True
 
 if tp.TYPE_CHECKING:
     import jinja2
@@ -77,8 +78,9 @@ def strip_path_prefix(ipath: Path, prefix: Path) -> Path:
     return ipath
 
 
-def __create_jinja_env() -> 'jinja2.Environment':
+def __create_jinja_env() -> "jinja2.Environment":
     import jinja2  # pylint: disable=import-outside-toplevel
+
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,
@@ -155,7 +157,7 @@ def wrap(
                 python=python,
                 collect_coverage=collect_coverage,
                 coverage_config=coverage_config,
-                coverage_path=coverage_path
+                coverage_path=coverage_path,
             )
         )
 
@@ -167,7 +169,7 @@ def wrap(
 def wrap_dynamic(
     project: "benchbuild.project.Project",
     name: str,
-    sprefix: Path = Path('.'),
+    sprefix: Path = Path("."),
     python: str = sys.executable,
     name_filters: tp.Optional[tp.List[str]] = None,
     bin_ext: str = ".bin",
@@ -238,7 +240,7 @@ def wrap_dynamic(
                 name_filters=name_filters,
                 collect_coverage=collect_coverage,
                 coverage_config=coverage_config,
-                coverage_path=coverage_path
+                coverage_path=coverage_path,
             )
         )
 
@@ -292,7 +294,7 @@ def wrap_cc(
                 detect_project=detect_project,
                 collect_coverage=collect_coverage,
                 coverage_config=coverage_config,
-                coverage_path=coverage_path
+                coverage_path=coverage_path,
             )
         )
 

@@ -1,4 +1,5 @@
 """Test benchbuild's runtime wrappers."""
+
 import os
 import tempfile
 import unittest
@@ -18,7 +19,7 @@ class EmptyProject(project.Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
-    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = declarative.ContainerImage().from_("benchbuild:alpine")
 
     def __attrs_post_init__(self):
         pass
@@ -37,7 +38,6 @@ class EmptyProject(project.Project):
 
 
 class WrapperTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.tmp_dir = tempfile.mkdtemp()
@@ -54,7 +54,6 @@ class WrapperTests(unittest.TestCase):
 
 
 class RunCompiler(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = compilers.cc(EmptyProject())
@@ -62,7 +61,6 @@ class RunCompiler(WrapperTests):
 
 
 class RunStatic(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap(self.tmp_script, EmptyProject())
@@ -71,7 +69,6 @@ class RunStatic(WrapperTests):
 
 
 class RunDynamic(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap_dynamic(EmptyProject(), self.tmp_script)

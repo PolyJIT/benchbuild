@@ -1,4 +1,5 @@
 """Subcommand for configuration handling."""
+
 import os
 
 from plumbum import cli

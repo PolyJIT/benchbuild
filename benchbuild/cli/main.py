@@ -1,4 +1,5 @@
 """Main CLI unit of BenchBuild."""
+
 import os
 
 from plumbum import cli
@@ -13,12 +14,11 @@ class BenchBuild(cli.Application):
     VERSION = str(settings.CFG["version"])
     _list_env = False
 
-    verbosity = cli.CountOf('-v', help="Enable verbose output")
-    debug = cli.Flag('-d', help="Enable debugging output")
-    force_tty = cli.Flag('--force-tty', help="Assume an available tty")
+    verbosity = cli.CountOf("-v", help="Enable verbose output")
+    debug = cli.Flag("-d", help="Enable debugging output")
+    force_tty = cli.Flag("--force-tty", help="Assume an available tty")
     force_watch_unbuffered = cli.Flag(
-        '--force-watch-unbuffered',
-        help="Force watched commands to output unbuffered"
+        "--force-watch-unbuffered", help="Force watched commands to output unbuffered"
     )
 
     def main(self, *args: str) -> int:
@@ -27,7 +27,7 @@ class BenchBuild(cli.Application):
         self.verbosity = self.verbosity if self.verbosity < 6 else 5
         if self.debug:
             self.verbosity = 3
-        verbosity = int(os.getenv('BB_VERBOSITY', self.verbosity))
+        verbosity = int(os.getenv("BB_VERBOSITY", self.verbosity))
 
         cfg["verbosity"] = verbosity
         cfg["debug"] = self.debug
@@ -41,6 +41,7 @@ class BenchBuild(cli.Application):
 
         if cfg["db"]["create_functions"]:
             from benchbuild.utils.schema import init_functions, Session
+
             init_functions(Session())
 
         if args:

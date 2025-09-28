@@ -9,16 +9,16 @@ from benchbuild.source import HTTP
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
-CFG['projects'] = {
+CFG["projects"] = {
     "polybench": {
         "verify": {
             "default": True,
-            "desc": "Verify results with POLYBENCH_DUMP_ARRAYS."
+            "desc": "Verify results with POLYBENCH_DUMP_ARRAYS.",
         },
         "workload": {
             "default": "EXTRALARGE_DATASET",
-            "desc": "Control the dataset variable for polybench."
-        }
+            "desc": "Control the dataset variable for polybench.",
+        },
     }
 }
 
@@ -43,8 +43,8 @@ def get_dump_arrays_output(data: tp.List[str]) -> tp.List[str]:
 
 
 class PolyBenchGroup(bb.Project):
-    DOMAIN = 'polybench'
-    GROUP = 'polybench'
+    DOMAIN = "polybench"
+    GROUP = "polybench"
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -81,12 +81,12 @@ class PolyBenchGroup(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '4.2': (
-                    'http://downloads.sourceforge.net/project/'
-                    'polybench/polybench-c-4.2.tar.gz'
+                "4.2": (
+                    "http://downloads.sourceforge.net/project/"
+                    "polybench/polybench-c-4.2.tar.gz"
                 )
             },
-            local='polybench.tar.gz'
+            local="polybench.tar.gz",
         )
     ]
 
@@ -110,47 +110,61 @@ class PolyBenchGroup(bb.Project):
         return polybench_opts
 
     def compile(self):
-        polybench_source = local.path(self.source_of('polybench.tar.gz'))
-        polybench_version = self.version_of('polybench.tar.gz')
+        polybench_source = local.path(self.source_of("polybench.tar.gz"))
+        polybench_version = self.version_of("polybench.tar.gz")
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        tar('xfz', polybench_source)
+        tar("xfz", polybench_source)
 
-        src_dir = local.path(f'./polybench-c-{polybench_version}')
+        src_dir = local.path(f"./polybench-c-{polybench_version}")
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
         utils_dir = src_dir / "utilities"
 
         polybench_opts = [
-            "-DPOLYBENCH_USE_C99_PROTO", "-D" + str(workload),
-            "-DPOLYBENCH_USE_RESTRICT"
+            "-DPOLYBENCH_USE_C99_PROTO",
+            "-D" + str(workload),
+            "-DPOLYBENCH_USE_RESTRICT",
         ]
 
         if verify:
-            polybench_opts = self.compile_verify([
-                "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
-                src_file, "-lm"
-            ], polybench_opts)
+            polybench_opts = self.compile_verify(
+                [
+                    "-I",
+                    utils_dir,
+                    "-I",
+                    src_sub,
+                    utils_dir / "polybench.c",
+                    src_file,
+                    "-lm",
+                ],
+                polybench_opts,
+            )
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
         _clang(
-            "-I", utils_dir, "-I", src_sub, polybench_opts,
-            utils_dir / "polybench.c", src_file, "-lm", "-o", self.name
+            "-I",
+            utils_dir,
+            "-I",
+            src_sub,
+            polybench_opts,
+            utils_dir / "polybench.c",
+            src_file,
+            "-lm",
+            "-o",
+            self.name,
         )
 
     def run_tests(self):
-
         def filter_stderr(stderr_raw, stderr_filtered):
             """Extract dump_arrays_output from stderr."""
-            with open(stderr_raw, 'r') as stderr:
-                with open(stderr_filtered, 'w') as stderr_filt:
-                    stderr_filt.writelines(
-                        get_dump_arrays_output(stderr.readlines())
-                    )
+            with open(stderr_raw, "r") as stderr:
+                with open(stderr_filtered, "w") as stderr_filt:
+                    stderr_filt.writelines(get_dump_arrays_output(stderr.readlines()))
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
@@ -181,120 +195,120 @@ class PolyBenchGroup(bb.Project):
 
 
 class Correlation(PolyBenchGroup):
-    NAME = 'correlation'
+    NAME = "correlation"
 
 
 class Covariance(PolyBenchGroup):
-    NAME = 'covariance'
+    NAME = "covariance"
 
 
 class TwoMM(PolyBenchGroup):
-    NAME = '2mm'
+    NAME = "2mm"
 
 
 class ThreeMM(PolyBenchGroup):
-    NAME = '3mm'
+    NAME = "3mm"
 
 
 class Atax(PolyBenchGroup):
-    NAME = 'atax'
+    NAME = "atax"
 
 
 class BicG(PolyBenchGroup):
-    NAME = 'bicg'
+    NAME = "bicg"
 
 
 class Doitgen(PolyBenchGroup):
-    NAME = 'doitgen'
+    NAME = "doitgen"
 
 
 class Mvt(PolyBenchGroup):
-    NAME = 'mvt'
+    NAME = "mvt"
 
 
 class Gemm(PolyBenchGroup):
-    NAME = 'gemm'
+    NAME = "gemm"
 
 
 class Gemver(PolyBenchGroup):
-    NAME = 'gemver'
+    NAME = "gemver"
 
 
 class Gesummv(PolyBenchGroup):
-    NAME = 'gesummv'
+    NAME = "gesummv"
 
 
 class Symm(PolyBenchGroup):
-    NAME = 'symm'
+    NAME = "symm"
 
 
 class Syr2k(PolyBenchGroup):
-    NAME = 'syr2k'
+    NAME = "syr2k"
 
 
 class Syrk(PolyBenchGroup):
-    NAME = 'syrk'
+    NAME = "syrk"
 
 
 class Trmm(PolyBenchGroup):
-    NAME = 'trmm'
+    NAME = "trmm"
 
 
 class Cholesky(PolyBenchGroup):
-    NAME = 'cholesky'
+    NAME = "cholesky"
 
 
 class Durbin(PolyBenchGroup):
-    NAME = 'durbin'
+    NAME = "durbin"
 
 
 class Gramschmidt(PolyBenchGroup):
-    NAME = 'gramschmidt'
+    NAME = "gramschmidt"
 
 
 class Lu(PolyBenchGroup):
-    NAME = 'lu'
+    NAME = "lu"
 
 
 class LuDCMP(PolyBenchGroup):
-    NAME = 'ludcmp'
+    NAME = "ludcmp"
 
 
 class Trisolv(PolyBenchGroup):
-    NAME = 'trisolv'
+    NAME = "trisolv"
 
 
 class Deriche(PolyBenchGroup):
-    NAME = 'deriche'
+    NAME = "deriche"
 
 
 class FloydWarshall(PolyBenchGroup):
-    NAME = 'floyd-warshall'
+    NAME = "floyd-warshall"
 
 
 class Nussinov(PolyBenchGroup):
-    NAME = 'nussinov'
+    NAME = "nussinov"
 
 
 class Adi(PolyBenchGroup):
-    NAME = 'adi'
+    NAME = "adi"
 
 
 class FDTD2D(PolyBenchGroup):
-    NAME = 'fdtd-2d'
+    NAME = "fdtd-2d"
 
 
 class Jacobi1D(PolyBenchGroup):
-    NAME = 'jacobi-1d'
+    NAME = "jacobi-1d"
 
 
 class Jacobi2Dimper(PolyBenchGroup):
-    NAME = 'jacobi-2d'
+    NAME = "jacobi-2d"
 
 
 class Seidel2D(PolyBenchGroup):
-    NAME = 'seidel-2d'
+    NAME = "seidel-2d"
 
 
 class Heat3D(PolyBenchGroup):
-    NAME = 'heat-3d'
+    NAME = "heat-3d"

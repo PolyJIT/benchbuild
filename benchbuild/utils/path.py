@@ -50,7 +50,7 @@ def __self__() -> str:
 
 
 __ROOT__ = __self__()
-__RESOURCES_ROOT__ = os.path.join(__ROOT__, '..', 'res')
+__RESOURCES_ROOT__ = os.path.join(__ROOT__, "..", "res")
 
 
 def template_files(path: str, exts: Optional[List[str]] = None) -> List[str]:
@@ -101,7 +101,7 @@ def template_str(template: str) -> str:
         template content as a single string.
     """
     tmpl_file = template_path(template)
-    with open(tmpl_file, mode='r') as tmpl_strm:
+    with open(tmpl_file, mode="r") as tmpl_strm:
         return "".join(tmpl_strm.readlines())
 
 
@@ -119,10 +119,13 @@ def mkdir_interactive(dirpath: str) -> None:
     if os.path.exists(dirpath):
         return
 
-    response = ui.ask("The directory {dirname} does not exist yet. "
-                      "Should I create it?".format(dirname=dirpath),
-                      default_answer=True,
-                      default_answer_str="yes")
+    response = ui.ask(
+        "The directory {dirname} does not exist yet. Should I create it?".format(
+            dirname=dirpath
+        ),
+        default_answer=True,
+        default_answer_str="yes",
+    )
 
     if response:
         mkdir("-p", dirpath)
@@ -143,7 +146,7 @@ def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
     Yields:
         the opened file descriptor we hold the lock for.
     """
-    with open(filename, 'a') as fd:
+    with open(filename, "a") as fd:
         try:
             fcntl.flock(fd, lock_type)
             yield fd

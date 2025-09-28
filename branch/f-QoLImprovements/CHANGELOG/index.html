@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>6.8 (2023-10-09)</title>
+    
+          <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../_static/documentation_options.js?v=335e3d74"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../_static/theme-vendors.js"></script> -->
+      <script src="../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../about/" />
+  <link rel="index" title="Index" href="../genindex/" />
+  <link rel="search" title="Search" href="../search/" />
+  <link rel="prev" title="CLI" href="../advanced/cli/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">6.8 (2023-10-09)</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#id1" class="reference internal">6.8 (2023-10-09)</a></li>
+                
+                  <li class="toctree-l2"><a href="#id2" class="reference internal">6.7 (2023-04-04)</a></li>
+                
+                  <li class="toctree-l2"><a href="#changelog" class="reference internal">Changelog</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../">Docs</a> &raquo;</li>
+    
+    <li>6.8 (2023-10-09)</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../advanced/cli/"
+       title="previous chapter">← CLI</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <p><a name="6.8"></a></p>
+<section id="id1">
+<h1>6.8 (2023-10-09)<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>ci:</strong>  test with both db support and without (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/af7bfd90caf2c8fc56eb71de67384f15c6569838">af7bfd90</a>)</p></li>
+<li><p><strong>coverage:</strong></p>
+<ul>
+<li><p>test with database support enabled (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/0b8d6034b3c8d58ab8034a3bdda6cc7509c25e9c">0b8d6034</a>)</p></li>
+<li><p>add cli coverage report (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/64ce9f87cdcd32cda8665e17b84651abebead604">64ce9f87</a>)</p></li>
+<li><p>add wrapped binaries to coverage (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/d4c6841d09fcb0c77564d5faaa29e69b4ff40822">d4c6841d</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>db:</strong>  revert default setting for connect_string to sqlite:// (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/806520d6f34e85bdb3709e37465f7982b6d4db36">806520d6</a>)</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>use context vars instead of env vars (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/e3ea47f01e4d85ddfedeb104ae6184d43e6957ef">e3ea47f0</a>)</p></li>
+<li><p>make github ci actually use its own env vars (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/e0c7ab676aa3686a78bac97ed87d4c98f71e240d">e0c7ab67</a>)</p></li>
+<li><p>use BB_COVERAGE_PATH in .coveragerc (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/141afafa7859136bad5952c672448b92082f7551">141afafa</a>)</p></li>
+<li><p>coveragerc requires curly braces for env variables (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/3ae8b3358e0d1e828f2d73f222a563bfcc01f8b6">3ae8b335</a>)</p></li>
+<li><p>coveragerc requires curly braces for env variables (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/5b9c9906cbb5ff7f4e27a7018e1069ef24fe25bf">5b9c9906</a>)</p></li>
+<li><p><strong>actions:</strong>  re-raise caught exception (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/e4bff984e4f1e523ce9d685a5d3ec9a58c97a18a">e4bff984</a>, closes <a class="reference external" href="https://github.com/PolyJIT/benchbuild/issues/561">#561</a>)</p></li>
+<li><p><strong>environments:</strong>  buildah cannot find base images. (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/eb03c363eac2a515e830ff3e9f0343c923348763">eb03c363</a>)</p></li>
+</ul>
+<p><a name="6.7"></a></p>
+</section>
+</section>
+<section id="id2">
+<h1>6.7 (2023-04-04)<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h1>
+<section id="id3">
+<h2>Features<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>run auto-walrus over all of benchbuild’s file (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/79ac33d8d69974fb6a1d049f75c5f013e444b2ce">79ac33d8</a>)</p></li>
+<li><p>add support for auto-walrus as pre-commit hook (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/d7a2165bb22467754fd329fedc0c0f8330336e3f">d7a2165b</a>)</p></li>
+<li><p>drop support for python 3.7 and 3.8 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/90308f2ae141fd4443f08ef55a4155e433fad929">90308f2a</a>)</p></li>
+<li><p><strong>ci:</strong></p>
+<ul>
+<li><p>update setup-python to v4 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/3e943df657cb06a4f2b47104a4e3dcb77f16793c">3e943df6</a>)</p></li>
+<li><p>update github setup actions to v3 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/dfa4cb8135d3c0256c6b99dbe40771d8ce1e5a5d">dfa4cb81</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>command:</strong>  use name as default value for a command’s label (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/07f74dd4932eecdfbd902d231242a65984501007">07f74dd4</a>)</p></li>
+<li><p><strong>environments:</strong>  force base image to alpine:3.17 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/fe5d615574130260e1af1aaa49b1058600ed9668">fe5d6155</a>)</p></li>
+<li><p><strong>setup:</strong></p>
+<ul>
+<li><p>widen allowed versions to major versions (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/5d29079a973dc1d8650ee9083090eaa7bd99cbfc">5d29079a</a>)</p></li>
+<li><p>unlock latest versions of all packages (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/7b5a704f843872c90fa2a23eb738db4262883076">7b5a704f</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>wrapping:</strong>  enforce global defaults for dill module (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/489e3039f8bb1ccee40219d1c27ca999cd8a3623">489e3039</a>)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>Bug Fixes<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>python version for setup-python&#64;v4 has to be string (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/7a1db74237e6b35687213920bb534b5308773615">7a1db742</a>)</p></li>
+<li><p>remove python 3.7 and 3.8 from all workflows (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/aaabc1b5e7a817304f9e948feb565f37916c68bb">aaabc1b5</a>)</p></li>
+<li><p>bump pathos &amp; dill to unbreak gitlab ci (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/bce45d8a148e41914d6f56a18933f9faf26f58bf">bce45d8a</a>)</p></li>
+<li><p><strong>ci:</strong></p>
+<ul>
+<li><p>disable mkdocs in github ci (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/8540f880607ddeae293fc6b9feb1f751fd9cc721">8540f880</a>)</p></li>
+<li><p>reorder CI steps (test) (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/74379d5350c35cc2c76600ae7784b78aefd1a7db">74379d53</a>)</p></li>
+<li><p>increase verbosity to max for all integation tasks (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/b6625d31d444e2ea51dc923a80438f0eed4a962d">b6625d31</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>command:</strong>  use private label when fetching string representation (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/d83aa6661d3e2e08a0849bd3b23f557bd086e5b6">d83aa666</a>)</p></li>
+<li><p><strong>commands:</strong>  preserve workload order when filtering (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/3648dd5e8d0c20a07141a05a94a4e1223f575399">3648dd5e</a>)</p></li>
+<li><p><strong>setup:</strong>  unlock any major version of pygit2 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/b09d92489a57897d4e0ad39dcb8b99ce08133d36">b09d9248</a>)</p></li>
+<li><p><strong>wrapping:</strong>  remove unused code (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/0d1c890db0f674aab13b12432394699030114087">0d1c890d</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<p><a name="6.6.4"></a></p>
+<section id="id5">
+<h2>6.6.4 (2023-03-16)<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p><a name="6.6.3"></a></p>
+</section>
+<section id="id6">
+<h2>6.6.3 (2023-03-06)<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<p><a name="6.6.2"></a></p>
+</section>
+<section id="id7">
+<h2>6.6.2 (2023-03-06)<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id8">
+<h3>Bug Fixes<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>pin sqlalchemy version &lt;2.0 (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/86d45043d269775d65c3b2844d9eee669824b46c">86d45043</a>)</p></li>
+</ul>
+<p><a name="6.6.1"></a></p>
+</section>
+</section>
+<section id="id9">
+<h2>6.6.1 (2023-01-10)<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h3>Features<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>environments:</strong></p>
+<ul>
+<li><p>do not overwrite config, if cli option is default (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/b1a095c1e5b6ceb32b7eb3a7eda61918eeb3f757">b1a095c1</a>)</p></li>
+<li><p>improve error handling using result module (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/fbb695027e83e99ab8dbbb58447bd3dc9d0073dd">fbb69502</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>slurm:</strong>  make container.runroot/container.root available for slurm customization (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/616a4c69bea9ef17547cabfd2a8e076638b1e034">616a4c69</a>, closes <a class="reference external" href="https://github.com/PolyJIT/benchbuild/issues/528">#528</a>)</p></li>
+<li><p><strong>source:</strong>  make sure we manage the archive symlink properly. (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/7687f0e317b82b9e8a4b5e78a63827dd18255c06">7687f0e3</a>)</p></li>
+<li><p><strong>source/http:</strong>  add auto-untar http source (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/84f90e7568550a240a25c7cf06b139862f764ed0">84f90e75</a>)</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>Bug Fixes<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>environments:</strong></p>
+<ul>
+<li><p>add missing logging import (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/aad1b2878721c466167f52c176683d97d25a9f86">aad1b287</a>)</p></li>
+<li><p>add missing Err import (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/19c5983cd43e73d870212428bcc382d3e8255d9e">19c5983c</a>)</p></li>
+<li><p>notify user when commit of container image fails (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/78b890af5fd03093bc74631bc6ac63c19477ee70">78b890af</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>project:</strong>  version filters should only consider expandable sources (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/3d5463146debb66b3448acbf3ee79c4ef17ce35f">3d546314</a>)</p></li>
+<li><p><strong>source:</strong>  enforce sorted order of revisions (<a class="reference external" href="https://github.com/PolyJIT/benchbuild/commit/ca973ff0b7e01e3b79b6daafdc7848e1433f766a">ca973ff0</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="id12">
+<h2>6.5 (2022-11-03)<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
+<section id="feat">
+<h3>Feat<a class="headerlink" href="#feat" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>source</strong>: re-enable project_cls in enumerate_revision interface</p></li>
+<li><p><strong>versions</strong>: enable context-aware SingleVersionFilter</p></li>
+<li><p><strong>source</strong>: only print context-free sources</p></li>
+<li><p><strong>source</strong>: expand public source API</p></li>
+<li><p><strong>source</strong>: introduce type skeleton and prototypes for context-aware version enumeration.</p></li>
+<li><p><strong>action</strong>: replace StepClass metaclass with <strong>init_subclass</strong></p></li>
+<li><p><strong>actions</strong>: mark StepTy covariant</p></li>
+<li><p><strong>actions</strong>: use Stepable protocol as bound for StepTy.</p></li>
+<li><p><strong>actions</strong>: accept any varargs in a Step’s <strong>call</strong> implementation</p></li>
+</ul>
+</section>
+<section id="fix">
+<h3>Fix<a class="headerlink" href="#fix" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>require dill version to be exactly 0.3.4</p></li>
+<li><p>linter warning</p></li>
+<li><p>linter warnings</p></li>
+<li><p><strong>project</strong>: remove debug print</p></li>
+<li><p><strong>utils</strong>: variant -&gt; revision</p></li>
+<li><p><strong>tests</strong>: repair tests after VariantContext replacement.</p></li>
+<li><p><strong>source</strong>: remove runtime_checkable decorator</p></li>
+<li><p><strong>source</strong>: use project class instead of object for enumerate</p></li>
+<li><p><strong>source</strong>: return sequence of variants instead of nestedvariant</p></li>
+<li><p><strong>source</strong>: clean up protocol apis</p></li>
+<li><p><strong>actions</strong>: rename StepTy -&gt; StepTy_co</p></li>
+<li><p><strong>tests</strong>: remove notify_step_begin_end</p></li>
+<li><p><strong>actions</strong>: reduce mypy errors</p></li>
+<li><p><strong>actions</strong>: use mutable generic container</p></li>
+</ul>
+</section>
+<section id="refactor">
+<h3>Refactor<a class="headerlink" href="#refactor" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>versions</strong>: remove BaseVersionGroup</p></li>
+<li><p><strong>source</strong>: replace VariantContext with Revision</p></li>
+<li><p><strong>source</strong>: remove ExpandableAndFetchableSource from API</p></li>
+</ul>
+</section>
+</section>
+<section id="id13">
+<h2>6.4 (2022-09-21)<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h2>
+<section id="id14">
+<h3>Feat<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>actions</strong>: make MultiStep generic.</p></li>
+<li><p><strong>command</strong>: make use of rendered and unrenderer PathToken explicit.</p></li>
+<li><p><strong>command</strong>: safeguard pruning and backup</p></li>
+<li><p><strong>command</strong>: add tests for enable_rollback</p></li>
+<li><p><strong>command</strong>: add support for creates and consumes properties for commands</p></li>
+<li><p><strong>command</strong>: add a label to commands</p></li>
+<li><p><strong>workload</strong>: switch WorkloadSet to varargs instead of kwargs</p></li>
+<li><p><strong>command</strong>: add example <code class="docutils literal notranslate"><span class="pre">OnlyIn</span></code> for WorkloadSet customization.</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>Fix<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>command</strong>: strictly less than python 3.9</p></li>
+<li><p><strong>command</strong>: use _is_relative_to where needed</p></li>
+<li><p><strong>command</strong>: guard is_relative_to with else</p></li>
+<li><p><strong>command</strong>: do not depend on Path.is_relative_to (&lt;python3.9)</p></li>
+<li><p><strong>command</strong>: make mypy happy.</p></li>
+<li><p><strong>command</strong>: Command.label is Optional</p></li>
+<li><p><strong>command</strong>: use protocols instead of typing.Callable for callback functions</p></li>
+<li><p><strong>command</strong>: Command.<strong>getitem</strong> used constructor wrong</p></li>
+<li><p><strong>command</strong>: return self._label instead of self.label</p></li>
+<li><p><strong>command</strong>: return Path instead of str or PathToken</p></li>
+<li><p><strong>command</strong>: assign consumed files to consumes attribute</p></li>
+<li><p><strong>tests</strong>: remove missing_ok from unlink (python3.7)</p></li>
+<li><p><strong>tests</strong>: repair test_command tests</p></li>
+<li><p><strong>tests</strong>: make test project pickle’able</p></li>
+<li><p><strong>tests</strong>: add missing pytest-git dependency</p></li>
+<li><p><strong>command</strong>: <code class="docutils literal notranslate"><span class="pre">only</span></code> might be None</p></li>
+<li><p><strong>command</strong>: access cache path instead of builddir path</p></li>
+<li><p><strong>command</strong>: make sure SupportsUnwrap returns a WorkloadSet</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Refactor<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>command</strong>: rename enable_rollback -&gt; cleanup</p></li>
+</ul>
+</section>
+</section>
+<section id="id17">
+<h2>6.3.2 (2022-08-21)<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h2>
+<section id="id18">
+<h3>Feat<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>command</strong>: rename NullRenderer to RootRenderer</p></li>
+<li><p><strong>command</strong>: hook up token renderer logic with Commands</p></li>
+<li><p><strong>command</strong>: add support for generic path tokens</p></li>
+<li><p><strong>workload</strong>: convert scimark2</p></li>
+<li><p><strong>command</strong>: migrate git-based projects to workload sets</p></li>
+<li><p><strong>command</strong>: add support for WorkloadSet.</p></li>
+<li><p><strong>command</strong>: clear path tracker on fresh ProjectEnvironment</p></li>
+<li><p><strong>wrapping</strong>: avoid wrapping the same command twice.</p></li>
+<li><p><strong>jobs</strong>: add RunJob and RunJobs actions</p></li>
+<li><p><strong>command</strong>: replace source root anywhere in command’s parts</p></li>
+<li><p><strong>command</strong>: pass environment to plumbum command</p></li>
+<li><p><strong>command</strong>: pass args to plumbum command</p></li>
+<li><p><strong>command</strong>: improve args and kwargs handling</p></li>
+<li><p>add env and <strong>str</strong> to commands</p></li>
+<li><p><strong>command</strong>: support declarative commands in projects (WIP)</p></li>
+<li><p><strong>source</strong>: add ‘fetch’ support to FetchableSource derivatives</p></li>
+<li><p><strong>workloads</strong>: add properties &amp; tags accessors</p></li>
+<li><p><strong>workloads</strong>: convert benchbuild.xz to support workloads</p></li>
+</ul>
+</section>
+<section id="id19">
+<h3>Fix<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>test must use render()</p></li>
+<li><p><strong>x264</strong>: repair broken cli args</p></li>
+<li><p><strong>command</strong>: actually run the workload</p></li>
+<li><p><strong>command</strong>: check for existence, only after rendering</p></li>
+<li><p><strong>project</strong>: target compile instead of run_tests, when accessing compile</p></li>
+<li><p><strong>command</strong>: remove unused definitions</p></li>
+<li><p><strong>command</strong>: context -&gt; kwargs</p></li>
+<li><p><strong>typing</strong>: python3.7 requires typing_extensions for runtime_checkable / Protocll</p></li>
+<li><p><strong>command</strong>: missing rename job -&gt; workload</p></li>
+<li><p><strong>command</strong>: provide mapping type</p></li>
+<li><p><strong>workload</strong>: strip previous workload draft</p></li>
+<li><p>workaround a mypy error</p></li>
+<li><p>correct mypy errors.</p></li>
+<li><p><strong>wrapping</strong>: provide default arg for sprefix</p></li>
+<li><p><strong>actions</strong>: provide default StepResult</p></li>
+<li><p><strong>command</strong>: store args as tuple</p></li>
+<li><p><strong>bzip2</strong>: clean draft marker</p></li>
+<li><p><strong>actions</strong>: repair status print of actions</p></li>
+<li><p><strong>experiment</strong>: initialize CleanExtra correctly</p></li>
+<li><p><strong>jobs</strong>: allow jobs to run as wrapped binaries</p></li>
+<li><p>use oci_compliant name for image names</p></li>
+<li><p><strong>workloads</strong>: wrong workload type</p></li>
+<li><p><strong>actions</strong>: unbreak tests after list -&gt; scalar conversion</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>Refactor<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>command</strong>: lower-case token str</p></li>
+<li><p>rename Job -&gt; Workload</p></li>
+<li><p><strong>command</strong>: remove debug prints</p></li>
+<li><p><strong>source</strong>: remove unnecessary ellipsis</p></li>
+</ul>
+</section>
+</section>
+<section id="id21">
+<h2>6.3.1 (2022-03-01)<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h2>
+<section id="id22">
+<h3>Feat<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>actions</strong>: clean interfaces of utils/actions</p></li>
+<li><p><strong>workloads</strong>: make object instance accessible to workloads using descriptors</p></li>
+<li><p><strong>workloads</strong>: hook up Compile and Run action to new workload impl</p></li>
+<li><p><strong>workloads</strong>: add simple intersection filter to workloads</p></li>
+<li><p><strong>workloads</strong>: change workload registration decorator style.</p></li>
+<li><p><strong>workloads</strong>: migrate Compile/Run action to run workloads only</p></li>
+<li><p><strong>project</strong>: remove run_tests and compile abstract methods</p></li>
+<li><p><strong>gzip</strong>: convert gzip to workloads</p></li>
+<li><p><strong>workload</strong>: Add prototype support for workloads.</p></li>
+<li><p><strong>environments</strong>: strip container args when entering interactive mode</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Fix<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>workloads</strong>: typo.</p></li>
+<li><p><strong>gzip</strong>: undo wrong wrap command</p></li>
+<li><p><strong>actions</strong>: project -&gt; obj after rebase</p></li>
+</ul>
+</section>
+<section id="id24">
+<h3>Refactor<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>workloads</strong>: remove useless/unused parts</p></li>
+</ul>
+</section>
+</section>
+<section id="id25">
+<h2>6.3 (2022-02-03)<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h2>
+<section id="id26">
+<h3>Feat<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>actions</strong>: throw error if RevisionStrings cannot match any Source.</p></li>
+<li><p><strong>source</strong>: add FetchableSource.explore() method</p></li>
+<li><p><strong>source</strong>: only filter context for expandable sources</p></li>
+<li><p><strong>actions</strong>: support partial revisions in SetProjectVersion</p></li>
+<li><p><strong>source</strong>: hook up context_from_revisions to SetProjectVersion</p></li>
+<li><p><strong>source</strong>: provide an easy way to create a variant context</p></li>
+<li><p><strong>environments</strong>: add container image removal to buildah adapter</p></li>
+<li><p><strong>environments</strong>: support custom arguments in RunProjectContainer</p></li>
+<li><p><strong>actions</strong>: track active_variant with SetProjectVersion</p></li>
+<li><p><strong>project</strong>: add MultiVersioned Mixin to Projects</p></li>
+<li><p><strong>source</strong>: symlink active version for http sources</p></li>
+<li><p><strong>source</strong>: Link to active location after version()</p></li>
+<li><p><strong>actions</strong>: Rename AddProjectVersion to SetProjectVersion</p></li>
+<li><p><strong>actions</strong>: add AddProjectVersion action</p></li>
+<li><p><strong>actions</strong>: remove obsolete parameters</p></li>
+<li><p><strong>actions</strong>: remove attrs from utils/actions</p></li>
+</ul>
+</section>
+<section id="id27">
+<h3>Fix<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>tests</strong>: eye-breaking code alignment.</p></li>
+<li><p><strong>environments</strong>: do not fail if no entrypoint is set.</p></li>
+<li><p><strong>environments</strong>: supply args as dedicated subcommand args</p></li>
+<li><p><strong>environments</strong>: use a default list factory, instead of a list class</p></li>
+<li><p><strong>source</strong>: replace symlink to directory</p></li>
+<li><p><strong>actions</strong>: obvious type errors in SetProjectVersion</p></li>
+<li><p><strong>actions</strong>: assign active variant</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>Refactor<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>pylint</strong>: remove unused import</p></li>
+<li><p><strong>pylint</strong>: make pylint happy.</p></li>
+<li><p><strong>pylint</strong>: make pylint almost happy.</p></li>
+</ul>
+</section>
+</section>
+<section id="id29">
+<h2>6.2.7 (2021-09-21)<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id30">
+<h2>6.2.6 (2021-09-16)<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h2>
+<section id="id31">
+<h3>Fix<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>sources</strong>: do not use protocol class as ABC</p></li>
+</ul>
+</section>
+</section>
+<section id="id32">
+<h2>6.2.5 (2021-09-15)<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h2>
+<section id="id33">
+<h3>Feat<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>utils/run</strong>: add unbuffered watch commands</p></li>
+<li><p><strong>source</strong>: update git remote revisions. (#434)</p></li>
+<li><p><strong>log</strong>: add force_tty switch to control RichHandler. (#435)</p></li>
+</ul>
+</section>
+</section>
+<section id="id34">
+<h2>6.2.4 (2021-09-03)<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id35">
+<h2>6.2.3 (2021-08-26)<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h2>
+<section id="id36">
+<h3>Fix<a class="headerlink" href="#id36" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>schema</strong>: silence SAWarning about caching (#428)</p></li>
+<li><p><strong>environments</strong>: pass format string to logging call (#427)</p></li>
+</ul>
+</section>
+</section>
+<section id="id37">
+<h2>6.2.2 (2021-07-29)<a class="headerlink" href="#id37" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id38">
+<h2>6.2.1 (2021-07-06)<a class="headerlink" href="#id38" title="Link to this heading">¶</a></h2>
+<section id="id39">
+<h3>Feat<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>environments</strong>: add an interactive mode for container runs.</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3>Fix<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>logging</strong>: make rich log to stderr by default (#415)</p></li>
+<li><p><strong>settings</strong>: BB_ENV is ignored when no config file is loaded” (#414)</p></li>
+</ul>
+</section>
+</section>
+<section id="id41">
+<h2>6.2 (2021-06-02)<a class="headerlink" href="#id41" title="Link to this heading">¶</a></h2>
+<section id="id42">
+<h3>Fix<a class="headerlink" href="#id42" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>settings</strong>: unbreak test cases.</p></li>
+<li><p>use correct schema version</p></li>
+<li><p><strong>settings</strong>: consistent settings behavior.</p></li>
+<li><p><strong>environments</strong>: notify the user, if image creation fails</p></li>
+</ul>
+</section>
+</section>
+<section id="id43">
+<h2>6.1.1 (2021-05-11)<a class="headerlink" href="#id43" title="Link to this heading">¶</a></h2>
+<section id="id44">
+<h3>Fix<a class="headerlink" href="#id44" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>project</strong>: do not track project classes twice</p></li>
+</ul>
+</section>
+</section>
+<section id="id45">
+<h2>6.1 (2021-05-11)<a class="headerlink" href="#id45" title="Link to this heading">¶</a></h2>
+<section id="id46">
+<h3>Feat<a class="headerlink" href="#id46" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>environments</strong>: just print env var name as error message</p></li>
+<li><p><strong>environments</strong>: warn the user about too long paths for libpod</p></li>
+<li><p><strong>slurm</strong>: support variable number of subcommand arguments</p></li>
+<li><p>tune down rich’s custom log format</p></li>
+<li><p><strong>environments</strong>: enable debugging of failed image builds</p></li>
+<li><p><strong>environments</strong>: provide more consistent output through rich</p></li>
+<li><p><strong>environments</strong>: add ‘rmi’ subcommand to delete images.</p></li>
+<li><p><strong>environments</strong>: make an error message stand out more clearly</p></li>
+<li><p><strong>environments</strong>: add g++ to base image</p></li>
+<li><p><strong>environments</strong>: split image_exists into 2 implementations</p></li>
+<li><p><strong>environments</strong>: split containers cli into 2 entitie</p></li>
+<li><p><strong>environments</strong>: add basic error handling to environments</p></li>
+<li><p><strong>environments</strong>: emit layer creation events</p></li>
+<li><p><strong>environments</strong>: print layer construction progress</p></li>
+<li><p><strong>environments</strong>: make layers hashable</p></li>
+<li><p><strong>environments</strong>: step-wise image construction</p></li>
+<li><p><strong>environments</strong>: split Repositories and Unit of Work into 2 entities each</p></li>
+<li><p><strong>utils/slurm</strong>: add customizable SLURM templates</p></li>
+<li><p><strong>cli/project</strong>: add details view for a single project</p></li>
+<li><p><strong>cli/project</strong>: change project view to a condensed format</p></li>
+<li><p><strong>environments</strong>: add option to replace container images</p></li>
+<li><p>add support for –export and –import flags in containers</p></li>
+</ul>
+</section>
+<section id="id47">
+<h3>Fix<a class="headerlink" href="#id47" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>sources</strong>: unshallow only when needed</p></li>
+<li><p><strong>environments</strong>: unshallow git clones before dissociating</p></li>
+<li><p><strong>environments</strong>: remove left-over parameters</p></li>
+<li><p><strong>ci</strong>: typo.</p></li>
+<li><p><strong>environments</strong>: do not overwrite exported images.</p></li>
+<li><p><strong>environments</strong>: remove optional image name argument from podman load</p></li>
+<li><p><strong>slurm</strong>: fix pylint/mypy</p></li>
+<li><p><strong>environments</strong>: reuse same status bar structure for all other cli subcommands</p></li>
+<li><p><strong>environments</strong>: mypy warnings</p></li>
+<li><p><strong>environments</strong>: fix mypy/pylint annotations.</p></li>
+<li><p><strong>environments</strong>: split return turple and baild out on error</p></li>
+<li><p><strong>environments</strong>: mypy warnings</p></li>
+<li><p><strong>environments</strong>: add missing type conversion</p></li>
+<li><p><strong>environments</strong>: rework typing annotations for handlers</p></li>
+<li><p><strong>environments</strong>: fix linter/mypy warnings</p></li>
+<li><p><strong>environments</strong>: make Add &amp; Copy layers hashable</p></li>
+<li><p><strong>environments</strong>: add missing sys import</p></li>
+<li><p><strong>environments</strong>: import Protocol from typing_extensions, if python &lt;= 3.8</p></li>
+<li><p><strong>environments</strong>: handle ‘None’ for MaybeContainer return type</p></li>
+<li><p><strong>slurm</strong>: do not modify slurm_node_dir</p></li>
+<li><p><strong>environments</strong>: deal with multi-line container ids</p></li>
+<li><p><strong>environments</strong>: do not spawn the FromLayer</p></li>
+<li><p><strong>cli/project</strong>: annotate print_layers</p></li>
+<li><p><strong>cli/project</strong>: add neutral element for multiplication with reduce</p></li>
+<li><p><strong>project</strong>: project registration for groups</p></li>
+<li><p><strong>environments</strong>: explicitly state remote registry location</p></li>
+<li><p>do not use global state to conffigure buildah/podman</p></li>
+<li><p><strong>x264</strong>: use local name of source for lookup</p></li>
+</ul>
+</section>
+<section id="id48">
+<h3>Refactor<a class="headerlink" href="#id48" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>environments</strong>: fix possible unbound variable</p></li>
+<li><p><strong>slurm</strong>: fix type error on cli_process</p></li>
+<li><p><strong>environments</strong>: remove unused sys import</p></li>
+<li><p><strong>environments</strong>: rmeove some linter warnings</p></li>
+<li><p><strong>environments</strong>: replace functools.partial with custom closure function</p></li>
+<li><p><strong>environments</strong>: unsplit image from layer creation</p></li>
+<li><p><strong>enviroments</strong>: remove debug print</p></li>
+<li><p><strong>environments</strong>: remove unused commands</p></li>
+<li><p><strong>cli/project</strong>: remove version counting from project view</p></li>
+<li><p><strong>cli/project</strong>: force use of str</p></li>
+<li><p><strong>cli/project</strong>: add documentation to print_project</p></li>
+<li><p><strong>cli/project</strong>: add type annotation for set_limit</p></li>
+<li><p><strong>cli/project</strong>: add a default list limit for versions (10)</p></li>
+<li><p><strong>cli/project</strong>: provide better layout of project information</p></li>
+<li><p><strong>cli/project</strong>: use a multi-line string</p></li>
+<li><p><strong>cli/project</strong>: use named fields</p></li>
+<li><p><strong>project</strong>: provide correct type annotations</p></li>
+</ul>
+</section>
+</section>
+<section id="id49">
+<h2>6.0.1 (2020-12-29)<a class="headerlink" href="#id49" title="Link to this heading">¶</a></h2>
+<section id="id50">
+<h3>Fix<a class="headerlink" href="#id50" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Avoid useless plugin spam when running with higher verbosity levels</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../advanced/cli/"
+       title="previous chapter">← CLI</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

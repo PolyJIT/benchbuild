@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>BenchBuild Documentation</title>
+    
+          <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../_static/documentation_options.js?v=12d94df1"></script>
+        <script src="../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../_static/theme-vendors.js"></script> -->
+      <script src="../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="#" />
+  <link rel="index" title="Index" href="../genindex/" />
+  <link rel="search" title="Search" href="../search/" />
+  <link rel="next" title="Installation" href="../basics/" />
+  <link rel="prev" title="Welcome to bencbuild’s documentation!" href="../" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">BenchBuild Documentation</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#design-philosophy" class="reference internal">Design Philosophy</a></li>
+                
+                  <li class="toctree-l2"><a href="#supported-python-versions" class="reference internal">Supported Python Versions</a></li>
+                
+                  <li class="toctree-l2"><a href="#getting-started" class="reference internal">Getting started</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../">Docs</a> &raquo;</li>
+    
+    <li>BenchBuild Documentation</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../"
+       title="previous chapter">← Welcome to bencbuild’s documentation!</a>
+  </li>
+  <li class="next">
+    <a href="../basics/"
+       title="next chapter">Installation →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="benchbuild-documentation">
+<h1>BenchBuild Documentation<a class="headerlink" href="#benchbuild-documentation" title="Link to this heading">¶</a></h1>
+<p>BenchBuild is an open-source toolkit that helps with the management of case-studies used in software-driven empirical experiments.
+BenchBuild was specifically designed to make defined experiments reusable between different
+experiment setups. It mainly provides assistance with the following standard tasks found in empirical software experiments:</p>
+<ul class="simple">
+<li><p>Add a new case-study to an existing experiment setup.</p></li>
+<li><p>Add a new experiment to an existing body of case-studies.</p></li>
+</ul>
+<section id="design-philosophy">
+<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading">¶</a></h2>
+<p>BenchBuild is designed with the following main properties in mind.</p>
+<section id="a-case-study-doesn-t-know-its-experiment">
+<h3>A case-study doesn’t know its experiment<a class="headerlink" href="#a-case-study-doesn-t-know-its-experiment" title="Link to this heading">¶</a></h3>
+<p>If you add a new case-study, you should never have to rely on background information about the experiment you are about to run on it.
+A new case-study is only concerned with its own setup of dependencies and execution during its run-time. A case-study controls where and what can be
+intercepted by an experiment.</p>
+</section>
+<section id="an-experiment-doesn-t-know-its-case-studies">
+<h3>An experiment doesn’t know its case-studies<a class="headerlink" href="#an-experiment-doesn-t-know-its-case-studies" title="Link to this heading">¶</a></h3>
+<p>Adding a new experiment never should have any knowledge about the case-studies
+it runs on.
+A new experiment takes care of intercepting the compilation process and/or the
+execution procedure of a given case-study. This only defines what is being done at the defined extension points at compile-time or run-time.</p>
+</section>
+</section>
+<section id="supported-python-versions">
+<h2>Supported Python Versions<a class="headerlink" href="#supported-python-versions" title="Link to this heading">¶</a></h2>
+<p>BenchBuild supports Python 3.7 and 3.8. Main development is focused on Python 3.8, but an effort is made to support 3.7 as long as major distributions like Debian Linux only ship with 3.7 by default.</p>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>See the <a class="reference internal" href="#"><span class="xref myst">Installation guide</span></a> for help getting BenchBuild up and running quickly.</p>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../"
+       title="previous chapter">← Welcome to bencbuild’s documentation!</a>
+  </li>
+  <li class="next">
+    <a href="../basics/"
+       title="next chapter">Installation →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2025, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 8.2.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.utils.actions</title>
+    
+          <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../../_static/documentation_options.js?v=12d94df1"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../../about/" />
+  <link rel="index" title="Index" href="../../../../genindex/" />
+  <link rel="search" title="Search" href="../../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.utils.actions</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.utils.actions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;# Actions</span>
+
+<span class="sd">Actions are enhanced callables that are used by `Experiments` to define</span>
+<span class="sd">the order of operations a project is put through when the experiment</span>
+<span class="sd">executes.</span>
+
+
+<span class="sd">## Example</span>
+
+<span class="sd">TODO</span>
+<span class="sd">```python</span>
+<span class="sd">```</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ft</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">plumbum</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessExecutionError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">CFG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.utils.cmd</span><span class="w"> </span><span class="kn">import</span> <span class="n">mkdir</span><span class="p">,</span> <span class="n">rm</span><span class="p">,</span> <span class="n">rmdir</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">ReturnType</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ReturnType&quot;</span><span class="p">)</span>
+<span class="n">ReturnTypeA</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ReturnTypeA&quot;</span><span class="p">)</span>
+<span class="n">ReturnTypeB</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ReturnTypeB&quot;</span><span class="p">)</span>
+<span class="n">DecoratedFunction</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ReturnType</span><span class="p">]</span>
+<span class="n">FunctionDecorator</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">DecoratedFunction</span><span class="p">[</span><span class="n">ReturnTypeA</span><span class="p">]],</span> <span class="n">DecoratedFunction</span><span class="p">[</span><span class="n">ReturnTypeB</span><span class="p">]</span>
+<span class="p">]</span>
+
+<span class="k">if</span> <span class="n">tp</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">benchbuild.experiment.Experiment</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">benchbuild.project.Project</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">benchbuild.utils.schema.Experiment</span>  <span class="c1"># pylint: disable=unused-import</span>
+
+
+<div class="viewcode-block" id="StepResult">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.StepResult">[docs]</a>
+<span class="nd">@enum</span><span class="o">.</span><span class="n">unique</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepResult</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result type for action results.&quot;&quot;&quot;</span>
+
+    <span class="n">UNSET</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">OK</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">CAN_CONTINUE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+
+
+<span class="n">StepResultList</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StepResult</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="step_has_failed">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.step_has_failed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">step_has_failed</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">StepResult</span><span class="p">,</span> <span class="n">error_status</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StepResult</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">error_status</span><span class="p">:</span>
+        <span class="n">error_status</span> <span class="o">=</span> <span class="p">[</span><span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">CAN_CONTINUE</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">error_status</span></div>
+
+
+
+<div class="viewcode-block" id="prepend_status">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.prepend_status">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">prepend_status</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">DecoratedFunction</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DecoratedFunction</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepends the output of `func` with the status.&quot;&quot;&quot;</span>
+
+    <span class="nd">@tp</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Step&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="nd">@tp</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Step&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="nd">@ft</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Step&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper stub.&quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+
+<div class="viewcode-block" id="log_before_after">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.log_before_after">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_before_after</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FunctionDecorator</span><span class="p">[</span><span class="n">StepResult</span><span class="p">,</span> <span class="n">StepResult</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log customized string before &amp; after running func.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">func_decorator</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">DecoratedFunction</span><span class="p">[</span><span class="n">StepResult</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DecoratedFunction</span><span class="p">[</span><span class="n">StepResult</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper stub.&quot;&quot;&quot;</span>
+
+        <span class="nd">@ft</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper stub.&quot;&quot;&quot;</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">func_decorator</span></div>
+
+
+
+<div class="viewcode-block" id="Step">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Step">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class of a step.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        StopIteration: If we do not encapsulate more substeps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">DESCRIPTION</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">StepResult</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">,</span> <span class="n">log_before_after</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DESCRIPTION</span><span class="p">)(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__str__&quot;</span><span class="p">,</span> <span class="n">prepend_status</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__str__</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">StepResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;* Running action </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">NAME</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DESCRIPTION</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="Step.onerror">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Step.onerror">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">onerror</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default implementation does nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+
+<div class="viewcode-block" id="ProjectStep">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.ProjectStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProjectStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class of a project step.</span>
+
+<span class="sd">    Adds a project attribute to the Step base class and some defaults.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        StopIteration: If we do not encapsulate more substeps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">DESCRIPTION</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="s2">&quot;* Execute configured action.&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProjectStep.onerror">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.ProjectStep.onerror">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">onerror</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Clean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)()</span></div>
+
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+
+<span class="n">StepTy_co</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;StepTy_co&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Step</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MultiStep">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.MultiStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">StepTy_co</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group multiple actions into one step.</span>
+
+<span class="sd">    Usually used to define behavior on error, e.g., execute everything</span>
+<span class="sd">    regardless of any errors, or fail everything upon first error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">DESCRIPTION</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">actions</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">[</span><span class="n">StepTy_co</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">[</span><span class="n">StepTy_co</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span> <span class="k">if</span> <span class="n">actions</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">StepTy_co</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="MultiStep.onerror">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.MultiStep.onerror">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">onerror</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Clean">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Clean">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Clean</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;CLEAN&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Cleans the build directory&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span> <span class="n">check_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_empty</span> <span class="o">=</span> <span class="n">check_empty</span>
+
+<div class="viewcode-block" id="Clean.clean_mountpoints">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Clean.clean_mountpoints">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_mountpoints</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unmount any remaining mountpoints under :root.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            root: All UnionFS-mountpoints under this directory will be</span>
+<span class="sd">                  unmounted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+        <span class="n">umount_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">real_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_partitions</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">commonpath</span><span class="p">([</span><span class="n">part</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">,</span> <span class="n">real_root</span><span class="p">])</span> <span class="o">==</span> <span class="n">real_root</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="o">.</span><span class="n">fstype</span> <span class="o">==</span> <span class="s2">&quot;fuse.unionfs&quot;</span><span class="p">:</span>
+                    <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;NON-UnionFS mountpoint found under </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">umount_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;clean&quot;</span><span class="p">]:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Clean disabled by config.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No object assigned to this action.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+        <span class="n">obj_builddir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">obj_builddir</span><span class="p">):</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Path </span><span class="si">%s</span><span class="s2"> exists&quot;</span><span class="p">,</span> <span class="n">obj_builddir</span><span class="p">)</span>
+            <span class="n">Clean</span><span class="o">.</span><span class="n">clean_mountpoints</span><span class="p">(</span><span class="n">obj_builddir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_empty</span><span class="p">:</span>
+                <span class="n">rmdir</span><span class="p">(</span><span class="n">obj_builddir</span><span class="p">,</span> <span class="n">retcode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rm</span><span class="p">(</span><span class="s2">&quot;-rf&quot;</span><span class="p">,</span> <span class="n">obj_builddir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Path </span><span class="si">%s</span><span class="s2"> did not exist anymore&quot;</span><span class="p">,</span> <span class="n">obj_builddir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Clean the directory: </span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MakeBuildDir">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.MakeBuildDir">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MakeBuildDir</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;MKDIR&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Create the build directory&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">):</span>
+            <span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Create the build directory&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Compile">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Compile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Compile</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;COMPILE&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Compile the project&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="n">ProcessExecutionError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Compile&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Run">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Run">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Run</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;RUN&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Execute the run action&quot;</span>
+
+    <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+            <span class="n">group</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">begin_run_group</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">run_tests</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">end_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">except</span> <span class="n">ProcessExecutionError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">deregister</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Execute run-time tests.&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Echo">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Echo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;ECHO&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Print a message.&quot;</span>
+
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;* echo: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span></div>
+
+
+
+<div class="viewcode-block" id="run_any_child">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.run_any_child">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_any_child</span><span class="p">(</span><span class="n">child</span><span class="p">:</span> <span class="n">Step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute child step.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        child: The child step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">child</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="Any">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Any">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Any</span><span class="p">(</span><span class="n">MultiStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;ANY&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Just run all actions, no questions asked.&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">:</span>
+            <span class="n">cnt</span> <span class="o">=</span> <span class="n">cnt</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">a</span><span class="p">()</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> actions left in queue&quot;</span><span class="p">,</span> <span class="n">length</span> <span class="o">-</span> <span class="n">cnt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">if</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">CAN_CONTINUE</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">sub_actns</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="s2">&quot;* Execute all of:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">sub_actns</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Experiment">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Experiment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Experiment</span><span class="p">(</span><span class="n">Any</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;EXPERIMENT&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Run a experiment, wrapped in a db transaction&quot;</span>
+
+    <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span><span class="p">,</span>
+        <span class="n">actions</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">[</span><span class="n">Step</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_actions</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Echo</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Start experiment: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">_actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">actions</span> <span class="k">if</span> <span class="n">actions</span> <span class="k">else</span> <span class="p">[])</span>
+        <span class="n">_actions</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Echo</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Completed experiment: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)])</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">_actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+
+<div class="viewcode-block" id="Experiment.begin_transaction">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Experiment.begin_transaction">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">begin_transaction</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;benchbuild.utils.schema.Experiment&quot;</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+        <span class="n">experiment</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">persist_experiment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">experiment</span><span class="o">.</span><span class="n">begin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">begin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">begin</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">sa</span><span class="o">.</span><span class="n">orm</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">StaleDataError</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Transaction isolation level caused a StaleDataError&quot;</span><span class="p">)</span>
+
+        <span class="c1"># React to external signals</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Experiment</span><span class="o">.</span><span class="n">end_transaction</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">session</span></div>
+
+
+<div class="viewcode-block" id="Experiment.end_transaction">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.Experiment.end_transaction">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_transaction</span><span class="p">(</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.utils.schema.Experiment&quot;</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">sa</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">InvalidRequestError</span> <span class="k">as</span> <span class="n">inv_req</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">inv_req</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__run_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StepResult</span><span class="p">]:</span>
+        <span class="c1"># pylint: disable=import-outside-toplevel</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pathos.multiprocessing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">num_processes</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">run_any_child</span><span class="p">,</span> <span class="n">actions</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Experiment aborting by user request&quot;</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Experiment terminates because we got an exception:&quot;</span><span class="p">)</span>
+            <span class="n">e_type</span><span class="p">,</span> <span class="n">e_value</span><span class="p">,</span> <span class="n">e_traceb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">e_type</span><span class="p">,</span> <span class="n">e_value</span><span class="p">,</span> <span class="n">e_traceb</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+            <span class="n">experiment</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">begin_transaction</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__run_children</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;parallel_processes&quot;</span><span class="p">]))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">end_transaction</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+                <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">deregister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_transaction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">sub_actns</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Experiment: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">sub_actns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RequireAll">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.RequireAll">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RequireAll</span><span class="p">(</span><span class="n">MultiStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;REQUIRE ALL&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;All child steps need to succeed&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StepResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">total_steps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">no_fail</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">results</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">takewhile</span><span class="p">(</span><span class="n">no_fail</span><span class="p">,</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">)):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">action</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">ProcessExecutionError</span> <span class="k">as</span> <span class="n">proc_ex</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">==== ERROR ====&quot;</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Execution of a binary failed in step: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_ex</span><span class="p">))</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;==== ERROR ====</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;User requested termination.&quot;</span><span class="p">)</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">onerror</span><span class="p">()</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Exception in step #</span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">i</span><span class="p">,</span>
+                    <span class="n">total_steps</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">action</span><span class="p">),</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">(),</span>
+                <span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="n">is_failed</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">in</span> <span class="n">results</span>
+            <span class="k">if</span> <span class="n">is_failed</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Execution of: &#39;</span><span class="si">%s</span><span class="s2">&#39; failed.&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; cannot continue.&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">onerror</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">sub_actns</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;* All required:</span><span class="se">\n</span><span class="si">{</span><span class="n">sub_actns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+
+
+<span class="n">WorkloadTy</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RunWorkload">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.RunWorkload">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunWorkload</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;RUN WORKLOAD&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Run a project&#39;s workload&quot;</span>
+
+    <span class="n">_workload</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">WorkloadTy</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workload_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkloadTy</span><span class="p">:</span>
+        <span class="c1"># Workaround for MyPy...</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workload</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;non-optional optional triggered&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workload</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span>
+        <span class="n">workload</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">WorkloadTy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_workload</span> <span class="o">=</span> <span class="n">workload</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workload_ref</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">except</span> <span class="n">ProcessExecutionError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;* Run: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workload_ref</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RunWorkloads">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.RunWorkloads">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunWorkloads</span><span class="p">(</span><span class="n">MultiStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;RUN WORKLOADS&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Generic run all project workloads&quot;</span>
+
+    <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span>
+    <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="s2">&quot;benchbuild.experiment.Experiment&quot;</span><span class="p">,</span>
+        <span class="n">run_only</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">WorkloadSet</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">workloads</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+        <span class="n">workloads</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">command</span><span class="o">.</span><span class="n">filter_workload_index</span><span class="p">(</span><span class="n">run_only</span><span class="p">,</span> <span class="n">index</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">workload</span> <span class="ow">in</span> <span class="n">workloads</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">RunWorkload</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">ProjectCommand</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">workload</span><span class="p">))]</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+            <span class="n">group</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">begin_run_group</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">workload</span><span class="p">()</span> <span class="k">for</span> <span class="n">workload</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">end_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ProcessExecutionError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="k">raise</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]:</span>
+                <span class="n">signals</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">deregister</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">fail_run_group</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">sub_actns</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* Require all of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;s workloads:</span><span class="se">\n</span><span class="si">{</span><span class="n">sub_actns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="CleanExtra">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.CleanExtra">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CleanExtra</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;CLEAN EXTRA&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Cleans the extra directories.&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">StepResult</span><span class="o">.</span><span class="n">UNSET</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;clean&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;cleanup_paths&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="n">rm</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;cleanup_paths&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;* Clean the directory: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ProjectEnvironment">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.ProjectEnvironment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProjectEnvironment</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;ENV&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Prepare the project environment.&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">clear_paths</span><span class="p">()</span>
+
+        <span class="n">revision</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">revision</span>
+
+        <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">revision</span><span class="o">.</span><span class="n">variants</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching </span><span class="si">%s</span><span class="s2"> @ </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">variant</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">source</span><span class="p">()</span>
+            <span class="n">src</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">variant</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="n">revision</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">revision</span>
+        <span class="n">version_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">revision</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* Project environment for: </span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> @ </span><span class="si">{</span><span class="n">version_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SetProjectVersion">
+<a class="viewcode-back" href="../../../../basics/actions/#benchbuild.utils.actions.SetProjectVersion">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetProjectVersion</span><span class="p">(</span><span class="n">ProjectStep</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;SET PROJECT VERSION&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Checkout a project version&quot;</span>
+
+    <span class="n">revision</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">Revision</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">revision_strings</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">RevisionStr</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">revision_from_str</span><span class="p">(</span><span class="n">revision_strings</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">project</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepResult</span><span class="p">:</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="n">revision</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">active_revision</span>
+        <span class="n">revision</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">revision</span><span class="o">.</span><span class="n">variants</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching </span><span class="si">%s</span><span class="s2"> @ </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">variant</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">source</span><span class="p">()</span>
+            <span class="n">src</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">variant</span><span class="p">))</span>
+
+        <span class="n">project</span><span class="o">.</span><span class="n">active_revision</span> <span class="o">=</span> <span class="n">revision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StepResult</span><span class="o">.</span><span class="n">OK</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="n">version_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;* Add project version </span><span class="si">{</span><span class="n">version_str</span><span class="si">}</span><span class="s2"> for: </span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2025, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 8.2.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

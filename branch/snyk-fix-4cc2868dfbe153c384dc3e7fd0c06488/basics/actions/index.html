@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>Actions</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../_static/documentation_options.js?v=a844cb79"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../about/" />
+  <link rel="index" title="Index" href="../../genindex/" />
+  <link rel="search" title="Search" href="../../search/" />
+  <link rel="next" title="Commands" href="../../concepts/command/" />
+  <link rel="prev" title="Containers" href="../containers/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Actions</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#customize-actions" class="reference internal">Customize actions</a></li>
+                
+                  <li class="toctree-l2"><a href="#available-actions" class="reference internal">Available Actions</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../">Docs</a> &raquo;</li>
+    
+    <li>Actions</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../containers/"
+       title="previous chapter">← Containers</a>
+  </li>
+  <li class="next">
+    <a href="../../concepts/command/"
+       title="next chapter">Commands →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="actions">
+<h1>Actions<a class="headerlink" href="#actions" title="Link to this heading">¶</a></h1>
+<p>Actions are used to declare the workflow of an experiment. BenchBuild provides
+a set of default actions that should suit most experiments.
+A new experiment can define a new set of actions that should be used per project,
+or use those defaults.</p>
+<section id="customize-actions">
+<h2>Customize actions<a class="headerlink" href="#customize-actions" title="Link to this heading">¶</a></h2>
+<p>Whenever you define a new expeirment, you have to provide an implementation
+for <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">actions_for_project(self,</span> <span class="pre">project:</span> <span class="pre">'Project')</span></code>.
+This implementation usually configures extensions on the project and returns
+a set of actions that should be run during execution.</p>
+<p>Example:</p>
+<p>This takes care of compiling, running and cleanup during experiment execution.</p>
+</section>
+<section id="available-actions">
+<h2>Available Actions<a class="headerlink" href="#available-actions" title="Link to this heading">¶</a></h2>
+<p>The following actions are available out of the box. You can define your own
+actions at any time</p>
+<section id="step-base">
+<h3>Step (Base)<a class="headerlink" href="#step-base" title="Link to this heading">¶</a></h3>
+</section>
+<section id="clean">
+<h3>Clean<a class="headerlink" href="#clean" title="Link to this heading">¶</a></h3>
+</section>
+<section id="makebuilddir">
+<h3>MakeBuildDir<a class="headerlink" href="#makebuilddir" title="Link to this heading">¶</a></h3>
+</section>
+<section id="compile">
+<h3>Compile<a class="headerlink" href="#compile" title="Link to this heading">¶</a></h3>
+</section>
+<section id="run">
+<h3>Run<a class="headerlink" href="#run" title="Link to this heading">¶</a></h3>
+</section>
+<section id="echo">
+<h3>Echo<a class="headerlink" href="#echo" title="Link to this heading">¶</a></h3>
+</section>
+<section id="any-group">
+<h3>Any (Group)<a class="headerlink" href="#any-group" title="Link to this heading">¶</a></h3>
+</section>
+<section id="experiment-any-group">
+<h3>Experiment (Any, Group)<a class="headerlink" href="#experiment-any-group" title="Link to this heading">¶</a></h3>
+</section>
+<section id="requireall-group">
+<h3>RequireAll (Group)<a class="headerlink" href="#requireall-group" title="Link to this heading">¶</a></h3>
+</section>
+<section id="cleanextra">
+<h3>CleanExtra<a class="headerlink" href="#cleanextra" title="Link to this heading">¶</a></h3>
+</section>
+<section id="projectenvironment">
+<h3>ProjectEnvironment<a class="headerlink" href="#projectenvironment" title="Link to this heading">¶</a></h3>
+</section>
+<section id="setprojectversion">
+<h3>SetProjectVersion<a class="headerlink" href="#setprojectversion" title="Link to this heading">¶</a></h3>
+<p>This action provides you with a way to change the source version used inside the
+build directory of this project.
+During initialization, each project is assigned a variant that determines the
+source versions that will be checked out into the build directory.</p>
+<p>Sometimes it can be useful to do comparisons of different source revisions
+inside a single experiment run. This can be achieved using <code class="docutils literal notranslate"><span class="pre">SetProjectVersion</span></code>.</p>
+<p>Usage:</p>
+<p>The match is done on all(!) sources of the project. If you happen to find a
+revision string twice in different souces, both will be checked out in the
+build directory.</p>
+<p>The match is done exact and matches agains the <code class="docutils literal notranslate"><span class="pre">source.versions()</span></code> output of a
+source. Only sources that are marked as expandable (<code class="docutils literal notranslate"><span class="pre">source.is_expandable</span></code>)
+will be checked.</p>
+<p id="module-benchbuild.utils.actions"># Actions</p>
+<p>Actions are enhanced callables that are used by <cite>Experiments</cite> to define
+the order of operations a project is put through when the experiment
+executes.</p>
+<p>## Example</p>
+<p>TODO
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">`</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Any">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Any</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Any"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Any" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.MultiStep" title="benchbuild.utils.actions.MultiStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Any.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Just</span> <span class="pre">run</span> <span class="pre">all</span> <span class="pre">actions,</span> <span class="pre">no</span> <span class="pre">questions</span> <span class="pre">asked.'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Any.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Any.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ANY'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Any.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Clean">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Clean" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Clean.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Cleans</span> <span class="pre">the</span> <span class="pre">build</span> <span class="pre">directory'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Clean.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Clean.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CLEAN'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Clean.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Clean.clean_mountpoints">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clean_mountpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Clean.clean_mountpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Clean.clean_mountpoints" title="Link to this definition">¶</a></dt>
+<dd><p>Unmount any remaining mountpoints under :root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – All UnionFS-mountpoints under this directory will be
+unmounted.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.CleanExtra">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">CleanExtra</span></span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#CleanExtra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.CleanExtra.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Cleans</span> <span class="pre">the</span> <span class="pre">extra</span> <span class="pre">directories.'</span></em><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.CleanExtra.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CLEAN</span> <span class="pre">EXTRA'</span></em><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Compile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Compile" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Compile.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Compile</span> <span class="pre">the</span> <span class="pre">project'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Compile.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Compile.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'COMPILE'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Compile.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Echo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Echo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Echo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Echo" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Echo.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Print</span> <span class="pre">a</span> <span class="pre">message.'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Echo.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Echo.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ECHO'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Echo.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Echo.message">
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.utils.actions.Echo.message" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Any" title="benchbuild.utils.actions.Any"><code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Run</span> <span class="pre">a</span> <span class="pre">experiment,</span> <span class="pre">wrapped</span> <span class="pre">in</span> <span class="pre">a</span> <span class="pre">db</span> <span class="pre">transaction'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Experiment.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EXPERIMENT'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Experiment.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment.begin_transaction">
+<span class="sig-name descname"><span class="pre">begin_transaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Experiment.begin_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment.begin_transaction" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">tp.Tuple[‘benchbuild.utils.schema.Experiment’, tp.Any]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment.end_transaction">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Experiment.end_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment.end_transaction" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">None</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Experiment.experiment">
+<span class="sig-name descname"><span class="pre">experiment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.experiment.Experiment</span></em><a class="headerlink" href="#benchbuild.utils.actions.Experiment.experiment" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MakeBuildDir">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">MakeBuildDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#MakeBuildDir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MakeBuildDir.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Create</span> <span class="pre">the</span> <span class="pre">build</span> <span class="pre">directory'</span></em><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MakeBuildDir.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MKDIR'</span></em><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MultiStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">MultiStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#MultiStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.MultiStep" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">StepTy_co</span></code>]</p>
+<p>Group multiple actions into one step.</p>
+<p>Usually used to define behavior on error, e.g., execute everything
+regardless of any errors, or fail everything upon first error.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MultiStep.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.MultiStep.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MultiStep.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.MultiStep.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MultiStep.actions">
+<span class="sig-name descname"><span class="pre">actions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableSequence</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">StepTy_co</span></code><span class="pre">,</span> <span class="pre">bound=</span> <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a><span class="pre">,</span> <span class="pre">covariant=True)]</span></em><a class="headerlink" href="#benchbuild.utils.actions.MultiStep.actions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.MultiStep.onerror">
+<span class="sig-name descname"><span class="pre">onerror</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#MultiStep.onerror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.MultiStep.onerror" title="Link to this definition">¶</a></dt>
+<dd><p>Default implementation does nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectEnvironment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">ProjectEnvironment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#ProjectEnvironment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.ProjectEnvironment" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectEnvironment.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Prepare</span> <span class="pre">the</span> <span class="pre">project</span> <span class="pre">environment.'</span></em><a class="headerlink" href="#benchbuild.utils.actions.ProjectEnvironment.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectEnvironment.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ENV'</span></em><a class="headerlink" href="#benchbuild.utils.actions.ProjectEnvironment.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">ProjectStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#ProjectStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.ProjectStep" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></p>
+<p>Base class of a project step.</p>
+<p>Adds a project attribute to the Step base class and some defaults.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>StopIteration</strong> – If we do not encapsulate more substeps.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectStep.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.ProjectStep.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectStep.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.ProjectStep.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectStep.onerror">
+<span class="sig-name descname"><span class="pre">onerror</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#ProjectStep.onerror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.ProjectStep.onerror" title="Link to this definition">¶</a></dt>
+<dd><p>Default implementation does nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.ProjectStep.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.project.Project</span></em><a class="headerlink" href="#benchbuild.utils.actions.ProjectStep.project" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RequireAll">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">RequireAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#RequireAll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.RequireAll" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.MultiStep" title="benchbuild.utils.actions.MultiStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RequireAll.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'All</span> <span class="pre">child</span> <span class="pre">steps</span> <span class="pre">need</span> <span class="pre">to</span> <span class="pre">succeed'</span></em><a class="headerlink" href="#benchbuild.utils.actions.RequireAll.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RequireAll.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'REQUIRE</span> <span class="pre">ALL'</span></em><a class="headerlink" href="#benchbuild.utils.actions.RequireAll.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Run">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Run" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Run.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Execute</span> <span class="pre">the</span> <span class="pre">run</span> <span class="pre">action'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Run.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Run.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RUN'</span></em><a class="headerlink" href="#benchbuild.utils.actions.Run.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Run.experiment">
+<span class="sig-name descname"><span class="pre">experiment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.experiment.Experiment</span></em><a class="headerlink" href="#benchbuild.utils.actions.Run.experiment" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkload">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">RunWorkload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#RunWorkload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.RunWorkload" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkload.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Run</span> <span class="pre">a</span> <span class="pre">project's</span> <span class="pre">workload&quot;</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkload.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkload.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RUN</span> <span class="pre">WORKLOAD'</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkload.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkload.workload_ref">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">workload_ref</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkload.workload_ref" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkloads">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">RunWorkloads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#RunWorkloads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.RunWorkloads" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.MultiStep" title="benchbuild.utils.actions.MultiStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkloads.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Generic</span> <span class="pre">run</span> <span class="pre">all</span> <span class="pre">project</span> <span class="pre">workloads'</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkloads.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkloads.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RUN</span> <span class="pre">WORKLOADS'</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkloads.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkloads.experiment">
+<span class="sig-name descname"><span class="pre">experiment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.experiment.Experiment</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkloads.experiment" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.RunWorkloads.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.project.Project</span></em><a class="headerlink" href="#benchbuild.utils.actions.RunWorkloads.project" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.SetProjectVersion">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">SetProjectVersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">revision_strings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#SetProjectVersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.SetProjectVersion" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.ProjectStep" title="benchbuild.utils.actions.ProjectStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectStep</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.SetProjectVersion.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Checkout</span> <span class="pre">a</span> <span class="pre">project</span> <span class="pre">version'</span></em><a class="headerlink" href="#benchbuild.utils.actions.SetProjectVersion.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.SetProjectVersion.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tp.ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SET</span> <span class="pre">PROJECT</span> <span class="pre">VERSION'</span></em><a class="headerlink" href="#benchbuild.utils.actions.SetProjectVersion.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.SetProjectVersion.revision">
+<span class="sig-name descname"><span class="pre">revision</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">source.Revision</span></em><a class="headerlink" href="#benchbuild.utils.actions.SetProjectVersion.revision" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Step">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">Step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Step" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class of a step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>StopIteration</strong> – If we do not encapsulate more substeps.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Step.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.Step.DESCRIPTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Step.NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#benchbuild.utils.actions.Step.NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Step.onerror">
+<span class="sig-name descname"><span class="pre">onerror</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#Step.onerror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.Step.onerror" title="Link to this definition">¶</a></dt>
+<dd><p>Default implementation does nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.Step.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.utils.actions.StepResult" title="benchbuild.utils.actions.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a></em><a class="headerlink" href="#benchbuild.utils.actions.Step.status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.StepResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">StepResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#StepResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.StepResult" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></p>
+<p>Result type for action results.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.StepResult.CAN_CONTINUE">
+<span class="sig-name descname"><span class="pre">CAN_CONTINUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.CAN_CONTINUE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.StepResult.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.ERROR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.StepResult.OK">
+<span class="sig-name descname"><span class="pre">OK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.OK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.StepResult.UNSET">
+<span class="sig-name descname"><span class="pre">UNSET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.UNSET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.log_before_after">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">log_before_after</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#log_before_after"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.log_before_after" title="Link to this definition">¶</a></dt>
+<dd><p>Log customized string before &amp; after running func.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <a class="reference internal" href="#benchbuild.utils.actions.StepResult" title="benchbuild.utils.actions.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a>]], <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <a class="reference internal" href="#benchbuild.utils.actions.StepResult" title="benchbuild.utils.actions.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.prepend_status">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">prepend_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#prepend_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.prepend_status" title="Link to this definition">¶</a></dt>
+<dd><p>Prepends the output of <cite>func</cite> with the status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.run_any_child">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">run_any_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#run_any_child"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.run_any_child" title="Link to this definition">¶</a></dt>
+<dd><p>Execute child step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>child</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></span>) – The child step.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.utils.actions.StepResult" title="benchbuild.utils.actions.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.actions.step_has_failed">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.actions.</span></span><span class="sig-name descname"><span class="pre">step_has_failed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/actions/#step_has_failed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.actions.step_has_failed" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../containers/"
+       title="previous chapter">← Containers</a>
+  </li>
+  <li class="next">
+    <a href="../../concepts/command/"
+       title="next chapter">Commands →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

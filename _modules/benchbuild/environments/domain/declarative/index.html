@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.environments.domain.declarative</title>
+    
+          <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../../../_static/documentation_options.js?v=68fef311"></script>
+        <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../../../about/" />
+  <link rel="index" title="Index" href="../../../../../genindex/" />
+  <link rel="search" title="Search" href="../../../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.environments.domain.declarative</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.environments.domain.declarative</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">BenchBuild supports containerized execution of all experiments. This gives you</span>
+<span class="sd">full control about the environment your [projects](/concepts/projects/) and</span>
+<span class="sd">[experiments](/concepts/experiments/) may run in.</span>
+
+<span class="sd">The following example uses the latest ``alpine:latest``:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    ContainerImage().from_(&#39;alpine:latest&#39;)</span>
+<span class="sd">        .run(&#39;apk&#39;, &#39;update&#39;)</span>
+<span class="sd">        .run(&#39;apk&#39;, &#39;add&#39;, &#39;python3&#39;)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">tp</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.environments.adapters.common</span> <span class="kn">import</span> <span class="n">buildah_version</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="kn">import</span> <span class="n">CFG</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">model</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ContainerImage">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage">[docs]</a>
+<span class="k">class</span> <span class="nc">ContainerImage</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define a container image declaratively.</span>
+
+<span class="sd">    Start a new image using the ``.from_`` method and provide a base image.</span>
+<span class="sd">    Each method creates a new layer in the container image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">base</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">FromLayer</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">layers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">layers</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">base</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="ContainerImage.env">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.env">[docs]</a>
+    <span class="k">def</span> <span class="nf">env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an environment layer in this image.</span>
+
+<span class="sd">        Dockerfile syntax: ENV</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kwargs (str): a dictionary containing name/value pairings to be</span>
+<span class="sd">                set as environment variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">UpdateEnv</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.from_">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.from_">[docs]</a>
+    <span class="k">def</span> <span class="nf">from_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specify a new base layer for this image.</span>
+
+<span class="sd">        Dockerfile syntax: FROM &lt;image&gt;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            base_image (str): The base image for our new container image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">FromLayer</span><span class="p">(</span><span class="n">base_image</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.context">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.context">[docs]</a>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interact with the build context of the container.</span>
+
+<span class="sd">        Sometimes you have to interact with the build context of a container</span>
+<span class="sd">        image. For example, you need to add artifacts to the build context</span>
+<span class="sd">        before you can add the to the container image.</span>
+<span class="sd">        BenchBuild uses this to add the sources to the container image</span>
+<span class="sd">        automatically.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func (tp.Callable[[], None]): A callable that is executed in the</span>
+<span class="sd">                build-context directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ContextLayer</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.add">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">tgt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add given files from the source to the container image.</span>
+
+<span class="sd">        Dockerfile syntax: ADD &lt;source&gt; [&lt;source&gt;...] &lt;target&gt;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sources (tp.Iterable[str]): Source path to add to the target</span>
+<span class="sd">            tgt (str): Absolute target path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">sources</span><span class="p">),</span> <span class="n">tgt</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.copy_">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.copy_">[docs]</a>
+    <span class="k">def</span> <span class="nf">copy_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">tgt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copy given files from the source to the container image.</span>
+
+<span class="sd">        Dockerfile syntax: COPY &lt;source&gt; [&lt;source&gt;...] &lt;target&gt;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sources (tp.Iterable[str]): Source path to add to the target</span>
+<span class="sd">            tgt (str): Absolute target path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">CopyLayer</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">sources</span><span class="p">),</span> <span class="n">tgt</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.run">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run a command in the container image.</span>
+
+<span class="sd">        Dockerfile syntax: RUN &lt;command&gt;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            command (str): The binary to execute in the container.</span>
+<span class="sd">            *args (str): Arguments that will be passed to the container.</span>
+<span class="sd">            **kwargs (str): Additional options that will be passed to the</span>
+<span class="sd">                backend run command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">RunLayer</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.workingdir">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.workingdir">[docs]</a>
+    <span class="k">def</span> <span class="nf">workingdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the working directory in the container.</span>
+
+<span class="sd">        Dockerfile syntax: WORKINGDIR &lt;absolute-path&gt;</span>
+
+<span class="sd">        All layers that follow this layer will be run with their working</span>
+<span class="sd">        directory set to ``directory``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            directory (str): The target directory to set our cwd to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">WorkingDirectory</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.entrypoint">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.entrypoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the entrypoint of the container.</span>
+
+<span class="sd">        Dockerfile syntax: ENTRYPOINT &lt;command&gt;</span>
+
+<span class="sd">        This sets the default binary to run to the given command.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args (str): A list of command components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">EntryPoint</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ContainerImage.command">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.ContainerImage.command">[docs]</a>
+    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ContainerImage&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the default command the container runs.</span>
+
+<span class="sd">        Dockerfile syntax: CMD &lt;command&gt;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args (str): A list of command components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">SetCommand</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<span class="n">DEFAULT_BASES</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ContainerImage</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;benchbuild:alpine&#39;</span><span class="p">:</span> <span class="n">ContainerImage</span><span class="p">()</span> \
+            <span class="o">.</span><span class="n">from_</span><span class="p">(</span><span class="s2">&quot;docker.io/alpine:3.17&quot;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;apk&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;apk&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="s1">&#39;python3&#39;</span><span class="p">,</span> <span class="s1">&#39;python3-dev&#39;</span><span class="p">,</span> <span class="s1">&#39;postgresql-dev&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;linux-headers&#39;</span><span class="p">,</span> <span class="s1">&#39;musl-dev&#39;</span><span class="p">,</span> <span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;gcc&#39;</span><span class="p">,</span> <span class="s1">&#39;g++&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;sqlite-libs&#39;</span><span class="p">,</span> <span class="s1">&#39;libgit2-dev&#39;</span><span class="p">,</span> <span class="s1">&#39;libffi-dev&#39;</span><span class="p">,</span> <span class="s1">&#39;py3-pip&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="add_benchbuild_layers">
+<a class="viewcode-back" href="../../../../../basics/containers/#benchbuild.environments.domain.declarative.add_benchbuild_layers">[docs]</a>
+<span class="k">def</span> <span class="nf">add_benchbuild_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">:</span> <span class="n">ContainerImage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContainerImage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add benchbuild into the given container image.</span>
+
+<span class="sd">    This assumes all necessary depenencies are available in the image already.</span>
+<span class="sd">    The installation is done, either using pip from a remote mirror, or using</span>
+<span class="sd">    the source checkout of benchbuild.</span>
+
+<span class="sd">    A source installation requires your buildah/podman installation to be</span>
+<span class="sd">    able to complete a bind-mount as the user that runs benchbuild.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        layers: a container image we will add our install layers to.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the modified container image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">crun</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">][</span><span class="s1">&#39;runtime&#39;</span><span class="p">])</span>
+    <span class="n">src_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">][</span><span class="s1">&#39;source&#39;</span><span class="p">])</span>
+    <span class="n">tgt_dir</span> <span class="o">=</span> <span class="s1">&#39;/benchbuild&#39;</span>
+
+    <span class="k">def</span> <span class="nf">from_source</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">ContainerImage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;BenchBuild will be installed from  source.&#39;</span><span class="p">)</span>
+
+        <span class="n">mount</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;type=bind,src=</span><span class="si">{</span><span class="n">src_dir</span><span class="si">}</span><span class="s1">,target=</span><span class="si">{</span><span class="n">tgt_dir</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="n">buildah_version</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">mount</span> <span class="o">+=</span> <span class="s1">&#39;,rw&#39;</span>
+
+        <span class="c1"># The image requires git, pip and a working python3.7 or better.</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;mkdir&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tgt_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="n">crun</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;pip3&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;setuptools&#39;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="n">crun</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="s1">&#39;pip3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;install&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;--ignore-installed&#39;</span><span class="p">,</span>
+            <span class="n">tgt_dir</span><span class="p">,</span>
+            <span class="n">mount</span><span class="o">=</span><span class="n">mount</span><span class="p">,</span>
+            <span class="n">runtime</span><span class="o">=</span><span class="n">crun</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">from_pip</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">ContainerImage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;installing benchbuild from pip release.&#39;</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;pip3&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;benchbuild&#39;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="n">crun</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">][</span><span class="s1">&#39;from_source&#39;</span><span class="p">]):</span>
+        <span class="n">from_source</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">from_pip</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">layers</span></div>
+
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

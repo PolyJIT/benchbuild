@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.source.http</title>
+    
+          <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../../_static/documentation_options.js?v=12d94df1"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../../about/" />
+  <link rel="index" title="Index" href="../../../../genindex/" />
+  <link rel="search" title="Search" href="../../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.source.http</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.source.http</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Declare a http source.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tp</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">plumbum</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pb</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.utils.cmd</span><span class="w"> </span><span class="kn">import</span> <span class="n">cp</span><span class="p">,</span> <span class="n">ln</span><span class="p">,</span> <span class="n">wget</span><span class="p">,</span> <span class="n">tar</span><span class="p">,</span> <span class="n">mkdir</span>
+
+<span class="n">VarRemotes</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+<span class="n">Remotes</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="HTTP">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTP">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HTTP</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">FetchableSource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch the downloadable source via http.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">base</span><span class="o">.</span><span class="n">Variant</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="HTTP.fetch">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTP.fetch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch via http using default version string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">version</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HTTP.fetch_version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTP.fetch_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch via http using given version string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            version: the version string to pull via http.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            local path to fetched version.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">target_prefix</span><span class="p">()</span>
+        <span class="n">remotes</span> <span class="o">=</span> <span class="n">normalize_remotes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote</span><span class="p">)</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">remotes</span><span class="p">[</span><span class="n">version</span><span class="p">]</span>
+        <span class="n">target_name</span> <span class="o">=</span> <span class="n">versioned_target_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+        <span class="n">cache_path</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">/</span> <span class="n">target_name</span>
+        <span class="n">download_single_version</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cache_path</span></div>
+
+
+<div class="viewcode-block" id="HTTP.version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTP.version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+        <span class="n">target_name</span> <span class="o">=</span> <span class="n">versioned_target_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+        <span class="n">cache_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_version</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+        <span class="n">target_path</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">target_name</span>
+        <span class="n">active_loc</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span>
+
+        <span class="n">cp</span><span class="p">(</span><span class="s2">&quot;-ar&quot;</span><span class="p">,</span> <span class="n">cache_path</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+        <span class="n">ln</span><span class="p">(</span><span class="s2">&quot;-sf&quot;</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">active_loc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">target_path</span></div>
+
+
+<div class="viewcode-block" id="HTTP.versions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTP.versions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">Variant</span><span class="p">]:</span>
+        <span class="n">remotes</span> <span class="o">=</span> <span class="n">normalize_remotes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">Variant</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">rev</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="n">remotes</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HTTPUntar">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTPUntar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HTTPUntar</span><span class="p">(</span><span class="n">HTTP</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch and download source via http and auto-unpack using GNU tar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HTTPUntar.version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTPUntar.version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the given version of this HTTPUntar source.</span>
+
+<span class="sd">        This will fetch the given version from the remote source and unpack the</span>
+<span class="sd">        archive into the build directory using tar.</span>
+
+<span class="sd">        The location matches the behavior of other sources. However, you need</span>
+<span class="sd">        to consider that benchbuild will return a directory instead of a file path.</span>
+
+<span class="sd">        When using workloads, you can refer to a directory with the SourceRootRenderer using</span>
+<span class="sd">        ``benchbuild.command.source_root``.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            You specify a remote version 1.0 of an archive compression.tar.gz and</span>
+<span class="sd">            a local name of &quot;compression.tar.gz&quot;.</span>
+<span class="sd">            The build directory will look as follows:</span>
+
+<span class="sd">            &lt;builddir&gt;/1.0-compression.dir/</span>
+<span class="sd">            &lt;builddir&gt;/1.0-compression.tar.gz</span>
+<span class="sd">            &lt;builddir&gt;/compression.tar.gz -&gt; ./1.0-compression.tar.dir</span>
+
+<span class="sd">            The content of the archive is found in the directory compression.tar.gz.</span>
+<span class="sd">            Your workloads need to make sure to reference this directory (e.g. using tokens),</span>
+<span class="sd">            e.g., ``source_root(&quot;compression.tar.gz&quot;)``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">archive_path</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+        <span class="n">target_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">archive_path</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.dir&quot;</span><span class="p">))</span>
+        <span class="n">target_path</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">target_name</span>
+        <span class="n">active_loc</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span>
+
+        <span class="n">mkdir</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span>
+        <span class="n">tar</span><span class="p">(</span><span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="s2">&quot;-C&quot;</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="n">archive_path</span><span class="p">)</span>
+
+        <span class="n">ln</span><span class="p">(</span><span class="s2">&quot;-sf&quot;</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">active_loc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">target_path</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HTTPMultiple">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTPMultiple">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HTTPMultiple</span><span class="p">(</span><span class="n">HTTP</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch and download multiple files via HTTP.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">files</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="n">files</span>
+
+<div class="viewcode-block" id="HTTPMultiple.fetch_version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.HTTPMultiple.fetch_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">target_prefix</span><span class="p">()</span>
+        <span class="n">remotes</span> <span class="o">=</span> <span class="n">normalize_remotes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote</span><span class="p">)</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">remotes</span><span class="p">[</span><span class="n">version</span><span class="p">]</span>
+        <span class="n">target_name</span> <span class="o">=</span> <span class="n">versioned_target_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+        <span class="n">cache_path</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">/</span> <span class="n">target_name</span>
+        <span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">cache_path</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
+            <span class="n">download_single_version</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cache_path</span> <span class="o">/</span> <span class="n">file</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cache_path</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="normalize_remotes">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.normalize_remotes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_remotes</span><span class="p">(</span><span class="n">remote</span><span class="p">:</span> <span class="n">VarRemotes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Remotes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;remote&#39; needs to be a mapping type&quot;</span><span class="p">)</span>
+
+    <span class="c1"># FIXME: What the hell?</span>
+    <span class="n">_remotes</span><span class="p">:</span> <span class="n">Remotes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_remotes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_remotes</span></div>
+
+
+
+<div class="viewcode-block" id="versioned_target_name">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.versioned_target_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">versioned_target_name</span><span class="p">(</span><span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">target_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_single_version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.download_single_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_single_version</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">download_required</span><span class="p">(</span><span class="n">target_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">target_path</span>
+
+    <span class="n">wget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;-O&quot;</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.utils.download</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_hash</span>
+
+    <span class="n">update_hash</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target_path</span></div>
+
+
+
+<div class="viewcode-block" id="download_required">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.http.download_required">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_required</span><span class="p">(</span><span class="n">target_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.utils.download</span><span class="w"> </span><span class="kn">import</span> <span class="n">source_required</span>
+
+    <span class="k">return</span> <span class="n">source_required</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2025, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 8.2.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>Containers</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../_static/documentation_options.js?v=335e3d74"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../about/" />
+  <link rel="index" title="Index" href="../../genindex/" />
+  <link rel="search" title="Search" href="../../search/" />
+  <link rel="next" title="Actions" href="../actions/" />
+  <link rel="prev" title="Configure" href="../configuration/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Containers</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#usage" class="reference internal">Usage</a></li>
+                
+                  <li class="toctree-l2"><a href="#configuration" class="reference internal">Configuration</a></li>
+                
+                  <li class="toctree-l2"><a href="#definition" class="reference internal">Definition</a></li>
+                
+                  <li class="toctree-l2"><a href="#runtime-requirements" class="reference internal">Runtime requirements</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.container" class="reference internal">Module: benchbuild.container</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.environments.domain.declarative" class="reference internal">Module: benchbuild.environments.domain.declarative</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.environments.domain.model" class="reference internal">Module: benchbuild.environments.domain.model</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.environments.domain.commands" class="reference internal">Module: benchbuild.environments.domain.commands</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../">Docs</a> &raquo;</li>
+    
+    <li>Containers</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../configuration/"
+       title="previous chapter">← Configure</a>
+  </li>
+  <li class="next">
+    <a href="../actions/"
+       title="next chapter">Actions →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="containers">
+<h1>Containers<a class="headerlink" href="#containers" title="Link to this heading">¶</a></h1>
+<p>Benchbuild allows the definition of container images to define the base system
+all experiment runs run in for a given project.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>If you want to run an experiment inside the project’s container, simply replace
+the usual <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand with the <code class="docutils literal notranslate"><span class="pre">container</span> <span class="pre">run</span></code> subcommand. Project and
+experiment selection are done in the same way.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">benchbuild</span> <span class="n">container</span> <span class="n">run</span> <span class="o">-</span><span class="n">E</span> <span class="n">raw</span> <span class="n">linpack</span>
+</pre></div>
+</div>
+<p>This will run the following stages:</p>
+<ol class="arabic simple">
+<li><p>Build all necessary base images.
+All images are initiated from a base image. Benchbuild knows how to construct
+a few base images. These will be prepared with all dependencies required to
+run benchbuild inside the container.</p></li>
+<li><p>Build all project images. Each project has to define its’ own image.</p></li>
+<li><p>Build the experiment images. Each experiment can add anything it needs to the
+project images, if required. Use this to bring tools into the image that do
+not require any knowledge about the environment to run properly.
+For anything else, consider using a custom base image.</p></li>
+</ol>
+<section id="replace-images">
+<h3>Replace Images<a class="headerlink" href="#replace-images" title="Link to this heading">¶</a></h3>
+<p>Benchbuild will reuse any existing images it can find in your image registry.
+The only relevant information is the image tag, e.g., <code class="docutils literal notranslate"><span class="pre">benchbuild:alpine</span></code>.
+If you want to avoid reuse and force to rebuild images unconditionally, you can
+use the <code class="docutils literal notranslate"><span class="pre">--replace</span></code> flag when running the <code class="docutils literal notranslate"><span class="pre">containers</span></code> subcommand.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">benchbuild</span> <span class="n">container</span> <span class="n">run</span> <span class="o">--</span><span class="n">replace</span> <span class="o">-</span><span class="n">E</span> <span class="n">raw</span> <span class="n">linpack</span>
+</pre></div>
+</div>
+<p>This will ignore <strong>any</strong> required image for the given experiments and projects.</p>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<p>You can configure the container environment using the following config variables.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_EXPORT</span></code>: Path where benchbuild stores exported container
+images. By default we store it in <code class="docutils literal notranslate"><span class="pre">./containers/export</span></code>. Will be created
+automatically, if needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_IMPORT</span></code>: Path where to input images from into the registry.
+By default we load from <code class="docutils literal notranslate"><span class="pre">./containers/export</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_FROM_SOURCE</span></code>: Determine, if we should use benchbuild from the
+current source checkout, or from pip.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_ROOT</span></code>: Where we store our image layers. This is the image
+registry. Cannot be stored on filesystems that do not support subuid/-gid
+mapping, e.g. NFS.
+The default location is <code class="docutils literal notranslate"><span class="pre">./containers/lib</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_RUNROOT</span></code>: Where we store temporary image layers of running
+containers. See <code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_ROOT</span></code> for restrictions.
+The default location is: <code class="docutils literal notranslate"><span class="pre">./containers/run</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_RUNTIME</span></code>: Podman can use any standard OCI-container runtime to
+launch containers. We use <a class="reference external" href="https://github.com/containers/crun">crun</a> by
+default. Depending on your system, this one has already been installed with
+<code class="docutils literal notranslate"><span class="pre">podman</span></code>.
+The default runtime is: <code class="docutils literal notranslate"><span class="pre">/usr/bin/crun</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BB_CONTAINER_MOUNTS</span></code>: A list of mountpoint definitions that should be added
+to all containers. With this you can add arbitrary tools into all containers.
+Default: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+</ul>
+</section>
+<section id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">¶</a></h2>
+<p>A project that wants to use a container image needs to define it in the
+<code class="docutils literal notranslate"><span class="pre">CONTAINER</span></code> attribute it using our declarative API provided by
+<code class="docutils literal notranslate"><span class="pre">benchbuild.environments.domain.declarative</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">benchbuild.environments.domain.declarative</span> <span class="kn">import</span> <span class="n">ContainerImage</span>
+
+<span class="k">class</span> <span class="nc">Testproject</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
+  <span class="n">CONTAINER</span> <span class="o">=</span> <span class="n">ContainerImage</span><span class="p">()</span><span class="o">.</span><span class="n">from_</span><span class="p">(</span><span class="s1">&#39;benchbuild:alpine&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The available set of commands follows the structure of a <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>.</p>
+</section>
+<section id="runtime-requirements">
+<h2>Runtime requirements<a class="headerlink" href="#runtime-requirements" title="Link to this heading">¶</a></h2>
+<p>For containers to work properly, you need a few systems set up beforehand.</p>
+<section id="buildah">
+<h3>Buildah<a class="headerlink" href="#buildah" title="Link to this heading">¶</a></h3>
+<p>Image construction requires the <a class="reference external" href="https://buildah.io">Buildah</a> tool. All image
+construction tasks are formulated as buildah command calls in the backend.</p>
+<p>Buildah is supported up to version 1.19.8.</p>
+</section>
+<section id="podman">
+<h3>Podman<a class="headerlink" href="#podman" title="Link to this heading">¶</a></h3>
+<p>Container construction and execution is handed off to <a class="reference external" href="https://podman.io">Podman</a>.
+Podman provides rootless containers and does not requires the execution of a
+daemon process. However, you need to setup your user namespace properly to allow
+mapping of subordinate uids/gids. Otherwise, podman will not be able to map
+users other than the root user to filesystem permissions inside the container.</p>
+<p>Please refer to podman’s documentation on how to setup podman properly on your
+system.</p>
+<p>Podman is supported up to version 2.2.1</p>
+</section>
+</section>
+<section id="module-benchbuild.container">
+<span id="module-benchbuild-container"></span><h2>Module: benchbuild.container<a class="headerlink" href="#module-benchbuild.container" title="Link to this heading">¶</a></h2>
+<p>Container construction tool.</p>
+<p>This tool assists in the creation of customized uchroot containers.
+You can define strategies and apply them on a given container base-image
+to have a fixed way of creating a user-space environment.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.BashStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">BashStrategy</span></span><a class="reference internal" href="../../_modules/benchbuild/container/#BashStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.BashStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.container.ContainerStrategy" title="benchbuild.container.ContainerStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerStrategy</span></code></a></p>
+<p>The user interface for setting up a bash inside the container.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.BashStrategy.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#BashStrategy.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.BashStrategy.run" title="Link to this definition">¶</a></dt>
+<dd><p>Execute a container strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – A context object with attributes used for the strategy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.Container">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></p>
+<p>Manage uchroot containers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.container.Container.VERSION">
+<span class="sig-name descname"><span class="pre">VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'6.9.dev8+g85c5ced8'</span></em><a class="headerlink" href="#benchbuild.container.Container.VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.builddir">
+<span class="sig-name descname"><span class="pre">builddir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmpdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.builddir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.builddir" title="Link to this definition">¶</a></dt>
+<dd><p>Set the current builddir of the container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.input_file">
+<span class="sig-name descname"><span class="pre">input_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_container</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.input_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.input_file" title="Link to this definition">¶</a></dt>
+<dd><p>Find the input path of a uchroot container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.main" title="Link to this definition">¶</a></dt>
+<dd><p>Implement me (no need to call super)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.mounts">
+<span class="sig-name descname"><span class="pre">mounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_mount</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.mounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.mounts" title="Link to this definition">¶</a></dt>
+<dd><p>Save the current mount of the container into the settings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.output_file">
+<span class="sig-name descname"><span class="pre">output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_container</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.output_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.output_file" title="Link to this definition">¶</a></dt>
+<dd><p>Find and writes the output path of a chroot container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.Container.shell">
+<span class="sig-name descname"><span class="pre">shell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_shell</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#Container.shell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.Container.shell" title="Link to this definition">¶</a></dt>
+<dd><p>The command to run inside the container.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.container.Container.verbosity">
+<span class="sig-name descname"><span class="pre">verbosity</span></span><a class="headerlink" href="#benchbuild.container.Container.verbosity" title="Link to this definition">¶</a></dt>
+<dd><p>Sets an attribute</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerBootstrap">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">ContainerBootstrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerBootstrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerBootstrap" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></p>
+<p>Check for the needed files.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerBootstrap.install_cmake_and_exit">
+<span class="sig-name descname"><span class="pre">install_cmake_and_exit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerBootstrap.install_cmake_and_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerBootstrap.install_cmake_and_exit" title="Link to this definition">¶</a></dt>
+<dd><p>Tell the user to install cmake and aborts the current process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerBootstrap.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerBootstrap.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerBootstrap.main" title="Link to this definition">¶</a></dt>
+<dd><p>Implement me (no need to call super)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerCreate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">ContainerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerCreate" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></p>
+<p>Create a new container with a predefined strategy.</p>
+<p>We offer a variety of creation policies for a new container. By default a
+basic ‘spawn a bash’ policy is used. This just leaves you inside a bash
+that is started in the extracted container. After customization you can
+exit the bash and pack up the result.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerCreate.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerCreate.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerCreate.main" title="Link to this definition">¶</a></dt>
+<dd><p>Implement me (no need to call super)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerCreate.strategy">
+<span class="sig-name descname"><span class="pre">strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerCreate.strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerCreate.strategy" title="Link to this definition">¶</a></dt>
+<dd><p>Select strategy based on key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>strategy</strong> (<em>str</em>) – The strategy to select.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A strategy object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">ContainerList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerList" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></p>
+<p>Prints a list of the known containers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerList.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerList.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerList.main" title="Link to this definition">¶</a></dt>
+<dd><p>Implement me (no need to call super)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerRun">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">ContainerRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerRun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerRun" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></p>
+<p>Execute commannds inside a prebuilt container.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerRun.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerRun.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerRun.main" title="Link to this definition">¶</a></dt>
+<dd><p>Implement me (no need to call super)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">ContainerStrategy</span></span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interfaces for the different containers chosen by the experiment.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.ContainerStrategy.run">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#ContainerStrategy.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.ContainerStrategy.run" title="Link to this definition">¶</a></dt>
+<dd><p>Execute a container strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – A context object with attributes used for the strategy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.MockObj">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">MockObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#MockObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.MockObj" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Context object to be used in strategies.</p>
+<p>This object’s attributes are initialized on construction.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.container.SetupPolyJITGentooStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">SetupPolyJITGentooStrategy</span></span><a class="reference internal" href="../../_modules/benchbuild/container/#SetupPolyJITGentooStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.SetupPolyJITGentooStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.container.ContainerStrategy" title="benchbuild.container.ContainerStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerStrategy</span></code></a></p>
+<p>Interface of using gentoo as a container for an experiment.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.container.SetupPolyJITGentooStrategy.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#SetupPolyJITGentooStrategy.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.SetupPolyJITGentooStrategy.run" title="Link to this definition">¶</a></dt>
+<dd><p>Setup a gentoo container suitable for PolyJIT.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.clean_directories">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">clean_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builddir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#clean_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.clean_directories" title="Link to this definition">¶</a></dt>
+<dd><p>Remove the in and out of the container if confirmed by the user.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.find_hash">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">find_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#find_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.find_hash" title="Link to this definition">¶</a></dt>
+<dd><p>Find the first container in the database with the given key.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.main">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.main" title="Link to this definition">¶</a></dt>
+<dd><p>Main entry point for the container tool.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.pack_container">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">pack_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#pack_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.pack_container" title="Link to this definition">¶</a></dt>
+<dd><p>Pack a container image into a .tar.bz2 archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_container</strong> (<em>str</em>) – Path string to the container image.</p></li>
+<li><p><strong>out_file</strong> (<em>str</em>) – Output file name.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.run_in_container">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">run_in_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#run_in_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.run_in_container" title="Link to this definition">¶</a></dt>
+<dd><p>Run a given command inside a container.</p>
+<p>Mounts a directory as a container at the given mountpoint and tries to run
+the given command inside the new container.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.set_input_container">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">set_input_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#set_input_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.set_input_container" title="Link to this definition">¶</a></dt>
+<dd><p>Save the input for the container in the configurations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.setup_bash_in_container">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">setup_bash_in_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builddir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#setup_bash_in_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.setup_bash_in_container" title="Link to this definition">¶</a></dt>
+<dd><p>Setup a bash environment inside a container.</p>
+<p>Creates a new chroot, which the user can use as a bash to run the wanted
+projects inside the mounted container, that also gets returned afterwards.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.setup_container">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">setup_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builddir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_container</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#setup_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.setup_container" title="Link to this definition">¶</a></dt>
+<dd><p>Prepare the container and returns the path where it can be found.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.container.setup_directories">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.container.</span></span><span class="sig-name descname"><span class="pre">setup_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builddir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/container/#setup_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.container.setup_directories" title="Link to this definition">¶</a></dt>
+<dd><p>Create the in and out directories of the container.</p>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.environments.domain.declarative">
+<span id="module-benchbuild-environments-domain-declarative"></span><h2>Module: benchbuild.environments.domain.declarative<a class="headerlink" href="#module-benchbuild.environments.domain.declarative" title="Link to this heading">¶</a></h2>
+<p>BenchBuild supports containerized execution of all experiments. This gives you
+full control about the environment your [projects](/concepts/projects/) and
+[experiments](/concepts/experiments/) may run in.</p>
+<p>The following example uses the latest <code class="docutils literal notranslate"><span class="pre">alpine:latest</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ContainerImage</span><span class="p">()</span><span class="o">.</span><span class="n">from_</span><span class="p">(</span><span class="s1">&#39;alpine:latest&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;apk&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;apk&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="s1">&#39;python3&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.declarative.</span></span><span class="sig-name descname"><span class="pre">ContainerImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>Define a container image declaratively.</p>
+<p>Start a new image using the <code class="docutils literal notranslate"><span class="pre">.from_</span></code> method and provide a base image.
+Each method creates a new layer in the container image.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tgt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.add" title="Link to this definition">¶</a></dt>
+<dd><p>Add given files from the source to the container image.</p>
+<p>Dockerfile syntax: ADD &lt;source&gt; [&lt;source&gt;…] &lt;target&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sources</strong> (<em>tp.Iterable</em><em>[</em><em>str</em><em>]</em>) – Source path to add to the target</p></li>
+<li><p><strong>tgt</strong> (<em>str</em>) – Absolute target path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.base">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.base" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.command">
+<span class="sig-name descname"><span class="pre">command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.command" title="Link to this definition">¶</a></dt>
+<dd><p>Set the default command the container runs.</p>
+<p>Dockerfile syntax: CMD &lt;command&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*args</strong> (<em>str</em>) – A list of command components.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.context">
+<span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.context" title="Link to this definition">¶</a></dt>
+<dd><p>Interact with the build context of the container.</p>
+<p>Sometimes you have to interact with the build context of a container
+image. For example, you need to add artifacts to the build context
+before you can add the to the container image.
+BenchBuild uses this to add the sources to the container image
+automatically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>tp.Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>None</em><em>]</em>) – A callable that is executed in the
+build-context directory.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.copy_">
+<span class="sig-name descname"><span class="pre">copy_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tgt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.copy_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.copy_" title="Link to this definition">¶</a></dt>
+<dd><p>Copy given files from the source to the container image.</p>
+<p>Dockerfile syntax: COPY &lt;source&gt; [&lt;source&gt;…] &lt;target&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sources</strong> (<em>tp.Iterable</em><em>[</em><em>str</em><em>]</em>) – Source path to add to the target</p></li>
+<li><p><strong>tgt</strong> (<em>str</em>) – Absolute target path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.entrypoint">
+<span class="sig-name descname"><span class="pre">entrypoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.entrypoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.entrypoint" title="Link to this definition">¶</a></dt>
+<dd><p>Set the entrypoint of the container.</p>
+<p>Dockerfile syntax: ENTRYPOINT &lt;command&gt;</p>
+<p>This sets the default binary to run to the given command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*args</strong> (<em>str</em>) – A list of command components.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.env">
+<span class="sig-name descname"><span class="pre">env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.env" title="Link to this definition">¶</a></dt>
+<dd><p>Create an environment layer in this image.</p>
+<p>Dockerfile syntax: ENV</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>str</em>) – a dictionary containing name/value pairings to be
+set as environment variables.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.from_">
+<span class="sig-name descname"><span class="pre">from_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.from_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.from_" title="Link to this definition">¶</a></dt>
+<dd><p>Specify a new base layer for this image.</p>
+<p>Dockerfile syntax: FROM &lt;image&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>base_image</strong> (<em>str</em>) – The base image for our new container image.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.run" title="Link to this definition">¶</a></dt>
+<dd><p>Run a command in the container image.</p>
+<p>Dockerfile syntax: RUN &lt;command&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – The binary to execute in the container.</p></li>
+<li><p><strong>*args</strong> (<em>str</em>) – Arguments that will be passed to the container.</p></li>
+<li><p><strong>**kwargs</strong> (<em>str</em>) – Additional options that will be passed to the
+backend run command.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.ContainerImage.workingdir">
+<span class="sig-name descname"><span class="pre">workingdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#ContainerImage.workingdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.ContainerImage.workingdir" title="Link to this definition">¶</a></dt>
+<dd><p>Change the working directory in the container.</p>
+<p>Dockerfile syntax: WORKINGDIR &lt;absolute-path&gt;</p>
+<p>All layers that follow this layer will be run with their working
+directory set to <code class="docutils literal notranslate"><span class="pre">directory</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – The target directory to set our cwd to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.declarative.add_benchbuild_layers">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.declarative.</span></span><span class="sig-name descname"><span class="pre">add_benchbuild_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/declarative/#add_benchbuild_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.declarative.add_benchbuild_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Add benchbuild into the given container image.</p>
+<p>This assumes all necessary depenencies are available in the image already.
+The installation is done, either using pip from a remote mirror, or using
+the source checkout of benchbuild.</p>
+<p>A source installation requires your buildah/podman installation to be
+able to complete a bind-mount as the user that runs benchbuild.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layers</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span>) – a container image we will add our install layers to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the modified container image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.environments.domain.model">
+<span id="module-benchbuild-environments-domain-model"></span><h2>Module: benchbuild.environments.domain.model<a class="headerlink" href="#module-benchbuild.environments.domain.model" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.AddLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">AddLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#AddLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.AddLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.AddLayer.destination">
+<span class="sig-name descname"><span class="pre">destination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.AddLayer.destination" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.AddLayer.sources">
+<span class="sig-name descname"><span class="pre">sources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.AddLayer.sources" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Command">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Command" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Message" title="benchbuild.environments.domain.model.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Container" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container.container_id">
+<span class="sig-name descname"><span class="pre">container_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Container.container_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container.context">
+<span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Container.context" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container.events">
+<span class="sig-name descname"><span class="pre">events</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.environments.domain.model.Message" title="benchbuild.environments.domain.model.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Container.events" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container.image">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.environments.domain.model.Image" title="benchbuild.environments.domain.model.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></em><a class="headerlink" href="#benchbuild.environments.domain.model.Container.image" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Container.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Container.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.ContextLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">ContextLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#ContextLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.ContextLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.ContextLayer.func">
+<span class="sig-name descname"><span class="pre">func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.ContextLayer.func" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.CopyLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">CopyLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#CopyLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.CopyLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.CopyLayer.destination">
+<span class="sig-name descname"><span class="pre">destination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.CopyLayer.destination" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.CopyLayer.sources">
+<span class="sig-name descname"><span class="pre">sources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.CopyLayer.sources" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.EntryPoint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">EntryPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#EntryPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.EntryPoint" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.EntryPoint.command">
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.EntryPoint.command" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Event">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Event" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Message" title="benchbuild.environments.domain.model.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.FromLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">FromLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#FromLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.FromLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.FromLayer.base">
+<span class="sig-name descname"><span class="pre">base</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.FromLayer.base" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.append" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.env">
+<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.env" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.events">
+<span class="sig-name descname"><span class="pre">events</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.environments.domain.model.Message" title="benchbuild.environments.domain.model.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.events" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.from_">
+<span class="sig-name descname"><span class="pre">from_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.environments.domain.model.FromLayer" title="benchbuild.environments.domain.model.FromLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FromLayer</span></code></a></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.from_" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.is_complete">
+<span class="sig-name descname"><span class="pre">is_complete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.is_complete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.is_complete" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.is_present">
+<span class="sig-name descname"><span class="pre">is_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.is_present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.is_present" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.layer_index">
+<span class="sig-name descname"><span class="pre">layer_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a><span class="pre">,</span> <a class="reference internal" href="#benchbuild.environments.domain.model.LayerState" title="benchbuild.environments.domain.model.LayerState"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerState</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.layer_index" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.layers">
+<span class="sig-name descname"><span class="pre">layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.layers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.mounts">
+<span class="sig-name descname"><span class="pre">mounts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.environments.domain.model.Mount" title="benchbuild.environments.domain.model.Mount"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mount</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.mounts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Image.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.prepend">
+<span class="sig-name descname"><span class="pre">prepend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.prepend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.prepend" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.present">
+<span class="sig-name descname"><span class="pre">present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.present" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Image.update_env">
+<span class="sig-name descname"><span class="pre">update_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Image.update_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Image.update_env" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Layer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Layer</span></span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Layer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>A layer represents a filesystem layer in a container image.</p>
+<p>Layers can be ‘virtual’ in the sense that they do not lead to changes
+in the container image filesystem, e.g. setting up the build context.</p>
+<p>This more or less represents commands/statements available in buildah
+or Dockerfiles.</p>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>buildah add -&gt; AddLayer
+buildah copy -&gt; CopyLayer
+buildah from -&gt; FromLayer</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.LayerState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">LayerState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#LayerState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.LayerState" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.LayerState.ABSENT">
+<span class="sig-name descname"><span class="pre">ABSENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.LayerState.ABSENT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.LayerState.PRESENT">
+<span class="sig-name descname"><span class="pre">PRESENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.LayerState.PRESENT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Message">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Message" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Mount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">Mount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#Mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.Mount" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Mount.source">
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Mount.source" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.Mount.target">
+<span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.Mount.target" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.RunLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">RunLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#RunLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.RunLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.RunLayer.args">
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.RunLayer.args" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.RunLayer.command">
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.RunLayer.command" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.RunLayer.kwargs">
+<span class="sig-name descname"><span class="pre">kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">],</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.RunLayer.kwargs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.SetCommand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">SetCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#SetCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.SetCommand" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.SetCommand.command">
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.SetCommand.command" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.UpdateEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">UpdateEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#UpdateEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.UpdateEnv" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.UpdateEnv.env">
+<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">],</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.model.UpdateEnv.env" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.WorkingDirectory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">WorkingDirectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#WorkingDirectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.WorkingDirectory" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Layer" title="benchbuild.environments.domain.model.Layer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.WorkingDirectory.directory">
+<span class="sig-name descname"><span class="pre">directory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.model.WorkingDirectory.directory" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.model.immutable_kwargs">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.model.</span></span><span class="sig-name descname"><span class="pre">immutable_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/model/#immutable_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.model.immutable_kwargs" title="Link to this definition">¶</a></dt>
+<dd><p>Convert str-typed kwargs into a hashable tuple.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-benchbuild.environments.domain.commands">
+<span id="module-benchbuild-environments-domain-commands"></span><h2>Module: benchbuild.environments.domain.commands<a class="headerlink" href="#module-benchbuild.environments.domain.commands" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateBenchbuildBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">CreateBenchbuildBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#CreateBenchbuildBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateBenchbuildBase" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateBenchbuildBase.layers">
+<span class="sig-name descname"><span class="pre">layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></em><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateBenchbuildBase.layers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateBenchbuildBase.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateBenchbuildBase.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">CreateImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#CreateImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateImage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateImage.layers">
+<span class="sig-name descname"><span class="pre">layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.environments.domain.declarative.ContainerImage" title="benchbuild.environments.domain.declarative.ContainerImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContainerImage</span></code></a></em><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateImage.layers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.CreateImage.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.CreateImage.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.DeleteImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">DeleteImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#DeleteImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.DeleteImage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.DeleteImage.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.DeleteImage.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ExportImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">ExportImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#ExportImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.ExportImage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ExportImage.image">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.ExportImage.image" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ExportImage.out_name">
+<span class="sig-name descname"><span class="pre">out_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.ExportImage.out_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ImportImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">ImportImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#ImportImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.ImportImage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ImportImage.image">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.ImportImage.image" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.ImportImage.in_path">
+<span class="sig-name descname"><span class="pre">in_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.ImportImage.in_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">RunProjectContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mount_build_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mount_tmp_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#RunProjectContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.environments.domain.model.Command" title="benchbuild.environments.domain.model.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.args">
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.args" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.build_dir">
+<span class="sig-name descname"><span class="pre">build_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.build_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.image">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.image" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.mount_build_dir">
+<span class="sig-name descname"><span class="pre">mount_build_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.mount_build_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.mount_tmp_dir">
+<span class="sig-name descname"><span class="pre">mount_tmp_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.mount_tmp_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.RunProjectContainer.tmp_dir">
+<span class="sig-name descname"><span class="pre">tmp_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.environments.domain.commands.RunProjectContainer.tmp_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.fs_compliant_name">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">fs_compliant_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#fs_compliant_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.fs_compliant_name" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a name to a valid filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.environments.domain.commands.oci_compliant_name">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.environments.domain.commands.</span></span><span class="sig-name descname"><span class="pre">oci_compliant_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/environments/domain/commands/#oci_compliant_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.environments.domain.commands.oci_compliant_name" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a name to an OCI compliant name.</p>
+<p>For now, we just make sure it is lower-case. This is depending on
+the implementation of your container registry. podman/buildah require
+lower-case repository names for now.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – the name to convert</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oci_compliant_name</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="go">&#39;foo&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oci_compliant_name</span><span class="p">(</span><span class="s2">&quot;FoO&quot;</span><span class="p">)</span>
+<span class="go">&#39;foo&#39;</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../configuration/"
+       title="previous chapter">← Configure</a>
+  </li>
+  <li class="next">
+    <a href="../actions/"
+       title="next chapter">Actions →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

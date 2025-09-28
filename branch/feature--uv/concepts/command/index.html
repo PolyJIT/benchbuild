@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>Commands</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../_static/documentation_options.js?v=12d94df1"></script>
+        <script src="../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../about/" />
+  <link rel="index" title="Index" href="../../genindex/" />
+  <link rel="search" title="Search" href="../../search/" />
+  <link rel="next" title="Source" href="../source/" />
+  <link rel="prev" title="Actions" href="../../basics/actions/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Commands</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#usage-inside-projects" class="reference internal">Usage inside Projects</a></li>
+                
+                  <li class="toctree-l2"><a href="#tokens" class="reference internal">Tokens</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.command" class="reference internal">Module: command</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../">Docs</a> &raquo;</li>
+    
+    <li>Commands</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../../basics/actions/"
+       title="previous chapter">← Actions</a>
+  </li>
+  <li class="next">
+    <a href="../source/"
+       title="next chapter">Source →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Link to this heading">¶</a></h1>
+<p>BenchBuild provides an abstraction for binaries that are provided by a project,
+after compilation. These <code class="docutils literal notranslate"><span class="pre">Command</span></code> objects carry the path to the binary,
+customizable output paramters and support for dynamic tokens inside the path
+generation.</p>
+<p>Besides these features, a command behaves identical to any other binary
+command that you make use of inside BenchBuild, e.g., <code class="docutils literal notranslate"><span class="pre">benchbuild.utils.cmd</span></code>.</p>
+<section id="usage-inside-projects">
+<h2>Usage inside Projects<a class="headerlink" href="#usage-inside-projects" title="Link to this heading">¶</a></h2>
+<p>For now, you make use of BenchBuild’s commands inside a project’s <code class="docutils literal notranslate"><span class="pre">WORKLOADS</span></code>
+attribute. Let’s have a look at the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">benchbuild.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">WorkloadSet</span><span class="p">,</span> <span class="n">SourceRoot</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyProject</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
+  <span class="o">...</span>
+  <span class="n">SOURCE</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Git</span><span class="p">(</span>
+      <span class="n">remote</span><span class="o">=</span><span class="s2">&quot;https://github.com/myproject.git&quot;</span><span class="p">,</span>
+      <span class="n">local</span><span class="o">=</span><span class="s2">&quot;myproject.git&quot;</span><span class="p">,</span>
+      <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">refspec</span><span class="o">=</span><span class="s2">&quot;HEAD&quot;</span>
+  <span class="p">]</span>
+
+  <span class="n">WORKLOADS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">WorkloadSet</span><span class="p">(</span><span class="s2">&quot;compression&quot;</span><span class="p">):</span> <span class="p">[</span>
+      <span class="n">Command</span><span class="p">(</span><span class="n">SourceRoot</span><span class="p">(</span><span class="s2">&quot;myproject.git&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;myprj&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>Here we have a <code class="docutils literal notranslate"><span class="pre">Command</span></code> that belongs to the <code class="docutils literal notranslate"><span class="pre">WorkloadSet</span></code> with the name
+<code class="docutils literal notranslate"><span class="pre">compression</span></code> that points to the binary <code class="docutils literal notranslate"><span class="pre">myprj</span></code> inside the project’s
+source directory of the git source <code class="docutils literal notranslate"><span class="pre">myproject.git</span></code>. What concrete path
+this will be is only known after this project has been instanced inside
+an experiment and is not known before.</p>
+<p>This is done using tokens inside the commands’ path representation. One
+example of an available token is the above <code class="docutils literal notranslate"><span class="pre">SourceRoot</span></code>.</p>
+</section>
+<section id="tokens">
+<h2>Tokens<a class="headerlink" href="#tokens" title="Link to this heading">¶</a></h2>
+<p>BenchBuild offers project authors a way to tokenize path components for
+commands. These can be used to refer to a project’s root directory or
+source directory in a generic way.</p>
+</section>
+<section id="module-benchbuild.command">
+<span id="module-command"></span><h2>Module: command<a class="headerlink" href="#module-benchbuild.command" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsRenderStrategy">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">ArgsRenderStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ArgsRenderStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ArgsRenderStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Rendering strategy protocol for command line argument tokens.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsRenderStrategy.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ArgsRenderStrategy.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ArgsRenderStrategy.rendered" title="Link to this definition">¶</a></dt>
+<dd><p>Renders this strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsRenderStrategy.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.ArgsRenderStrategy.unrendered" title="Link to this definition">¶</a></dt>
+<dd><p>Returns an unrendered representation of this strategy.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsToken">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">ArgsToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ArgsToken"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ArgsToken" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for tokens that can be rendered into command-line arguments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsToken.make_token">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ArgsToken.make_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ArgsToken.make_token" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.ArgsToken" title="benchbuild.command.ArgsToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgsToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsToken.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ArgsToken.render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ArgsToken.render" title="Link to this definition">¶</a></dt>
+<dd><p>Renders the PathToken as a standard pathlib Path.</p>
+<p>Any kwargs will be forwarded to the PathRenderStrategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.ArgsToken.renderer">
+<span class="sig-name descname"><span class="pre">renderer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.ArgsRenderStrategy" title="benchbuild.command.ArgsRenderStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgsRenderStrategy</span></code></a></em><a class="headerlink" href="#benchbuild.command.ArgsToken.renderer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.BackupFn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">BackupFn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#BackupFn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.BackupFn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Backup callback function protocol.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.BuilddirRenderer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">BuilddirRenderer</span></span><a class="reference internal" href="../../_modules/benchbuild/command/#BuilddirRenderer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.BuilddirRenderer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Renders the build directory of the assigned project.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.BuilddirRenderer.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#BuilddirRenderer.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.BuilddirRenderer.rendered" title="Link to this definition">¶</a></dt>
+<dd><p>Render the project’s build directory.</p>
+<p>If rendering is not possible, the unrendered representation is
+provided and an error will be loggged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[benchbuild.project.Project]</span>) – the project to render the build directory from.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.BuilddirRenderer.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.BuilddirRenderer.unrendered" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.Command">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.Command" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A command wrapper for benchbuild’s commands.</p>
+<p>Commands are defined by a path to an executable binary and it’s arguments.
+Optional, commands can provide output and output_param parameters to
+declare the Command’s output behavior.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.path">
+<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#benchbuild.command.Command.path" title="Link to this definition">¶</a></dt>
+<dd><p>The binary path of the command</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">\*args</span></span></dt>
+<dd><p>Command arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.output_param">
+<span class="sig-name descname"><span class="pre">output_param</span></span><a class="headerlink" href="#benchbuild.command.Command.output_param" title="Link to this definition">¶</a></dt>
+<dd><p>A format string that encodes the output parameter argument
+using the <cite>output</cite> attribute.</p>
+<p>Example: output_param = f”–out {output}”.
+BenchBuild will construct the output argument from this.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.output">
+<span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#benchbuild.command.Command.output" title="Link to this definition">¶</a></dt>
+<dd><p>An optional PathToken to declare an output file of the command.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#benchbuild.command.Command.label" title="Link to this definition">¶</a></dt>
+<dd><p>An optional Label that can be used to name a command.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.creates">
+<span class="sig-name descname"><span class="pre">creates</span></span><a class="headerlink" href="#benchbuild.command.Command.creates" title="Link to this definition">¶</a></dt>
+<dd><p>A list of PathToken that encodes any artifacts that are
+created by this command.
+This will include the output PathToken automatically. Any
+additional PathTokens provided will be provided for cleanup.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.Command.consumes">
+<span class="sig-name descname"><span class="pre">consumes</span></span><a class="headerlink" href="#benchbuild.command.Command.consumes" title="Link to this definition">¶</a></dt>
+<dd><p>A list of PathToken that holds any artifacts that will be
+consumed by this command.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">\*\*kwargs</span></span></dt>
+<dd><p>Any remaining kwargs will be added as environment variables
+to the command.</p>
+</dd></dl>
+
+<p>Base command path:
+&gt;&gt;&gt; ROOT = PathToken.make_token()
+&gt;&gt;&gt; base_c = Command(ROOT / “bin” / “true”)
+&gt;&gt;&gt; base_c
+Command(path=/bin/true)
+&gt;&gt;&gt; str(base_c)
+‘/bin/true’</p>
+<p>Test environment representations:
+&gt;&gt;&gt; env_c = Command(ROOT / “bin”/ “true”, BB_ENV_TEST=1)
+&gt;&gt;&gt; env_c
+Command(path=/bin/true env={‘BB_ENV_TEST’: 1})
+&gt;&gt;&gt; str(env_c)
+‘BB_ENV_TEST=1 /bin/true’</p>
+<p>Argument representations:
+&gt;&gt;&gt; args_c = Command(ROOT / “bin” / “true”, “–arg1”, “–arg2”)
+&gt;&gt;&gt; args_c
+Command(path=/bin/true args=(’–arg1’, ‘–arg2’))
+&gt;&gt;&gt; str(args_c)
+‘/bin/true –arg1 –arg2’</p>
+<p>Use str for creates:
+&gt;&gt;&gt; cmd = Command(ROOT / “bin” / “true”, creates=[“tmp/foo”])
+&gt;&gt;&gt; cmd.creates
+[&lt;builddir&gt;/tmp/foo]</p>
+<p>Use absolute path-str for creates:
+&gt;&gt;&gt; cmd = Command(ROOT / “bin” / “true”, creates=[“/tmp/foo”])
+&gt;&gt;&gt; cmd.creates
+[/tmp/foo]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.Command.as_plumbum">
+<span class="sig-name descname"><span class="pre">as_plumbum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#Command.as_plumbum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.Command.as_plumbum" title="Link to this definition">¶</a></dt>
+<dd><p>Convert this command into a plumbum compatible command.</p>
+<p>This renders all tokens in the command’s path and creates a new
+plumbum command with the given parameters and environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – parameters passed to the path renderers.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundEnvCommand</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An executable plumbum command.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">consumes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><span class="pre">PathToken</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">creates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><span class="pre">PathToken</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.Command.dirname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dirname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#benchbuild.command.Command.dirname" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.Command.env">
+<span class="sig-name descname"><span class="pre">env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#Command.env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.Command.env" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.Command.name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.Command.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><span class="pre">PathToken</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><span class="pre">PathToken</span></a></em><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.Command.rendered_args">
+<span class="sig-name descname"><span class="pre">rendered_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#Command.rendered_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.Command.rendered_args" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.ConstStrRenderer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">ConstStrRenderer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ConstStrRenderer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ConstStrRenderer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Renders a constant string defined by the user.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.ConstStrRenderer.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ConstStrRenderer.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ConstStrRenderer.rendered" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.ConstStrRenderer.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.ConstStrRenderer.unrendered" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.ConstStrRenderer.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.command.ConstStrRenderer.value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.OnlyIn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">OnlyIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rev_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workload_set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#OnlyIn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.OnlyIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provide a filled <cite>WorkloadSet</cite> only if, given revision is inside the range.</p>
+<p>This makes use of the unwrap protocol and returns the given WorkloadSet,
+iff, the Project’s revision is included in the range specified by the
+RevisionRange.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.OnlyIn.rev_range">
+<span class="sig-name descname"><span class="pre">rev_range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">RevisionRange</span></code></em><a class="headerlink" href="#benchbuild.command.OnlyIn.rev_range" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.OnlyIn.unwrap">
+<span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#OnlyIn.unwrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.OnlyIn.unwrap" title="Link to this definition">¶</a></dt>
+<dd><p>Provide the store WorkloadSet only if our revision is in the range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.WorkloadSet" title="benchbuild.command.WorkloadSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkloadSet</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.OnlyIn.workload_set">
+<span class="sig-name descname"><span class="pre">workload_set</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.WorkloadSet" title="benchbuild.command.WorkloadSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkloadSet</span></code></a></em><a class="headerlink" href="#benchbuild.command.OnlyIn.workload_set" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.PathRenderStrategy">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">PathRenderStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathRenderStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathRenderStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Rendering strategy protocol for path components.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.PathRenderStrategy.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathRenderStrategy.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathRenderStrategy.rendered" title="Link to this definition">¶</a></dt>
+<dd><p>Renders this strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.PathRenderStrategy.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.PathRenderStrategy.unrendered" title="Link to this definition">¶</a></dt>
+<dd><p>Returns an unrendered representation of this strategy.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">PathToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathToken"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathToken" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class used for command token substitution.</p>
+<p>A path token can use similar to pathlib’s Path components. However, each
+token can render dynamically based on the given render context.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.dirname">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dirname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#benchbuild.command.PathToken.dirname" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathToken.exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathToken.exists" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.left">
+<span class="sig-name descname"><span class="pre">left</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.command.PathToken.left" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.make_token">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathToken.make_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathToken.make_token" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.PathToken.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PathToken.render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PathToken.render" title="Link to this definition">¶</a></dt>
+<dd><p>Renders the PathToken as a standard pathlib Path.</p>
+<p>Any kwargs will be forwarded to the PathRenderStrategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.renderer">
+<span class="sig-name descname"><span class="pre">renderer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.PathRenderStrategy" title="benchbuild.command.PathRenderStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathRenderStrategy</span></code></a></em><a class="headerlink" href="#benchbuild.command.PathToken.renderer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.PathToken.right">
+<span class="sig-name descname"><span class="pre">right</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#benchbuild.command.PathToken.right" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.ProjectCommand">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">ProjectCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#ProjectCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.ProjectCommand" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ProjectCommands associate a command to a benchbuild project.</p>
+<p>A project command can wrap the given command with the assigned
+runtime extension.
+If the binary is located inside a subdirectory relative to one of the
+project’s sources, you can provide a path relative to it’s local
+directory.
+A project command will always try to resolve any reference to a local
+source directory in a command’s path.</p>
+<p>A call to a project command will drop the current configuration inside
+the project’s build directory and confine the run into the project’s
+build directory. The binary will be replaced with a wrapper that
+calls the project’s runtime_extension.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.ProjectCommand.command">
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#benchbuild.command.Command" title="benchbuild.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></em><a class="headerlink" href="#benchbuild.command.ProjectCommand.command" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.ProjectCommand.path">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#benchbuild.command.ProjectCommand.path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.ProjectCommand.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">benchbuild.project.Project</span></em><a class="headerlink" href="#benchbuild.command.ProjectCommand.project" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.ProjectRoot">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">ProjectRoot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.command.ProjectRoot" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.PruneFn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">PruneFn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#PruneFn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.PruneFn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Prune function protocol.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.RestoreFn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">RestoreFn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#RestoreFn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.RestoreFn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Restore function protocol.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.RootRenderer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">RootRenderer</span></span><a class="reference internal" href="../../_modules/benchbuild/command/#RootRenderer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.RootRenderer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Renders the root directory.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.RootRenderer.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#RootRenderer.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.RootRenderer.rendered" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.RootRenderer.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.RootRenderer.unrendered" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.SourceRoot">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">SourceRoot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.command.SourceRoot" title="Link to this definition">¶</a></dt>
+<dd><p>Create a SourceRoot token for the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>local_name</strong> (<em>str</em>) – The source’s local name to access.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.SourceRootRenderer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">SourceRootRenderer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#SourceRootRenderer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.SourceRootRenderer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Renders the source root of the given local source name.</p>
+<p>The attribute ‘local’ refers to the local attribute in a project’s
+source definition.
+If the local name cannot be found inside the project’s source definition,
+it will concatenate the project’s builddir with the given name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.command.SourceRootRenderer.local">
+<span class="sig-name descname"><span class="pre">local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#benchbuild.command.SourceRootRenderer.local" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.SourceRootRenderer.rendered">
+<span class="sig-name descname"><span class="pre">rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#SourceRootRenderer.rendered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.SourceRootRenderer.rendered" title="Link to this definition">¶</a></dt>
+<dd><p>Render the project’s source directory.</p>
+<p>If rendering is not possible, the unrendered representation is
+provided and an error will be loggged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[benchbuild.project.Project]</span>) – the project to render the build directory from.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.command.SourceRootRenderer.unrendered">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unrendered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#benchbuild.command.SourceRootRenderer.unrendered" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.SupportsUnwrap">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">SupportsUnwrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#SupportsUnwrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.SupportsUnwrap" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Support unwrapping a WorkloadSet.</p>
+<p>Unwrapping ensures access to a WorkloadSet from any wrapper object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.SupportsUnwrap.unwrap">
+<span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#SupportsUnwrap.unwrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.SupportsUnwrap.unwrap" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">WorkloadSet</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.command.WorkloadSet">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">WorkloadSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#WorkloadSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.WorkloadSet" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An immutable set of workload descriptors.</p>
+<p>A WorkloadSet is immutable and usable as a key in a job mapping.
+WorkloadSets support composition through intersection and union.</p>
+<p>Example:
+&gt;&gt;&gt; WorkloadSet(1, 0) &amp; WorkloadSet(1)
+WorkloadSet({1})
+&gt;&gt;&gt; WorkloadSet(1, 0) &amp; WorkloadSet(2)
+WorkloadSet({})
+&gt;&gt;&gt; WorkloadSet(1, 0) | WorkloadSet(2)
+WorkloadSet({0, 1, 2})
+&gt;&gt;&gt; WorkloadSet(1, 0) | WorkloadSet(“1”)
+WorkloadSet({0, 1, 1})</p>
+<p>A workload set is not sorted, therefore, requires no comparability between
+inserted values.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.command.WorkloadSet.unwrap">
+<span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#WorkloadSet.unwrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.WorkloadSet.unwrap" title="Link to this definition">¶</a></dt>
+<dd><p>Implement the <cite>SupportsUnwrap</cite> protocol.</p>
+<p>WorkloadSets only implement identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">WorkloadSet</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.cleanup">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup=&lt;function</span> <span class="pre">_default_backup&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore=&lt;function</span> <span class="pre">_default_restore&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune=&lt;function</span> <span class="pre">_default_prune&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Encapsulate a command in automatic backup, restore and prune.</p>
+<p>This will wrap a ProjectCommand inside a contextmanager. All consumed
+files inside the project’s build directory will be backed up by benchbuild.
+You can then run your command as usual.
+When you leave the context, all created paths are deleted and all consumed
+paths restored.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.filter_workload_index">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">filter_workload_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#filter_workload_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.filter_workload_index" title="Link to this definition">¶</a></dt>
+<dd><p>Yield only commands from the index that match the filter.</p>
+<p>This removes all command lists from the index not matching <cite>only</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#benchbuild.command.Command" title="benchbuild.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.project_root">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">project_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#project_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.project_root" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.source_root">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">source_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#source_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.source_root" title="Link to this definition">¶</a></dt>
+<dd><p>Create a SourceRoot token for the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>local_name</strong> (<em>str</em>) – The source’s local name to access.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#benchbuild.command.PathToken" title="benchbuild.command.PathToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathToken</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.command.unwrap">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.command.</span></span><span class="sig-name descname"><span class="pre">unwrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/command/#unwrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.command.unwrap" title="Link to this definition">¶</a></dt>
+<dd><p>Unwrap all keys in a workload index.</p>
+<p>‘Empty’ WorkloadSets will be removed. A WorkloadSet is empty, if it’s
+boolean representation evaluates to <cite>False</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code>[<a class="reference internal" href="#benchbuild.command.WorkloadSet" title="benchbuild.command.WorkloadSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkloadSet</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#benchbuild.command.Command" title="benchbuild.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../../basics/actions/"
+       title="previous chapter">← Actions</a>
+  </li>
+  <li class="next">
+    <a href="../source/"
+       title="next chapter">Source →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2025, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 8.2.3 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>Configure</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../_static/documentation_options.js?v=a844cb79"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../about/" />
+  <link rel="index" title="Index" href="../../genindex/" />
+  <link rel="search" title="Search" href="../../search/" />
+  <link rel="next" title="Containers" href="../containers/" />
+  <link rel="prev" title="Installation" href="../" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Configure</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.settings" class="reference internal">Module: settings</a></li>
+                
+                  <li class="toctree-l2"><a href="#module-benchbuild.utils.settings" class="reference internal">Module: utils.settings</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../">Docs</a> &raquo;</li>
+    
+    <li>Configure</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="../"
+       title="previous chapter">← Installation</a>
+  </li>
+  <li class="next">
+    <a href="../containers/"
+       title="next chapter">Containers →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="configure">
+<h1>Configure<a class="headerlink" href="#configure" title="Link to this heading">¶</a></h1>
+<section id="module-benchbuild.settings">
+<span id="module-settings"></span><h2>Module: settings<a class="headerlink" href="#module-benchbuild.settings" title="Link to this heading">¶</a></h2>
+<p>Settings module for benchbuild.</p>
+<p>All settings are stored in a simple dictionary. Each
+setting should be modifiable via environment variable.</p>
+</section>
+<section id="module-benchbuild.utils.settings">
+<span id="module-utils-settings"></span><h2>Module: utils.settings<a class="headerlink" href="#module-benchbuild.utils.settings" title="Link to this heading">¶</a></h2>
+<p>Configuration utilities.</p>
+<p>Settings are stored in a dictionary-like configuration object.
+All settings are modifiable by environment variables that encode
+the path in the dictionary tree.</p>
+<p>Inner nodes in the dictionary tree can be any dictionary.
+A leaf node in the dictionary tree is represented by an inner node that
+contains a value key.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigDumper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">ConfigDumper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_flow_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canonical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unicode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_break</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explicit_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explicit_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#ConfigDumper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SafeDumper</span></code></p>
+<p>Avoid polluting yaml’s namespace with our modifications.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers">
+<span class="sig-name descname"><span class="pre">yaml_implicit_resolvers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'!':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'&amp;':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'':</span> <span class="pre">[('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'*':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'+':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'-':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'.':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'0':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'1':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'2':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'3':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'4':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'5':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'6':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'7':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'8':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'9':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'&lt;':</span> <span class="pre">[('tag:yaml.org,2002:merge',</span> <span class="pre">re.compile('^(?:&lt;&lt;)$'))],</span> <span class="pre">'=':</span> <span class="pre">[('tag:yaml.org,2002:value',</span> <span class="pre">re.compile('^(?:=)$'))],</span> <span class="pre">'F':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'N':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'O':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'T':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'Y':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'f':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'n':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'o':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'t':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'y':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'~':</span> <span class="pre">[('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">None:</span> <span class="pre">[('!uuid',</span> <span class="pre">re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))]}</span></em><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigDumper.yaml_representers">
+<span class="sig-name descname"><span class="pre">yaml_representers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'NoneType'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_none&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'benchbuild.utils.settings.ConfigPath'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">path_representer&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bool'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_bool&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bytes'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_binary&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'datetime.date'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_date&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'datetime.datetime'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_datetime&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'dict'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_dict&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_float&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_int&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'list'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_list&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'set'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_set&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'str'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_str&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'tuple'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_list&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'uuid.UUID'&gt;:</span> <span class="pre">&lt;function</span> <span class="pre">uuid_representer&gt;,</span> <span class="pre">None:</span> <span class="pre">&lt;function</span> <span class="pre">SafeRepresenter.represent_undefined&gt;}</span></em><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper.yaml_representers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">ConfigLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#ConfigLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CSafeLoader</span></code></p>
+<p>Avoid polluting yaml’s namespace with our modifications.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigLoader.yaml_constructors">
+<span class="sig-name descname"><span class="pre">yaml_constructors</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'!create-if-needed':</span> <span class="pre">&lt;function</span> <span class="pre">path_constructor&gt;,</span> <span class="pre">'!uuid':</span> <span class="pre">&lt;function</span> <span class="pre">uuid_constructor&gt;,</span> <span class="pre">'tag:yaml.org,2002:binary':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_binary&gt;,</span> <span class="pre">'tag:yaml.org,2002:bool':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_bool&gt;,</span> <span class="pre">'tag:yaml.org,2002:float':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_float&gt;,</span> <span class="pre">'tag:yaml.org,2002:int':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_int&gt;,</span> <span class="pre">'tag:yaml.org,2002:map':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_map&gt;,</span> <span class="pre">'tag:yaml.org,2002:null':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_null&gt;,</span> <span class="pre">'tag:yaml.org,2002:omap':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_omap&gt;,</span> <span class="pre">'tag:yaml.org,2002:pairs':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_pairs&gt;,</span> <span class="pre">'tag:yaml.org,2002:seq':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_seq&gt;,</span> <span class="pre">'tag:yaml.org,2002:set':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_set&gt;,</span> <span class="pre">'tag:yaml.org,2002:str':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_str&gt;,</span> <span class="pre">'tag:yaml.org,2002:timestamp':</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_yaml_timestamp&gt;,</span> <span class="pre">None:</span> <span class="pre">&lt;function</span> <span class="pre">SafeConstructor.construct_undefined&gt;}</span></em><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader.yaml_constructors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers">
+<span class="sig-name descname"><span class="pre">yaml_implicit_resolvers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'!':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'&amp;':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'':</span> <span class="pre">[('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'*':</span> <span class="pre">[('tag:yaml.org,2002:yaml',</span> <span class="pre">re.compile('^(?:!|&amp;|\\*)$'))],</span> <span class="pre">'+':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'-':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'.':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'0':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'1':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'2':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'3':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'4':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'5':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'6':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'7':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'8':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'9':</span> <span class="pre">[('tag:yaml.org,2002:float',</span> <span class="pre">re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|\\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:int',</span> <span class="pre">re.compile('^(?:[-+]?0b[0-1_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0[0-7_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?(?:0|[1-9][0-9_]*)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?0x[0-9a-fA-F_]+\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]),</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:timestamp',</span> <span class="pre">re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|[0-9][0-9][0-9][0-9]</span> <span class="pre">-[0-9][0-9]?</span> <span class="pre">-[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(?:[Tt]|[</span> <span class="pre">\\t]+)[0-9][0-9]?\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">:[0-9][0-9],</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'&lt;':</span> <span class="pre">[('tag:yaml.org,2002:merge',</span> <span class="pre">re.compile('^(?:&lt;&lt;)$'))],</span> <span class="pre">'=':</span> <span class="pre">[('tag:yaml.org,2002:value',</span> <span class="pre">re.compile('^(?:=)$'))],</span> <span class="pre">'F':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'N':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'O':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'T':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'Y':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'f':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'n':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE)),</span> <span class="pre">('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'o':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'t':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'y':</span> <span class="pre">[('tag:yaml.org,2002:bool',</span> <span class="pre">re.compile('^(?:yes|Yes|YES|no|No|NO\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|true|True|TRUE|false|False|FALSE\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|on|On|ON|off|Off|OFF)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">'~':</span> <span class="pre">[('tag:yaml.org,2002:null',</span> <span class="pre">re.compile('^(?:</span> <span class="pre">~\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|null|Null|NULL\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">|</span> <span class="pre">)$',</span> <span class="pre">re.VERBOSE))],</span> <span class="pre">None:</span> <span class="pre">[('!uuid',</span> <span class="pre">re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))]}</span></em><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">ConfigPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#ConfigPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper around paths represented as list of strings.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigPath.path_to_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#ConfigPath.path_to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath.path_to_str" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.ConfigPath.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#ConfigPath.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath.validate" title="Link to this definition">¶</a></dt>
+<dd><p>Make sure this configuration path exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">Configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.settings.Indexable" title="benchbuild.utils.settings.Indexable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Indexable</span></code></a></p>
+<p>Dictionary-like data structure to contain all configuration variables.</p>
+<p>This serves as a configuration dictionary throughout benchbuild. You can
+use it to access all configuration options that are available. Whenever the
+structure is updated with a new subtree, all variables defined in the new
+subtree are updated from the environment.</p>
+<dl class="simple">
+<dt>Environment variables are generated from the tree paths automatically.</dt><dd><p>CFG[“build_dir”] becomes BB_BUILD_DIR
+CFG[“llvm”][“dir”] becomes BB_LLVM_DIR</p>
+</dd>
+</dl>
+<p>The configuration can be stored/loaded as YAML.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.filter_exports">
+<span class="sig-name descname"><span class="pre">filter_exports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.filter_exports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.filter_exports" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.has_default">
+<span class="sig-name descname"><span class="pre">has_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.has_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.has_default" title="Link to this definition">¶</a></dt>
+<dd><p>Check, if the node contains a ‘default’ value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.has_value">
+<span class="sig-name descname"><span class="pre">has_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.has_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.has_value" title="Link to this definition">¶</a></dt>
+<dd><p>Check, if the node contains a ‘value’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.init_from_env">
+<span class="sig-name descname"><span class="pre">init_from_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.init_from_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.init_from_env" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize this node from environment.</p>
+<p>If we’re a leaf node, i.e., a node containing a dictionary that
+consist of a ‘default’ key, compute our env variable and initialize
+our value from the environment.
+Otherwise, init our children.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.is_leaf">
+<span class="sig-name descname"><span class="pre">is_leaf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.is_leaf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.is_leaf" title="Link to this definition">¶</a></dt>
+<dd><p>Check, if the node is a ‘leaf’ node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_from</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.load" title="Link to this definition">¶</a></dt>
+<dd><p>Load the configuration dictionary from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.store">
+<span class="sig-name descname"><span class="pre">store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.store" title="Link to this definition">¶</a></dt>
+<dd><p>Store the configuration dictionary to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.to_env_dict">
+<span class="sig-name descname"><span class="pre">to_env_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Configuration.to_env_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.to_env_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert configuration object to a flat dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Configuration.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#benchbuild.utils.settings.Configuration.value" title="Link to this definition">¶</a></dt>
+<dd><p>Return the node value, if we’re a leaf node.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.Indexable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">Indexable</span></span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#Indexable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.Indexable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.InvalidConfigKey">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">InvalidConfigKey</span></span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#InvalidConfigKey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.InvalidConfigKey" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></p>
+<p>Warn, if you access a non-existing key benchbuild’s configuration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.available_cpu_count">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">available_cpu_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#available_cpu_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.available_cpu_count" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of available CPUs.</p>
+<p>Number of available virtual or physical CPUs on this system, i.e.
+user/real as output by time(1) when called with an optimally scaling
+userspace-only program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of avaialable CPUs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.convert_components">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">convert_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#convert_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.convert_components" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.current_available_threads">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">current_available_threads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#current_available_threads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.current_available_threads" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the number of currently available threads for BB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.escape_yaml">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">escape_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#escape_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.escape_yaml" title="Link to this definition">¶</a></dt>
+<dd><p>Shell-Escape a yaml input string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_str</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The unescaped string.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.find_config">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">find_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#find_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.find_config" title="Link to this definition">¶</a></dt>
+<dd><p>Find the path to the default config file.</p>
+<p>We look at :root: for the :default: config file. If we can’t find it
+there we start looking at the parent directory recursively until we
+find a file named :default: and return the absolute path to it.
+If we can’t find anything, we return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>)</p></li>
+<li><p><strong>default</strong> – The name of the config file we look for.</p></li>
+<li><p><strong>root</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to start looking for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LocalPath</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the default config file, None if we can’t find anything.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.get_number_of_jobs">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">get_number_of_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#get_number_of_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.get_number_of_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the number of jobs set in the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.is_yaml">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">is_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#is_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.is_yaml" title="Link to this definition">¶</a></dt>
+<dd><p>Is the given cfg_file a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.path_constructor">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">path_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#path_constructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.path_constructor" title="Link to this definition">¶</a></dt>
+<dd><p>”
+Construct a ConfigPath object form a scalar YAML node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.path_representer">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">path_representer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dumper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#path_representer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.path_representer" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a ConfigPath object as a scalar YAML node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.setup_config">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">setup_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_var_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#setup_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.setup_config" title="Link to this definition">¶</a></dt>
+<dd><p>This will initialize the given configuration object.</p>
+<dl class="simple">
+<dt>The following resources are available in the same order:</dt><dd><ol class="arabic simple">
+<li><p>Default settings.</p></li>
+<li><p>Config file.</p></li>
+<li><p>Environment variables.</p></li>
+</ol>
+</dd>
+<dt>WARNING: Environment variables do _not_ take precedence over the config</dt><dd><p>file right now. (init_from_env will refuse to update the
+value, if there is already one.)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_filenames</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>) – list of possible config filenames</p></li>
+<li><p><strong>env_var_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – name of the environment variable holding the config path</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.to_env_var">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">to_env_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#to_env_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.to_env_var" title="Link to this definition">¶</a></dt>
+<dd><p>Create an environment variable from a name and a value.</p>
+<p>This generates a shell-compatible representation of an
+environment variable that is assigned a YAML representation of
+a value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_var</strong> (<em>str</em>) – Name of the environment variable.</p></li>
+<li><p><strong>value</strong> (<a class="reference internal" href="../actions/#benchbuild.utils.actions.Any" title="benchbuild.utils.actions.Any"><em>Any</em></a>) – A value we convert from.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.to_yaml">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#to_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.to_yaml" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a given value to a YAML string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.update_env">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">update_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#update_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.update_env" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.upgrade">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">upgrade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#upgrade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.upgrade" title="Link to this definition">¶</a></dt>
+<dd><p>Provide forward migration for configuration files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.uuid_add_implicit_resolver">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">uuid_add_implicit_resolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader=&lt;class</span> <span class="pre">'benchbuild.utils.settings.ConfigLoader'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumper=&lt;class</span> <span class="pre">'benchbuild.utils.settings.ConfigDumper'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#uuid_add_implicit_resolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_add_implicit_resolver" title="Link to this definition">¶</a></dt>
+<dd><p>Attach an implicit pattern resolver for UUID objects.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.uuid_constructor">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">uuid_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#uuid_constructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_constructor" title="Link to this definition">¶</a></dt>
+<dd><p>“Construct a uuid.UUID object form a scalar YAML node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="benchbuild.utils.settings.uuid_representer">
+<span class="sig-prename descclassname"><span class="pre">benchbuild.utils.settings.</span></span><span class="sig-name descname"><span class="pre">uuid_representer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dumper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/benchbuild/utils/settings/#uuid_representer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_representer" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a uuid.UUID object as a scalar YAML node.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="../"
+       title="previous chapter">← Installation</a>
+  </li>
+  <li class="next">
+    <a href="../containers/"
+       title="next chapter">Containers →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

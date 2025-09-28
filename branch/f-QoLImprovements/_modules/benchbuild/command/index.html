@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.command</title>
+    
+          <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../_static/documentation_options.js?v=335e3d74"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../about/" />
+  <link rel="index" title="Index" href="../../../genindex/" />
+  <link rel="search" title="Search" href="../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.command</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.command</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">tp</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="kn">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">plumbum.commands.base</span> <span class="kn">import</span> <span class="n">BoundEnvCommand</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="kn">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.source.base</span> <span class="kn">import</span> <span class="n">primary</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.revision_ranges</span> <span class="kn">import</span> <span class="n">RevisionRange</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="kn">import</span> <span class="n">watch</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="kn">import</span> <span class="n">wrap</span>
+
+<span class="k">if</span> <span class="n">tp</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">benchbuild.project.Project</span>  <span class="c1"># pylint: disable=unused-import</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ArgsRenderStrategy">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ArgsRenderStrategy">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span> <span class="nc">ArgsRenderStrategy</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rendering strategy protocol for command line argument tokens.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an unrendered representation of this strategy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ArgsRenderStrategy.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ArgsRenderStrategy.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders this strategy.&quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PathRenderStrategy">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathRenderStrategy">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span> <span class="nc">PathRenderStrategy</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rendering strategy protocol for path components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an unrendered representation of this strategy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PathRenderStrategy.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathRenderStrategy.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders this strategy.&quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RootRenderer">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.RootRenderer">[docs]</a>
+<span class="k">class</span> <span class="nc">RootRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the root directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;/&quot;</span>
+
+<div class="viewcode-block" id="RootRenderer.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.RootRenderer.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">kwargs</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unrendered</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConstStrRenderer">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ConstStrRenderer">[docs]</a>
+<span class="k">class</span> <span class="nc">ConstStrRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders a constant string defined by the user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="ConstStrRenderer.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ConstStrRenderer.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">kwargs</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BuilddirRenderer">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.BuilddirRenderer">[docs]</a>
+<span class="k">class</span> <span class="nc">BuilddirRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the build directory of the assigned project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;builddir&gt;&quot;</span>
+
+<div class="viewcode-block" id="BuilddirRenderer.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.BuilddirRenderer.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;benchbuild.project.Project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Render the project&#39;s build directory.</span>
+
+<span class="sd">        If rendering is not possible, the unrendered representation is</span>
+<span class="sd">        provided and an error will be loggged.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project: the project to render the build directory from.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot render a build directory without a project.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrendered</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unrendered</span></div>
+
+
+
+<div class="viewcode-block" id="SourceRootRenderer">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.SourceRootRenderer">[docs]</a>
+<span class="k">class</span> <span class="nc">SourceRootRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the source root of the given local source name.</span>
+
+<span class="sd">    The attribute &#39;local&#39; refers to the local attribute in a project&#39;s</span>
+<span class="sd">    source definition.</span>
+<span class="sd">    If the local name cannot be found inside the project&#39;s source definition,</span>
+<span class="sd">    it will concatenate the project&#39;s builddir with the given name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">local</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">local_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unrendered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;source_of(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="si">}</span><span class="s2">)&gt;&quot;</span>
+
+<div class="viewcode-block" id="SourceRootRenderer.rendered">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.SourceRootRenderer.rendered">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;benchbuild.project.Project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Render the project&#39;s source directory.</span>
+
+<span class="sd">        If rendering is not possible, the unrendered representation is</span>
+<span class="sd">        provided and an error will be loggged.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project: the project to render the build directory from.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot render a source directory without a project.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrendered</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">src_path</span> <span class="o">:=</span> <span class="n">project</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">src_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unrendered</span></div>
+
+
+
+<div class="viewcode-block" id="ArgsToken">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ArgsToken">[docs]</a>
+<span class="k">class</span> <span class="nc">ArgsToken</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for tokens that can be rendered into command-line arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">renderer</span><span class="p">:</span> <span class="n">ArgsRenderStrategy</span>
+
+<div class="viewcode-block" id="ArgsToken.make_token">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ArgsToken.make_token">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">make_token</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">renderer</span><span class="p">:</span> <span class="n">ArgsRenderStrategy</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ArgsToken&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ArgsToken</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">:</span> <span class="n">ArgsRenderStrategy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">renderer</span>
+
+<div class="viewcode-block" id="ArgsToken.render">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ArgsToken.render">[docs]</a>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renders the PathToken as a standard pathlib Path.</span>
+
+<span class="sd">        Any kwargs will be forwarded to the PathRenderStrategy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">rendered</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">unrendered</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PathToken">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathToken">[docs]</a>
+<span class="k">class</span> <span class="nc">PathToken</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class used for command token substitution.</span>
+
+<span class="sd">    A path token can use similar to pathlib&#39;s Path components. However, each</span>
+<span class="sd">    token can render dynamically based on the given render context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">renderer</span><span class="p">:</span> <span class="n">PathRenderStrategy</span>
+
+    <span class="n">left</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;PathToken&#39;</span><span class="p">]</span>
+    <span class="n">right</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;PathToken&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PathToken.make_token">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathToken.make_token">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">make_token</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">renderer</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PathRenderStrategy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;PathToken&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">renderer</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PathToken</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PathToken</span><span class="p">(</span><span class="n">RootRenderer</span><span class="p">())</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">renderer</span><span class="p">:</span> <span class="n">PathRenderStrategy</span><span class="p">,</span>
+        <span class="n">left</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;PathToken&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">right</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;PathToken&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">renderer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dirname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="o">.</span><span class="n">parent</span>
+
+<div class="viewcode-block" id="PathToken.exists">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathToken.exists">[docs]</a>
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PathToken.render">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PathToken.render">[docs]</a>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renders the PathToken as a standard pathlib Path.</span>
+
+<span class="sd">        Any kwargs will be forwarded to the PathRenderStrategy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">rendered</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">token</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">p</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;PathToken&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;PathToken&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">render_str</span> <span class="o">=</span> <span class="n">ConstStrRenderer</span><span class="p">(</span><span class="n">rhs</span><span class="p">)</span>
+            <span class="n">rhs_token</span> <span class="o">=</span> <span class="n">PathToken</span><span class="p">(</span><span class="n">render_str</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rhs_token</span> <span class="o">=</span> <span class="n">rhs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PathToken</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">rhs_token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PathToken</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">/</span> <span class="n">rhs_token</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">unrendered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span> <span class="k">if</span> <span class="n">part</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="source_root">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.source_root">[docs]</a>
+<span class="k">def</span> <span class="nf">source_root</span><span class="p">(</span><span class="n">local_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathToken</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a SourceRoot token for the given name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        local_name (str): The source&#39;s local name to access.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">PathToken</span><span class="o">.</span><span class="n">make_token</span><span class="p">(</span><span class="n">SourceRootRenderer</span><span class="p">(</span><span class="n">local_name</span><span class="p">))</span></div>
+
+
+
+<span class="n">SourceRoot</span> <span class="o">=</span> <span class="n">source_root</span>
+
+
+<div class="viewcode-block" id="project_root">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.project_root">[docs]</a>
+<span class="k">def</span> <span class="nf">project_root</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PathToken</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">PathToken</span><span class="o">.</span><span class="n">make_token</span><span class="p">(</span><span class="n">BuilddirRenderer</span><span class="p">())</span></div>
+
+
+
+<span class="n">ProjectRoot</span> <span class="o">=</span> <span class="n">project_root</span>
+
+
+<div class="viewcode-block" id="SupportsUnwrap">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.SupportsUnwrap">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span> <span class="nc">SupportsUnwrap</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Support unwrapping a WorkloadSet.</span>
+
+<span class="sd">    Unwrapping ensures access to a WorkloadSet from any wrapper object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SupportsUnwrap.unwrap">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.SupportsUnwrap.unwrap">[docs]</a>
+    <span class="k">def</span> <span class="nf">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">:</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="WorkloadSet">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.WorkloadSet">[docs]</a>
+<span class="k">class</span> <span class="nc">WorkloadSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable set of workload descriptors.</span>
+
+<span class="sd">    A WorkloadSet is immutable and usable as a key in a job mapping.</span>
+<span class="sd">    WorkloadSets support composition through intersection and union.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    &gt;&gt;&gt; WorkloadSet(1, 0) &amp; WorkloadSet(1)</span>
+<span class="sd">    WorkloadSet({1})</span>
+<span class="sd">    &gt;&gt;&gt; WorkloadSet(1, 0) &amp; WorkloadSet(2)</span>
+<span class="sd">    WorkloadSet({})</span>
+<span class="sd">    &gt;&gt;&gt; WorkloadSet(1, 0) | WorkloadSet(2)</span>
+<span class="sd">    WorkloadSet({0, 1, 2})</span>
+<span class="sd">    &gt;&gt;&gt; WorkloadSet(1, 0) | WorkloadSet(&quot;1&quot;)</span>
+<span class="sd">    WorkloadSet({0, 1, 1})</span>
+
+<span class="sd">    A workload set is not sorted, therefore, requires no comparability between</span>
+<span class="sd">    inserted values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_tags</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">FrozenSet</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">]</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">:</span>
+        <span class="n">lhs_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span>
+        <span class="n">rhs_t</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">_tags</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">WorkloadSet</span><span class="p">()</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_tags</span> <span class="o">=</span> <span class="n">lhs_t</span> <span class="o">&amp;</span> <span class="n">rhs_t</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">:</span>
+        <span class="n">lhs_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span>
+        <span class="n">rhs_t</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">_tags</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">WorkloadSet</span><span class="p">()</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_tags</span> <span class="o">=</span> <span class="n">lhs_t</span> <span class="o">|</span> <span class="n">rhs_t</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">repr_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;WorkloadSet(</span><span class="se">{{</span><span class="si">{</span><span class="n">repr_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="WorkloadSet.unwrap">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.WorkloadSet.unwrap">[docs]</a>
+    <span class="k">def</span> <span class="nf">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkloadSet&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implement the `SupportsUnwrap` protocol.</span>
+
+<span class="sd">        WorkloadSets only implement identity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">project</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="OnlyIn">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.OnlyIn">[docs]</a>
+<span class="k">class</span> <span class="nc">OnlyIn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide a filled `WorkloadSet` only if, given revision is inside the range.</span>
+
+<span class="sd">    This makes use of the unwrap protocol and returns the given WorkloadSet,</span>
+<span class="sd">    iff, the Project&#39;s revision is included in the range specified by the</span>
+<span class="sd">    RevisionRange.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rev_range</span><span class="p">:</span> <span class="n">RevisionRange</span>
+    <span class="n">workload_set</span><span class="p">:</span> <span class="n">WorkloadSet</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">rev_range</span><span class="p">:</span> <span class="n">RevisionRange</span><span class="p">,</span> <span class="n">workload_set</span><span class="p">:</span> <span class="n">WorkloadSet</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rev_range</span> <span class="o">=</span> <span class="n">rev_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workload_set</span> <span class="o">=</span> <span class="n">workload_set</span>
+
+<div class="viewcode-block" id="OnlyIn.unwrap">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.OnlyIn.unwrap">[docs]</a>
+    <span class="k">def</span> <span class="nf">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkloadSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provide the store WorkloadSet only if our revision is in the range.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">primary</span><span class="p">(</span><span class="o">*</span><span class="n">project</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rev_range</span><span class="o">.</span><span class="n">init_cache</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">fetch</span><span class="p">())</span>
+
+        <span class="n">revision</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">version_of_primary</span>
+        <span class="k">if</span> <span class="n">revision</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workload_set</span>
+        <span class="k">return</span> <span class="n">WorkloadSet</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="n">ArtefactPath</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">PathToken</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Command">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.Command">[docs]</a>
+<span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A command wrapper for benchbuild&#39;s commands.</span>
+
+<span class="sd">    Commands are defined by a path to an executable binary and it&#39;s arguments.</span>
+<span class="sd">    Optional, commands can provide output and output_param parameters to</span>
+<span class="sd">    declare the Command&#39;s output behavior.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        path: The binary path of the command</span>
+<span class="sd">        *args: Command arguments.</span>
+<span class="sd">        output_param: A format string that encodes the output parameter argument</span>
+<span class="sd">            using the `output` attribute.</span>
+
+<span class="sd">            Example: output_param = f&quot;--out {output}&quot;.</span>
+<span class="sd">            BenchBuild will construct the output argument from this.</span>
+<span class="sd">        output: An optional PathToken to declare an output file of the command.</span>
+<span class="sd">        label: An optional Label that can be used to name a command.</span>
+<span class="sd">        creates: A list of PathToken that encodes any artifacts that are</span>
+<span class="sd">            created by this command.</span>
+<span class="sd">            This will include the output PathToken automatically. Any</span>
+<span class="sd">            additional PathTokens provided will be provided for cleanup.</span>
+<span class="sd">        consumes: A list of PathToken that holds any artifacts that will be</span>
+<span class="sd">            consumed by this command.</span>
+<span class="sd">        **kwargs: Any remaining kwargs will be added as environment variables</span>
+<span class="sd">            to the command.</span>
+
+<span class="sd">    Base command path:</span>
+<span class="sd">    &gt;&gt;&gt; ROOT = PathToken.make_token()</span>
+<span class="sd">    &gt;&gt;&gt; base_c = Command(ROOT / &quot;bin&quot; / &quot;true&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; base_c</span>
+<span class="sd">    Command(path=/bin/true)</span>
+<span class="sd">    &gt;&gt;&gt; str(base_c)</span>
+<span class="sd">    &#39;/bin/true&#39;</span>
+
+<span class="sd">    Test environment representations:</span>
+<span class="sd">    &gt;&gt;&gt; env_c = Command(ROOT / &quot;bin&quot;/ &quot;true&quot;, BB_ENV_TEST=1)</span>
+<span class="sd">    &gt;&gt;&gt; env_c</span>
+<span class="sd">    Command(path=/bin/true env={&#39;BB_ENV_TEST&#39;: 1})</span>
+<span class="sd">    &gt;&gt;&gt; str(env_c)</span>
+<span class="sd">    &#39;BB_ENV_TEST=1 /bin/true&#39;</span>
+
+<span class="sd">    Argument representations:</span>
+<span class="sd">    &gt;&gt;&gt; args_c = Command(ROOT / &quot;bin&quot; / &quot;true&quot;, &quot;--arg1&quot;, &quot;--arg2&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; args_c</span>
+<span class="sd">    Command(path=/bin/true args=(&#39;--arg1&#39;, &#39;--arg2&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; str(args_c)</span>
+<span class="sd">    &#39;/bin/true --arg1 --arg2&#39;</span>
+
+<span class="sd">    Use str for creates:</span>
+<span class="sd">    &gt;&gt;&gt; cmd = Command(ROOT / &quot;bin&quot; / &quot;true&quot;, creates=[&quot;tmp/foo&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; cmd.creates</span>
+<span class="sd">    [&lt;builddir&gt;/tmp/foo]</span>
+
+<span class="sd">    Use absolute path-str for creates:</span>
+<span class="sd">    &gt;&gt;&gt; cmd = Command(ROOT / &quot;bin&quot; / &quot;true&quot;, creates=[&quot;/tmp/foo&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; cmd.creates</span>
+<span class="sd">    [/tmp/foo]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">_env</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">_label</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">_output</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]</span>
+    <span class="n">_output_param</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">_path</span><span class="p">:</span> <span class="n">PathToken</span>
+    <span class="n">_creates</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]</span>
+    <span class="n">_consumes</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">PathToken</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_param</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">creates</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ArtefactPath</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">consumes</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ArtefactPath</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">_to_pathtoken</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="n">ArtefactPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathToken</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">ProjectRoot</span><span class="p">()</span> <span class="o">/</span> <span class="n">token</span>
+            <span class="k">return</span> <span class="n">token</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output</span> <span class="o">=</span> <span class="n">output</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_param</span> <span class="o">=</span> <span class="n">output_param</span> <span class="k">if</span> <span class="n">output_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="n">_creates</span> <span class="o">=</span> <span class="n">creates</span> <span class="k">if</span> <span class="n">creates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">_consumes</span> <span class="o">=</span> <span class="n">consumes</span> <span class="k">if</span> <span class="n">consumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_creates</span> <span class="o">=</span> <span class="p">[</span><span class="n">_to_pathtoken</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">_creates</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_consumes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_to_pathtoken</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">_consumes</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_creates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathToken</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+
+    <span class="nd">@path</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_path</span><span class="p">:</span> <span class="n">PathToken</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">new_path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dirname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">dirname</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">creates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_creates</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">consumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">PathToken</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumes</span>
+
+<div class="viewcode-block" id="Command.env">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.Command.env">[docs]</a>
+    <span class="k">def</span> <span class="nf">env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">new_label</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Command&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">,</span>
+            <span class="n">output_param</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_param</span><span class="p">,</span>
+            <span class="n">creates</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_creates</span><span class="p">,</span>
+            <span class="n">consumes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_consumes</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_env</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the command in foreground.&quot;&quot;&quot;</span>
+        <span class="n">cmd_w_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_plumbum</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">watch</span><span class="p">(</span><span class="n">cmd_w_output</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Command.rendered_args">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.Command.rendered_args">[docs]</a>
+    <span class="k">def</span> <span class="nf">rendered_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ArgsToken</span><span class="p">):</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.as_plumbum">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.Command.as_plumbum">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_plumbum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundEnvCommand</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this command into a plumbum compatible command.</span>
+
+<span class="sd">        This renders all tokens in the command&#39;s path and creates a new</span>
+<span class="sd">        plumbum command with the given parameters and environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: parameters passed to the path renderers.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An executable plumbum command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">cmd_path</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">cmd_path</span><span class="p">)</span><span class="si">}</span><span class="s2"> doesn&#39;t exist!&quot;</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cmd_path</span><span class="p">)]</span>
+        <span class="n">cmd_w_args</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rendered_args</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+        <span class="n">cmd_w_output</span> <span class="o">=</span> <span class="n">cmd_w_args</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">output_params</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">arg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_param</span>
+            <span class="p">]</span>
+            <span class="n">cmd_w_output</span> <span class="o">=</span> <span class="n">cmd_w_args</span><span class="p">[</span><span class="n">output_params</span><span class="p">]</span>
+        <span class="n">cmd_w_env</span> <span class="o">=</span> <span class="n">cmd_w_output</span><span class="o">.</span><span class="n">with_env</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cmd_w_env</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">repr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">:</span>
+            <span class="n">repr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">repr_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">:</span>
+            <span class="n">repr_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; args=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="p">:</span>
+            <span class="n">repr_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; env=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">:</span>
+            <span class="n">repr_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; output=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_param</span><span class="p">:</span>
+            <span class="n">repr_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; output_param=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_param</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Command(</span><span class="si">{</span><span class="n">repr_str</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">env_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">args_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">))</span>
+
+        <span class="n">command_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">env_str</span><span class="p">:</span>
+            <span class="n">command_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">command_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">args_str</span><span class="p">:</span>
+            <span class="n">command_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">command_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">args_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">:</span>
+            <span class="n">command_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">command_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">command_str</span></div>
+
+
+
+<div class="viewcode-block" id="ProjectCommand">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.ProjectCommand">[docs]</a>
+<span class="k">class</span> <span class="nc">ProjectCommand</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ProjectCommands associate a command to a benchbuild project.</span>
+
+<span class="sd">    A project command can wrap the given command with the assigned</span>
+<span class="sd">    runtime extension.</span>
+<span class="sd">    If the binary is located inside a subdirectory relative to one of the</span>
+<span class="sd">    project&#39;s sources, you can provide a path relative to it&#39;s local</span>
+<span class="sd">    directory.</span>
+<span class="sd">    A project command will always try to resolve any reference to a local</span>
+<span class="sd">    source directory in a command&#39;s path.</span>
+
+<span class="sd">    A call to a project command will drop the current configuration inside</span>
+<span class="sd">    the project&#39;s build directory and confine the run into the project&#39;s</span>
+<span class="sd">    build directory. The binary will be replaced with a wrapper that</span>
+<span class="sd">    calls the project&#39;s runtime_extension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">Command</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s2">&quot;benchbuild.project.Project&quot;</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">):</span>
+        <span class="n">build_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span>
+
+        <span class="n">CFG</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;.benchbuild.yml&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">build_dir</span><span class="p">):</span>
+            <span class="n">cmd_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+
+            <span class="n">wrap</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cmd_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ProjectCommand(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_is_relative_to</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_default_prune</span><span class="p">(</span><span class="n">project_command</span><span class="p">:</span> <span class="n">ProjectCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">project_command</span><span class="o">.</span><span class="n">command</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">project_command</span><span class="o">.</span><span class="n">project</span>
+    <span class="n">builddir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">created</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">creates</span><span class="p">:</span>
+        <span class="n">created_path</span> <span class="o">=</span> <span class="n">created</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">created_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">created_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_relative_to</span><span class="p">(</span><span class="n">created_path</span><span class="p">,</span> <span class="n">builddir</span><span class="p">):</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Pruning outside project builddir was rejected!&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">created_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_default_backup</span><span class="p">(</span>
+    <span class="n">project_command</span><span class="p">:</span> <span class="n">ProjectCommand</span><span class="p">,</span>
+    <span class="n">_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.benchbuild_backup&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">project_command</span><span class="o">.</span><span class="n">command</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">project_command</span><span class="o">.</span><span class="n">project</span>
+    <span class="n">builddir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">builddir</span><span class="p">))</span>
+
+    <span class="n">backup_destinations</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">backup</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">consumes</span><span class="p">:</span>
+        <span class="n">backup_path</span> <span class="o">=</span> <span class="n">backup</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+        <span class="n">backup_destination</span> <span class="o">=</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">_suffix</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_relative_to</span><span class="p">(</span><span class="n">backup_path</span><span class="p">,</span> <span class="n">builddir</span><span class="p">):</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Backup outside project builddir was rejected!&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">backup_path</span><span class="p">,</span> <span class="n">backup_destination</span><span class="p">)</span>
+                <span class="n">backup_destinations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">backup_destination</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">backup_destinations</span>
+
+
+<span class="k">def</span> <span class="nf">_default_restore</span><span class="p">(</span><span class="n">backup_paths</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">backup_path</span> <span class="ow">in</span> <span class="n">backup_paths</span><span class="p">:</span>
+        <span class="n">original_path</span> <span class="o">=</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">original_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">backup_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">original_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">original_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No backup to restore from. </span><span class="si">%s</span><span class="s2"> missing&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">backup_path</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">original_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">backup_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not consumed, ignoring backup&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">original_path</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="PruneFn">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.PruneFn">[docs]</a>
+<span class="k">class</span> <span class="nc">PruneFn</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prune function protocol.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_command</span><span class="p">:</span> <span class="n">ProjectCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span></div>
+
+
+
+<div class="viewcode-block" id="BackupFn">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.BackupFn">[docs]</a>
+<span class="k">class</span> <span class="nc">BackupFn</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backup callback function protocol.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">project_command</span><span class="p">:</span> <span class="n">ProjectCommand</span><span class="p">,</span>
+                 <span class="n">_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="o">...</span></div>
+
+
+
+<div class="viewcode-block" id="RestoreFn">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.RestoreFn">[docs]</a>
+<span class="k">class</span> <span class="nc">RestoreFn</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore function protocol.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backup_paths</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span></div>
+
+
+
+<div class="viewcode-block" id="cleanup">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.cleanup">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span>
+    <span class="n">project_command</span><span class="p">:</span> <span class="n">ProjectCommand</span><span class="p">,</span>
+    <span class="n">backup</span><span class="p">:</span> <span class="n">BackupFn</span> <span class="o">=</span> <span class="n">_default_backup</span><span class="p">,</span>
+    <span class="n">restore</span><span class="p">:</span> <span class="n">RestoreFn</span> <span class="o">=</span> <span class="n">_default_restore</span><span class="p">,</span>
+    <span class="n">prune</span><span class="p">:</span> <span class="n">PruneFn</span> <span class="o">=</span> <span class="n">_default_prune</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Encapsulate a command in automatic backup, restore and prune.</span>
+
+<span class="sd">    This will wrap a ProjectCommand inside a contextmanager. All consumed</span>
+<span class="sd">    files inside the project&#39;s build directory will be backed up by benchbuild.</span>
+<span class="sd">    You can then run your command as usual.</span>
+<span class="sd">    When you leave the context, all created paths are deleted and all consumed</span>
+<span class="sd">    paths restored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">backup_paths</span> <span class="o">=</span> <span class="n">backup</span><span class="p">(</span><span class="n">project_command</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">project_command</span>
+    <span class="n">prune</span><span class="p">(</span><span class="n">project_command</span><span class="p">)</span>
+    <span class="n">restore</span><span class="p">(</span><span class="n">backup_paths</span><span class="p">)</span></div>
+
+
+
+<span class="n">WorkloadIndex</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">WorkloadSet</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Command</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="unwrap">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.unwrap">[docs]</a>
+<span class="k">def</span> <span class="nf">unwrap</span><span class="p">(</span>
+    <span class="n">index</span><span class="p">:</span> <span class="n">WorkloadIndex</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="s1">&#39;benchbuild.project.Project&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkloadIndex</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unwrap all keys in a workload index.</span>
+
+<span class="sd">    &#39;Empty&#39; WorkloadSets will be removed. A WorkloadSet is empty, if it&#39;s</span>
+<span class="sd">    boolean representation evaluates to `False`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">project</span><span class="p">))}</span></div>
+
+
+
+<div class="viewcode-block" id="filter_workload_index">
+<a class="viewcode-back" href="../../../concepts/command/#benchbuild.command.filter_workload_index">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_workload_index</span><span class="p">(</span>
+    <span class="n">only</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">WorkloadSet</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="n">WorkloadIndex</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Yield only commands from the index that match the filter.</span>
+
+<span class="sd">    This removes all command lists from the index not matching `only`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">index</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">and</span> <span class="p">((</span><span class="n">only</span> <span class="ow">and</span> <span class="p">(</span><span class="n">k</span> <span class="o">&amp;</span> <span class="n">only</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">only</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">index</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
+
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

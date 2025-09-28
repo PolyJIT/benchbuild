@@ -1,6 +1,8 @@
-"""Path utilities for benchbuild."""
-
-import fcntl
+""" Path utilities for benchbuild. """
+try:
+    import fcntl
+except ImportError:
+    import winfcntl as fcntl
 import os
 from contextlib import contextmanager
 from typing import List, Optional

@@ -175,7 +175,7 @@ def to_str(*variants: Variant) -> str:
     Returns:
         string representation of all input variants joined by ','.
     """
-    return ",".join([str(i) for i in variants])
+    return "*".join([str(i) for i in variants])
 
 
 class Fetchable(Protocol):

@@ -5,7 +5,7 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer

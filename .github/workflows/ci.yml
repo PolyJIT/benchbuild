@@ -86,20 +86,21 @@ jobs:
         BB_CONTAINER_RUNROOT: ${{ runner.temp }}
         BB_VERBOSITY: 5
       run: |
-        uv run coverage run -p `which benchbuild` bootstrap -s
-        uv run coverage run -p `which benchbuild` config view
-        uv run coverage run -p `which benchbuild` experiment view
-        uv run coverage run -p `which benchbuild` project view
-        uv run coverage run -p `which benchbuild` run --full test
-        uv run coverage run -p `which benchbuild` slurm -E empty test
-        uv run coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        uv run coverage run -p `which benchbuild` run -E raw bzip2/benchbuild
-        uv run coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
-        uv run coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
-        uv run coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
-        uv run coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
-        uv run coverage combine
-        uv run coverage report -m
+        source .venv/bin/activate
+        coverage run -p benchbuild bootstrap -s
+        coverage run -p benchbuild config view
+        coverage run -p benchbuild experiment view
+        coverage run -p benchbuild project view
+        coverage run -p benchbuild run --full test
+        coverage run -p benchbuild slurm -E empty test
+        coverage run -p benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p benchbuild run -E raw bzip2/benchbuild
+        coverage run -p benchbuild container run -E raw bzip2/benchbuild
+        coverage run -p benchbuild container bases --export -E raw bzip2/benchbuild
+        coverage run -p benchbuild container bases --import -E raw bzip2/benchbuild
+        coverage run -p benchbuild container rmi --with-projects -E raw bzip2/benchbuild
+        coverage combine
+        coverage report -m
 
     - uses: actions/upload-artifact@master
       with:

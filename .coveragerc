@@ -3,6 +3,7 @@ include = */benchbuild/*
 omit =
   */benchbuild/lib/*
   */benchbuild/bin/*
+  .venv/*
 branch = True
 parallel = True
 

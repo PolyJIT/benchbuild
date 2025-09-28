@@ -68,6 +68,9 @@ jobs:
       run: |
         sudo apt-get install time unionfs-fuse libfuse-dev clang slurm-client
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
     - name: Install the project
       run: |
         uv sync --locked --all-extras --dev

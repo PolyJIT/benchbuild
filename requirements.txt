@@ -16,3 +16,4 @@ schema>=0
 SQLAlchemy>=2
 typing-extensions>=4
 virtualenv>=20
+winfcntl>=1.0.0; sys_platform == "win32"

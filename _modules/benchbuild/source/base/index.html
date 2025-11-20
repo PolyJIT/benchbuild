@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.source.base</title>
+    
+          <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../../_static/documentation_options.js?v=68fef311"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../../about/" />
+  <link rel="index" title="Index" href="../../../../genindex/" />
+  <link rel="search" title="Search" href="../../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.source.base</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.source.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Provide a base interface for downloadable sources.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">tp</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">import</span> <span class="nn">plumbum</span> <span class="k">as</span> <span class="nn">pb</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="kn">import</span> <span class="n">CFG</span>
+
+<span class="k">if</span> <span class="n">tp</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="kn">import</span> <span class="n">Project</span>
+
+
+<div class="viewcode-block" id="RevisionStr">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.RevisionStr">[docs]</a>
+<span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RevisionStr</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="Variant">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Variant">[docs]</a>
+<span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Variant</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide a &#39;string&#39;-like wrapper around source version information.</span>
+
+<span class="sd">    Use this, whenever you need a &#39;version&#39; string somewhere in benchbuild.</span>
+<span class="sd">    In terms of output/logging or use as program arguments, this should not</span>
+<span class="sd">    carry more semantics than a simple version string.</span>
+
+<span class="sd">    However, this wrapper is linked to its &#39;owner&#39;. The owner serves as</span>
+<span class="sd">    the back-reference to the source code where it originated from.</span>
+
+<span class="sd">    This can serve as a &#39;hook&#39; to deal with version information the</span>
+<span class="sd">    same way as a program variant like a specific configuraiton.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;FetchableSource&#39;</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Variant.name">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Variant.name">[docs]</a>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">local</span></div>
+
+
+<div class="viewcode-block" id="Variant.source">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Variant.source">[docs]</a>
+    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;FetchableSource&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span></div>
+
+
+
+<span class="n">NestedVariants</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Variant</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="Revision">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision">[docs]</a>
+<span class="k">class</span> <span class="nc">Revision</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A revision captures all variants that form a single project revision.</span>
+
+<span class="sd">    A project may have an arbitrary number of input sources that are</span>
+<span class="sd">    required for it&#39;s defined workloads, e.g., test input files, optional</span>
+<span class="sd">    dependencies, or submodules.</span>
+
+<span class="sd">    BenchBuild considers each source to have different version numbers,</span>
+<span class="sd">    encoded as &quot;Variants&quot;. The complete set of &quot;Variants&quot; for a project</span>
+<span class="sd">    then forms a project revision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">]</span>
+    <span class="n">variants</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">],</span> <span class="n">_primary</span><span class="p">:</span> <span class="n">Variant</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">variants</span><span class="p">:</span> <span class="n">Variant</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_cls</span> <span class="o">=</span> <span class="n">project_cls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variants</span> <span class="o">=</span> <span class="p">[</span><span class="n">_primary</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">variants</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Revision.extend">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.extend">[docs]</a>
+    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">variants</span><span class="p">:</span> <span class="n">Variant</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variants</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">variants</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__update_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="p">:</span> <span class="n">Variant</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">__replace</span><span class="p">(</span><span class="n">elem</span><span class="p">:</span> <span class="n">Variant</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">variant</span><span class="o">.</span><span class="n">name</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">variant</span>
+            <span class="k">return</span> <span class="n">elem</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">variants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">__replace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variants</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Revision.update">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revision</span><span class="p">:</span> <span class="s2">&quot;Revision&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">revision</span><span class="o">.</span><span class="n">variants</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__update_variant</span><span class="p">(</span><span class="n">variant</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Revision.variant_by_name">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.variant_by_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">variant_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variant</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the variant for the given source name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The local name of the source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            then version of the found source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_variants</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">variant</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variants</span> <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">name</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_variants</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">found_variants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source with name </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Revision.has_variant">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.has_variant">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a variant with the given source name exists.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The local name of the source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True, should a variant with the given name exists</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">variant</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">name</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variants</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Revision.source_by_name">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.source_by_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">source_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;FetchableSource&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the source object that matches the key.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The local name of the source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            the found source object</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError, if we cannot find the source with this name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_variants</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">variant</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variants</span> <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">name</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_variants</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">found_variants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source with name </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variant</span><span class="p">:</span>
+        <span class="n">variants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">variants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Revision.sorted">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Revision.sorted">[docs]</a>
+    <span class="k">def</span> <span class="nf">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an ordered list of Variants from this revision.</span>
+
+<span class="sd">        The order is defined by the order in the SOURCE attribute of the</span>
+<span class="sd">        associated project class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_cls</span><span class="o">.</span><span class="n">SOURCE</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_variant</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">key</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variant_by_name</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">variants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">to_str</span><span class="p">(</span><span class="o">*</span><span class="n">variants</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_str">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.to_str">[docs]</a>
+<span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="o">*</span><span class="n">variants</span><span class="p">:</span> <span class="n">Variant</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an arbitrary number of variants into their string representation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        string representation of all input variants joined by &#39;,&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="Fetchable">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Fetchable">[docs]</a>
+<span class="k">class</span> <span class="nc">Fetchable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the source&#39;s key property.</span>
+
+<span class="sd">        This provides you with a key component that identifes a single source.</span>
+<span class="sd">        It should (no guarantee) be unique among all sources for this project.</span>
+
+<span class="sd">        While this make no further assumption, but a good candidate is a</span>
+<span class="sd">        file-system name/path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">local</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The source location (path-like) after fetching it from its remote.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The source location in the remote location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Fetchable.fetch">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Fetchable.fetch">[docs]</a>
+    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the necessary source files into benchbuild&#39;s cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Expandable">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Expandable">[docs]</a>
+<span class="k">class</span> <span class="nc">Expandable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_expandable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns true, if this source should take part in version expansion.</span>
+
+<span class="sd">        Some sources may only be treated as virtual and would not take part</span>
+<span class="sd">        in the version expansion of an associated project.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Expandable.versions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Expandable.versions">[docs]</a>
+    <span class="k">def</span> <span class="nf">versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all available versions of this source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of all available versions.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ContextAwareSource">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextAwareSource">[docs]</a>
+<span class="k">class</span> <span class="nc">ContextAwareSource</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ContextAwareSource.is_context_free">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextAwareSource.is_context_free">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_context_free</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return, if this source needs context to evaluate it&#39;s own</span>
+<span class="sd">        list of available versions.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ContextAwareSource.versions_with_context">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextAwareSource.versions_with_context">[docs]</a>
+    <span class="k">def</span> <span class="nf">versions_with_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Revision</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Augment the given revision with new variants associated with this source.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ctx: the project revision, containing information about every</span>
+<span class="sd">                 context-free variant.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a sequence of project revisions.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ContextFreeMixin">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextFreeMixin">[docs]</a>
+<span class="k">class</span> <span class="nc">ContextFreeMixin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a context-free source context-aware.</span>
+
+<span class="sd">    This will setup default implementations that avoids interaction with any context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ContextFreeMixin.is_context_free">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextFreeMixin.is_context_free">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_context_free</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="ContextFreeMixin.versions_with_context">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextFreeMixin.versions_with_context">[docs]</a>
+    <span class="k">def</span> <span class="nf">versions_with_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Revision</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Invalid use of versions with context&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Versioned">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Versioned">[docs]</a>
+<span class="k">class</span> <span class="nc">Versioned</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variant</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The default version for this source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Versioned.version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Versioned.version">[docs]</a>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the requested version and place it in the target_dir</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_dir (str):</span>
+<span class="sd">                The filesystem path where the version should be placed in.</span>
+<span class="sd">            version (str):</span>
+<span class="sd">                The version that should be fetched from the local cache.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Versioned.versions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.Versioned.versions">[docs]</a>
+    <span class="k">def</span> <span class="nf">versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all available versions of this source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of all available versions.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FetchableSource">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.FetchableSource">[docs]</a>
+<span class="k">class</span> <span class="nc">FetchableSource</span><span class="p">(</span><span class="n">ContextFreeMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for fetchable sources.</span>
+
+<span class="sd">    Subclasses have to provide the following protocols:</span>
+<span class="sd">      - Expandable</span>
+<span class="sd">      - Fetchable</span>
+<span class="sd">      - Versioned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_local</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">_remote</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span> <span class="o">=</span> <span class="n">local</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span> <span class="o">=</span> <span class="n">remote</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">local</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variant</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The default version for this source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FetchableSource.version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.FetchableSource.version">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the requested version and place it in the target_dir</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_dir (str):</span>
+<span class="sd">                The filesystem path where the version should be placed in.</span>
+<span class="sd">            version (str):</span>
+<span class="sd">                The version that should be fetched from the local cache.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FetchableSource.versions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.FetchableSource.versions">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all available versions of this source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of all available versions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FetchableSource.explore">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.FetchableSource.explore">[docs]</a>
+    <span class="k">def</span> <span class="nf">explore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Explore revisions of this source.</span>
+
+<span class="sd">        This provides access to all revisions this source can offer.</span>
+<span class="sd">        BenchBuild own filters will not block any revision here.</span>
+
+<span class="sd">        Custom sources or source filters can opt in to block revisions</span>
+<span class="sd">        anyways.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of versions to explore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_context_free</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_expandable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="FetchableSource.fetch">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.FetchableSource.fetch">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the necessary source files into benchbuild&#39;s cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="n">Sources</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="s1">&#39;FetchableSource&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="NoSource">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.NoSource">[docs]</a>
+<span class="k">class</span> <span class="nc">NoSource</span><span class="p">(</span><span class="n">FetchableSource</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variant</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Variant</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NoSource.version">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.NoSource.version">[docs]</a>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;None&#39;</span></div>
+
+
+<div class="viewcode-block" id="NoSource.versions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.NoSource.versions">[docs]</a>
+    <span class="k">def</span> <span class="nf">versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Variant</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="NoSource.fetch">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.NoSource.fetch">[docs]</a>
+    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">LocalPath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;None&#39;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="nosource">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.nosource">[docs]</a>
+<span class="k">def</span> <span class="nf">nosource</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">NoSource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">NoSource</span><span class="p">(</span><span class="s1">&#39;NoSource&#39;</span><span class="p">,</span> <span class="s1">&#39;NoSource&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="target_prefix">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.target_prefix">[docs]</a>
+<span class="k">def</span> <span class="nf">target_prefix</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the prefix directory for all downloads.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the prefix where we download everything to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;tmp_dir&#39;</span><span class="p">])</span></div>
+
+
+
+<span class="n">SourceT</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;SourceT&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="primary">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.primary">[docs]</a>
+<span class="k">def</span> <span class="nf">primary</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">SourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SourceT</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the implicit &#39;main&#39; source of a project.</span>
+
+<span class="sd">    We define the main source as the first source listed in a project.</span>
+
+<span class="sd">    If you define a new project and rely on the existence of a &#39;main&#39;</span>
+<span class="sd">    source code repository, make sure to define it as the first one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">sources</span>
+    <span class="k">return</span> <span class="n">head</span></div>
+
+
+
+<div class="viewcode-block" id="secondaries">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.secondaries">[docs]</a>
+<span class="k">def</span> <span class="nf">secondaries</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">SourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SourceT</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the complement to the primary source of a project.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of all sources not considered primary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">)</span> <span class="o">=</span> <span class="n">sources</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="product">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.product">[docs]</a>
+<span class="k">def</span> <span class="nf">product</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">Expandable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedVariants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the cross product of the given sources.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An iterable containing the cross product of all source variants.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">siblings</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">versions</span><span class="p">()</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">is_expandable</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">siblings</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BaseSource">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.BaseSource">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseSource</span><span class="p">(</span><span class="n">Expandable</span><span class="p">,</span> <span class="n">Versioned</span><span class="p">,</span> <span class="n">ContextAwareSource</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Composition of source protocols.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EnumeratorFn">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.EnumeratorFn">[docs]</a>
+<span class="k">class</span> <span class="nc">EnumeratorFn</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">source</span><span class="p">:</span> <span class="n">Expandable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedVariants</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an enumeration of all variants for each source.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a list of version tuples, containing each possible variant.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_default_enumerator</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">Expandable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedVariants</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ContextEnumeratorFn">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.ContextEnumeratorFn">[docs]</a>
+<span class="k">class</span> <span class="nc">ContextEnumeratorFn</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="n">Revision</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">ContextAwareSource</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Revision</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enumerate all revisions that are valid under the given context.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_default_caw_enumerator</span><span class="p">(</span>
+    <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="n">Revision</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">ContextAwareSource</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Revision</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform given variant into a list of variants to check.</span>
+
+<span class="sd">    This only considers the given context of all context-free sources</span>
+<span class="sd">    per context-sensitive source.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context:</span>
+<span class="sd">        *sources:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">variants</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">versions_with_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]</span>
+    <span class="n">variants</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variants</span> <span class="k">if</span> <span class="n">var</span><span class="p">]</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Revision</span><span class="p">(</span><span class="n">project_cls</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">variants</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">caw_variants</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">caw_variants</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">variants</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<div class="viewcode-block" id="enumerate_revisions">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.enumerate_revisions">[docs]</a>
+<span class="k">def</span> <span class="nf">enumerate_revisions</span><span class="p">(</span>
+    <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">],</span>
+    <span class="n">context_free_enumerator</span><span class="p">:</span> <span class="n">EnumeratorFn</span> <span class="o">=</span> <span class="n">_default_enumerator</span><span class="p">,</span>
+    <span class="n">context_aware_enumerator</span><span class="p">:</span> <span class="n">ContextEnumeratorFn</span> <span class="o">=</span> <span class="n">_default_caw_enumerator</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Revision</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumerates the given sources.</span>
+
+<span class="sd">    The enumeration requires two phases.</span>
+<span class="sd">    1. A phase for all sources that do not require a context to evaluate.</span>
+<span class="sd">    2. A phase for all sources that require a static context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="n">project_cls</span><span class="o">.</span><span class="n">SOURCE</span>
+
+    <span class="n">context_free_sources</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">source</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">is_context_free</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">context_aware_sources</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">source</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">is_context_free</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="n">revisions</span> <span class="o">=</span> <span class="n">context_free_enumerator</span><span class="p">(</span><span class="o">*</span><span class="n">context_free_sources</span><span class="p">)</span>
+    <span class="n">project_revisions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Revision</span><span class="p">(</span><span class="n">project_cls</span><span class="p">,</span> <span class="o">*</span><span class="n">variants</span><span class="p">)</span> <span class="k">for</span> <span class="n">variants</span> <span class="ow">in</span> <span class="n">revisions</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">context_aware_sources</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">revs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span>
+                    <span class="n">context_aware_enumerator</span><span class="p">(</span>
+                        <span class="n">project_cls</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="o">*</span><span class="n">context_aware_sources</span>
+                    <span class="p">)</span> <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="n">project_revisions</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">revs</span>
+
+    <span class="k">return</span> <span class="n">project_revisions</span></div>
+
+
+
+<span class="n">SourceContext</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Fetchable</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="sources_as_dict">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.sources_as_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">sources_as_dict</span><span class="p">(</span><span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">Fetchable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SourceContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert fetchables to a dictionary.</span>
+
+<span class="sd">    The dictionary will be indexed by the Fetchable&#39;s local attribute.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *sources: Fetchables stored in the dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">src</span><span class="o">.</span><span class="n">local</span><span class="p">:</span> <span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="revision_from_str">
+<a class="viewcode-back" href="../../../../concepts/source/#benchbuild.source.base.revision_from_str">[docs]</a>
+<span class="k">def</span> <span class="nf">revision_from_str</span><span class="p">(</span>
+    <span class="n">revs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">RevisionStr</span><span class="p">],</span> <span class="n">project_cls</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Revision</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a Revision from a sequence of revision strings.</span>
+
+<span class="sd">    A valid Revision can only be created, if the number of valid revision</span>
+<span class="sd">    strings is equivalent to the number of sources.</span>
+<span class="sd">    A valid revision string is one that has been found in the a source&#39;s</span>
+<span class="sd">    version.</span>
+<span class="sd">    It is required that each revision string is found in a different source</span>
+<span class="sd">    version.</span>
+
+<span class="sd">    We assume that the first source is the primary source of the revision.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        revs: sequence of revision strings, e.g. a commit-hash.</span>
+<span class="sd">        *sources: sources of a project.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A variant context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">found</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="n">project_cls</span><span class="o">.</span><span class="n">SOURCE</span>
+
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">is_expandable</span><span class="p">:</span>
+            <span class="n">found</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                <span class="n">variant</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span> <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="n">revs</span>
+                <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="n">rev</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Revisions </span><span class="si">{</span><span class="n">revs</span><span class="si">}</span><span class="s1"> not found in any available source.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Revision</span><span class="p">(</span><span class="n">project_cls</span><span class="p">,</span> <span class="n">primary</span><span class="p">(</span><span class="o">*</span><span class="n">found</span><span class="p">),</span> <span class="o">*</span><span class="n">secondaries</span><span class="p">(</span><span class="o">*</span><span class="n">found</span><span class="p">))</span></div>
+
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

@@ -1,6 +1,8 @@
 [run]
-include = */benchbuild/*
+include = benchbuild/*
 omit =
+  ./venv/*
+  */bin/benchbuild*
   */benchbuild/lib/*
   */benchbuild/bin/*
   .venv/*

@@ -70,14 +70,25 @@ def run_project_container(
     with uow:
         ensure.container_image_exists(cmd.image, uow)
 
-        build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
-        if build_dir:
-            uow.registry.mount(cmd.image, cmd.build_dir, build_dir)
-        else:
-            LOG.warning(
-                'The image misses a configured "BB_BUILD_DIR" variable.'
-            )
-            LOG.warning('No result artifacts will be copied out.')
+        if cmd.mount_build_dir:
+            build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
+            if build_dir:
+                uow.registry.mount(cmd.image, cmd.build_dir, build_dir)
+            else:
+                LOG.warning(
+                    'The image misses a configured "BB_BUILD_DIR" variable.'
+                )
+                LOG.warning('No result artifacts will be copied out.')
+
+        if cmd.mount_tmp_dir:
+            tmp_dir = uow.registry.env(cmd.image, 'BB_TMP_DIR')
+            if tmp_dir:
+                uow.registry.mount(cmd.image, cmd.tmp_dir, tmp_dir)
+            else:
+                LOG.warning(
+                    'The image misses a configured "BB_TMP_DIR" variable.'
+                )
+                LOG.warning('Temporary files will not be shared.')
 
         container = uow.create(cmd.image, cmd.name, cmd.args)
         uow.start(container)

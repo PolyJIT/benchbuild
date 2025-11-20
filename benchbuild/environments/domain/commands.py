@@ -75,6 +75,9 @@ class RunProjectContainer(model.Command):
     name: str = attr.ib(converter=oci_compliant_name)
 
     build_dir: str = attr.ib()
+    tmp_dir: str = attr.ib()
+    mount_build_dir: bool = attr.ib()
+    mount_tmp_dir: bool = attr.ib()
     args: tp.Sequence[str] = attr.ib(default=attr.Factory(list))
 
 

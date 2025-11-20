@@ -18,6 +18,15 @@ class HTTP(base.FetchableSource):
     Fetch the downloadable source via http.
     """
 
+    def __init__(
+        self,
+        local: str,
+        remote: tp.Union[str, tp.Dict[str, str]],
+        check_certificate: bool = True
+    ):
+        super().__init__(local, remote)
+        self._check_certificate = check_certificate
+
     @property
     def default(self) -> base.Variant:
         return self.versions()[0]
@@ -44,7 +53,7 @@ class HTTP(base.FetchableSource):
         url = remotes[version]
         target_name = versioned_target_name(self.local, version)
         cache_path = pb.local.path(prefix) / target_name
-        download_single_version(url, cache_path)
+        download_single_version(url, cache_path, self._check_certificate)
 
         return cache_path
 
@@ -103,7 +112,7 @@ class HTTPUntar(HTTP):
         active_loc = pb.local.path(target_dir) / self.local
 
         mkdir(target_path)
-        tar("-x", "-C", target_path, "-f", archive_path)
+        tar("-x", "--no-same-owner", "-C", target_path, "-f", archive_path)
 
         ln("-sf", target_path, active_loc)
 
@@ -116,9 +125,13 @@ class HTTPMultiple(HTTP):
     """
 
     def __init__(
-        self, local: str, remote: tp.Union[str, tp.Dict[str, str]], files: tp.List[str]
+        self,
+        local: str,
+        remote: tp.Union[str, tp.Dict[str, str]],
+        files: tp.List[str],
+        check_certificate: bool = True
     ):
-        super().__init__(local, remote)
+        super().__init__(local, remote, check_certificate)
         self._files = files
 
     def fetch_version(self, version: str) -> pb.LocalPath:
@@ -132,7 +145,9 @@ class HTTPMultiple(HTTP):
         mkdir("-p", cache_path)
 
         for file in self._files:
-            download_single_version(f"{url}/{file}", cache_path / file)
+            download_single_version(
+                f'{url}/{file}', cache_path / file, self._check_certificate
+            )
 
         return cache_path
 
@@ -151,11 +166,17 @@ def versioned_target_name(target_name: str, version: str) -> str:
     return "{}-{}".format(version, target_name)
 
 
-def download_single_version(url: str, target_path: str) -> str:
+def download_single_version(
+    url: str, target_path: str, check_certificate: bool
+) -> str:
     if not download_required(target_path):
         return target_path
 
-    wget(url, "-O", target_path)
+    if check_certificate:
+        wget(url, '-O', target_path)
+    else:
+        wget(url, '--no-check-certificate', '-O', target_path)
+
     from benchbuild.utils.download import update_hash
 
     update_hash(target_path)

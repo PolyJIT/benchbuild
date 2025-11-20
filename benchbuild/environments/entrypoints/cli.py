@@ -79,6 +79,16 @@ class BenchBuildContainerRun(cli.Application):
         help="Run a container interactively.",
     )
 
+    no_mount_build_dir = cli.Flag(
+        ['no-mount-build-dir'],
+        default=True,
+        help="Do not mount benchbuild's build directory."
+    )
+
+    mount_tmp_dir = cli.Flag(['mount-tmp-dir'],
+                             default=False,
+                             help="Mount benchbuild's tmp directory.")
+
     def main(self, *projects: str) -> int:
         plugins.discover()
 
@@ -107,20 +117,25 @@ class BenchBuildContainerRun(cli.Application):
             return -2
 
         tasks = {
-            "Base images": partial(
-                create_base_images,
-                wanted_experiments,
-                wanted_projects,
-                self.image_export,
-                self.image_import,
-            ),
-            "Project images": partial(
-                create_project_images, wanted_experiments, wanted_projects
-            ),
-            "Experiment images": partial(
-                create_experiment_images, wanted_experiments, wanted_projects
-            ),
-            "Run": partial(run_experiment_images, wanted_experiments, wanted_projects),
+            "Base images":
+                partial(
+                    create_base_images, wanted_experiments, wanted_projects,
+                    self.image_export, self.image_import
+                ),
+            "Project images":
+                partial(
+                    create_project_images, wanted_experiments, wanted_projects
+                ),
+            "Experiment images":
+                partial(
+                    create_experiment_images, wanted_experiments,
+                    wanted_projects
+                ),
+            "Run":
+                partial(
+                    run_experiment_images, wanted_experiments, wanted_projects,
+                    not self.no_mount_build_dir, self.mount_tmp_dir
+                )
         }
 
         console = rich.get_console()
@@ -428,7 +443,8 @@ def create_project_images(experiments: ExperimentIndex, projects: ProjectIndex) 
         projects: A project index that contains all reqquested (name, project)
                   Tuples.
     """
-    build_dir = local.path(BB_APP_ROOT) / "results"
+    build_dir = local.path(BB_APP_ROOT) / 'results'
+    tmp_dir = local.path(BB_APP_ROOT) / 'tmp'
     publish = bootstrap.bus()
 
     for prj in enumerate_projects(experiments, projects):
@@ -437,12 +453,13 @@ def create_project_images(experiments: ExperimentIndex, projects: ProjectIndex) 
 
         layers = prj.container
         layers.context(partial(__pull_sources_in_context, prj))
-        layers.add(".", BB_APP_ROOT)
-        layers.run("mkdir", str(build_dir))
+        layers.add('.', BB_APP_ROOT)
+        layers.run('mkdir', str(build_dir))
+        layers.run('mkdir', str(tmp_dir))
         layers.env(
             BB_BUILD_DIR=str(build_dir),
-            BB_TMP_DIR=BB_APP_ROOT,
-            BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]',
+            BB_TMP_DIR=str(tmp_dir),
+            BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]'
         )
         layers.workingdir(BB_APP_ROOT)
 
@@ -495,7 +512,10 @@ def create_experiment_images(
             publish(commands.CreateImage(image_tag, image))
 
 
-def run_experiment_images(experiments: ExperimentIndex, projects: ProjectIndex) -> None:
+def run_experiment_images(
+    experiments: ExperimentIndex, projects: ProjectIndex, mount_build_dir: bool,
+    mount_tmp_dir: bool
+) -> None:
     """
     Run experiments on given projects.
 
@@ -505,7 +525,8 @@ def run_experiment_images(experiments: ExperimentIndex, projects: ProjectIndex) 
         experiments: Index of experiments to run.
         projects: Index of projects to run.
     """
-    build_dir = str(CFG["build_dir"])
+    build_dir = str(CFG['build_dir'])
+    tmp_dir = str(CFG['tmp_dir'])
     publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
@@ -515,7 +536,12 @@ def run_experiment_images(experiments: ExperimentIndex, projects: ProjectIndex) 
 
             container_name = f"{exp.name}_{prj.name}_{prj.group}"
 
-            publish(commands.RunProjectContainer(image_tag, container_name, build_dir))
+            publish(
+                commands.RunProjectContainer(
+                    image_tag, container_name, build_dir, tmp_dir,
+                    mount_build_dir, mount_tmp_dir
+                )
+            )
 
 
 def remove_images(

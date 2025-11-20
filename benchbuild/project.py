@@ -466,6 +466,9 @@ def discovered() -> tp.Dict[str, ProjectT]:
 
 
 def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
+    if version == "*":
+        return project
+
     sources = project.SOURCE
     sources = [src for src in project.SOURCE if src.is_expandable]
 
@@ -481,6 +484,8 @@ def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> Projec
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     for i in range(min(len(sources), len(versions))):
+        if versions[i] == "*":
+            continue
         sources[i] = source.SingleVersionFilter(sources[i], versions[i])
 
     project.SOURCE = sources
@@ -494,6 +499,9 @@ def __add_named_filters__(project: ProjectT, versions: tp.Dict[str, str]) -> Pro
         s.key: s for s in sources
     }
     for k, v in versions.items():
+        if v == "*":
+            continue
+
         if k in named_sources:
             victim: source.base.FetchableSource = named_sources[k]
             victim = source.SingleVersionFilter(victim, v)

@@ -85,18 +85,18 @@ jobs:
         BB_VERBOSITY: 5
       run: |
         source .venv/bin/activate
-        coverage run -p benchbuild bootstrap -s
-        coverage run -p benchbuild config view
-        coverage run -p benchbuild experiment view
-        coverage run -p benchbuild project view
-        coverage run -p benchbuild run --full test
-        coverage run -p benchbuild slurm -E empty test
-        coverage run -p benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        coverage run -p benchbuild run -E raw bzip2/benchbuild
-        coverage run -p benchbuild container run -E raw bzip2/benchbuild
-        coverage run -p benchbuild container bases --export -E raw bzip2/benchbuild
-        coverage run -p benchbuild container bases --import -E raw bzip2/benchbuild
-        coverage run -p benchbuild container rmi --with-projects -E raw bzip2/benchbuild
+        coverage run -p .venv/bin/benchbuild bootstrap -s
+        coverage run -p .venv/bin/benchbuild config view
+        coverage run -p .venv/bin/benchbuild experiment view
+        coverage run -p .venv/bin/benchbuild project view
+        coverage run -p .venv/bin/benchbuild run --full test
+        coverage run -p .venv/bin/benchbuild slurm -E empty test
+        coverage run -p .venv/bin/benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p .venv/bin/benchbuild run -E raw bzip2/benchbuild
+        coverage run -p .venv/bin/benchbuild container run -E raw bzip2/benchbuild
+        coverage run -p .venv/bin/benchbuild container bases --export -E raw bzip2/benchbuild
+        coverage run -p .venv/bin/benchbuild container bases --import -E raw bzip2/benchbuild
+        coverage run -p .venv/bin/benchbuild container rmi --with-projects -E raw bzip2/benchbuild
         coverage combine
         coverage report -m
 

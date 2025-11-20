@@ -18,7 +18,7 @@ jobs:
 
     - name: Install system dependencies for CI
       run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang
+        sudo apt-get install time unionfs-fuse libfuse-dev clang libgit2-dev
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6

@@ -1,6 +1,7 @@
 """
 xz experiment within gentoo chroot.
 """
+
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
@@ -10,16 +11,15 @@ from benchbuild.utils.cmd import tar
 
 class XZ(GentooGroup):
     """
-        app-arch/xz
+    app-arch/xz
     """
+
     NAME = "xz"
     DOMAIN = "app-arch"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = [
-        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
-    ]
+    testfiles = ["text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"]
 
     def compile(self):
         super().compile()

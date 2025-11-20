@@ -7,20 +7,20 @@ from benchbuild.source import Git
 
 
 class Lulesh(bb.Project):
-    """ LULESH, Serial """
+    """LULESH, Serial"""
 
-    NAME = 'lulesh'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "lulesh"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://github.com/LLNL/LULESH/',
-            local='lulesh.git',
+            remote="https://github.com/LLNL/LULESH/",
+            local="lulesh.git",
             limit=5,
-            refspec='HEAD'
+            refspec="HEAD",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
     WORKLOADS = {
         WorkloadSet(): [
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
@@ -37,19 +37,19 @@ class Lulesh(bb.Project):
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 12),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 13),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 14),
-            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15)
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15),
         ]
     }
 
     def compile(self):
-        lulesh_repo = local.path(self.source_of('lulesh.git'))
+        lulesh_repo = local.path(self.source_of("lulesh.git"))
         self.cflags += ["-DUSE_MPI=0"]
 
         cxx_files = local.cwd / lulesh_repo // "*.cc"
         clang = bb.compiler.cxx(self)
         with local.cwd(lulesh_repo):
             for src_file in cxx_files:
-                clang("-c", "-o", src_file + '.o', src_file)
+                clang("-c", "-o", src_file + ".o", src_file)
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
         with local.cwd(lulesh_repo):
@@ -57,20 +57,20 @@ class Lulesh(bb.Project):
 
 
 class LuleshOMP(bb.Project):
-    """ LULESH, OpenMP """
+    """LULESH, OpenMP"""
 
-    NAME = 'lulesh-omp'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "lulesh-omp"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://github.com/LLNL/LULESH/',
-            local='lulesh.git',
+            remote="https://github.com/LLNL/LULESH/",
+            local="lulesh.git",
             limit=5,
-            refspec='HEAD'
+            refspec="HEAD",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
     WORKLOADS = {
         WorkloadSet(): [
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 1),
@@ -87,19 +87,19 @@ class LuleshOMP(bb.Project):
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 12),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 13),
             Command(SourceRoot("lulesh.git") / "lulesh", "-i", 14),
-            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15)
+            Command(SourceRoot("lulesh.git") / "lulesh", "-i", 15),
         ]
     }
 
     def compile(self):
-        lulesh_repo = local.path(self.source_of('lulesh.git'))
-        self.cflags = ['-DUSE_MPI=0', '-fopenmp']
+        lulesh_repo = local.path(self.source_of("lulesh.git"))
+        self.cflags = ["-DUSE_MPI=0", "-fopenmp"]
 
         cxx_files = local.cwd / lulesh_repo // "*.cc"
         clang = bb.compiler.cxx(self)
         with local.cwd(lulesh_repo):
             for src_file in cxx_files:
-                clang("-c", "-o", src_file + '.o', src_file)
+                clang("-c", "-o", src_file + ".o", src_file)
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
         with local.cwd(lulesh_repo):

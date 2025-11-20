@@ -9,6 +9,7 @@ LOG = logging.getLogger(__name__)
 
 class LogTrackingMixin:
     """Add log-registering capabilities to extensions."""
+
     _logs = []
 
     def add_log(self, path):

@@ -1,4 +1,4 @@
-""" Testing suite for the mounting process. """
+"""Testing suite for the mounting process."""
 
 import tempfile
 import unittest
@@ -7,7 +7,7 @@ from plumbum import local
 
 from benchbuild.settings import CFG
 
-__UNIONFS_ENABLED__ = bool(CFG['unionfs']['enable'])
+__UNIONFS_ENABLED__ = bool(CFG["unionfs"]["enable"])
 
 
 @unittest.skipIf(not __UNIONFS_ENABLED__, "Requires UnionFS to be enabled.")
@@ -28,10 +28,10 @@ class TestUnionFsMount(unittest.TestCase):
             cls.tmp_dir.delete()
 
     def test_build_dir(self):
-        """ Check if the needed build_dir exists. """
-        build_dir = local.path(str(CFG['build_dir']))
+        """Check if the needed build_dir exists."""
+        build_dir = local.path(str(CFG["build_dir"]))
         self.assertTrue(build_dir.exists())
 
 
-if __name__ == 'main':
+if __name__ == "main":
     unittest.main()

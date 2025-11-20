@@ -32,7 +32,7 @@ class Git(base.FetchableSource):
         local: str,
         clone: bool = True,
         limit: tp.Optional[int] = 10,
-        refspec: str = 'HEAD',
+        refspec: str = "HEAD",
         shallow: bool = True,
         submodule_set_urls: tp.Optional[tp.Dict[str, str]] = None,
         version_filter: tp.Callable[[str], bool] = lambda version: True
@@ -98,7 +98,7 @@ class Git(base.FetchableSource):
 
         return cache_path
 
-    def version(self, target_dir: str, version: str = 'HEAD') -> pb.LocalPath:
+    def version(self, target_dir: str, version: str = "HEAD") -> pb.LocalPath:
         """
         Create a new git worktree pointing to the requested version.
 
@@ -114,7 +114,7 @@ class Git(base.FetchableSource):
         """
         src_loc = self.fetch()
         active_loc = pb.local.path(target_dir) / self.local
-        tgt_subdir = f'{self.local}-{version}'
+        tgt_subdir = f"{self.local}-{version}"
         tgt_loc = pb.local.path(target_dir) / tgt_subdir
 
         clone = git['clone']
@@ -125,17 +125,18 @@ class Git(base.FetchableSource):
         checkout = git['checkout', '-f']
 
         with pb.local.cwd(src_loc):
-            is_shallow = rev_parse('--is-shallow-repository').strip()
-            if is_shallow == 'true':
-                pull('--unshallow')
+            is_shallow = rev_parse("--is-shallow-repository").strip()
+            if is_shallow == "true":
+                pull("--unshallow")
 
         if Path(tgt_loc).exists():
             LOG.info(
-                'Found target location %s. Going to skip creation and '
-                'repository cloning.', str(tgt_loc)
+                "Found target location %s. Going to skip creation and "
+                "repository cloning.",
+                str(tgt_loc),
             )
         else:
-            mkdir('-p', tgt_loc)
+            mkdir("-p", tgt_loc)
             with pb.local.cwd(tgt_loc):
                 clone('--dissociate', '--reference', src_loc, self.remote, '.')
                 checkout('--detach', version)
@@ -151,20 +152,19 @@ class Git(base.FetchableSource):
 
     def versions(self) -> tp.List[base.Variant]:
         cache_path = self.fetch()
-        git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
+        git_rev_list = git["rev-list", "--abbrev-commit", "--abbrev=10"]
 
         rev_list: tp.List[str] = []
         with pb.local.cwd(cache_path):
-            rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
+            rev_list = list(git_rev_list(self.refspec).strip().split("\n"))
 
         rev_list = list(filter(self.version_filter, rev_list))
-        rev_list = rev_list[:self.limit] if self.limit else rev_list
+        rev_list = rev_list[: self.limit] if self.limit else rev_list
         revs = [base.Variant(version=rev, owner=self) for rev in rev_list]
         return revs
 
 
 class GitSubmodule(Git):
-
     @property
     def is_expandable(self) -> bool:
         """Submodules will not participate in version expansion."""
@@ -185,7 +185,7 @@ def maybe_shallow(cmd: BoundCommand, enable: bool) -> BoundCommand:
         Any: A new git clone command, with shallow clone enabled, if selected.
     """
     if enable:
-        return cmd['--depth', '1']
+        return cmd["--depth", "1"]
     return cmd
 
 
@@ -193,6 +193,6 @@ def clone_needed(repository: VarRemotes, repo_loc: str) -> bool:
     from benchbuild.utils.download import __clone_needed__
 
     if not isinstance(repository, str):
-        raise TypeError('\'remote\' needs to be a git repo string')
+        raise TypeError("'remote' needs to be a git repo string")
 
     return __clone_needed__(repository, repo_loc)

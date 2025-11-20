@@ -30,26 +30,16 @@ class RuntimeExtension(base.Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
-        with run.track_execution(
-            cmd, self.project, self.experiment, **kwargs
-        ) as _run:
+        with run.track_execution(cmd, self.project, self.experiment, **kwargs) as _run:
             run_info = _run()
             if self.config:
                 run_info.add_payload("config", self.config)
                 LOG.info(
-                    yaml.dump(
-                        self.config,
-                        width=40,
-                        indent=4,
-                        default_flow_style=False
-                    )
+                    yaml.dump(self.config, width=40, indent=4, default_flow_style=False)
                 )
-                self.config['baseline'] = \
-                    os.getenv("BB_IS_BASELINE", "False")
+                self.config["baseline"] = os.getenv("BB_IS_BASELINE", "False")
                 if CFG["db"]["enabled"]:
-                    db.persist_config(
-                        run_info.db_run, run_info.session, self.config
-                    )
+                    db.persist_config(run_info.db_run, run_info.session, self.config)
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
@@ -73,9 +63,8 @@ class WithTimeout(base.Extension):
     def __call__(self, binary_command, *args, **kwargs):
         # pylint: disable=import-outside-toplevel
         from benchbuild.utils.cmd import timeout
-        return self.call_next(
-            timeout[self.limit, binary_command], *args, **kwargs
-        )
+
+        return self.call_next(timeout[self.limit, binary_command], *args, **kwargs)
 
 
 class SetThreadLimit(base.Extension):
@@ -87,7 +76,7 @@ class SetThreadLimit(base.Extension):
 
     def __call__(self, binary_command, *args, **kwargs):
         config = self.config
-        if config is not None and 'jobs' in config.keys():
+        if config is not None and "jobs" in config.keys():
             jobs = get_number_of_jobs(config)
         else:
             LOG.warning("Parameter 'config' was unusable, using defaults")

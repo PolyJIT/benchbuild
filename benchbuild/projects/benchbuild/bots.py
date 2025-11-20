@@ -24,13 +24,15 @@ class BOTSGroup(bb.Project):
     Strassen: Computes a matrix multiply with Strassen's method.
     """
 
-    DOMAIN = 'bots'
-    GROUP = 'bots'
+    DOMAIN = "bots"
+    GROUP = "bots"
     SOURCE = [
-        Git(remote='https://github.com/bsc-pm/bots',
-            local='bots.git',
+        Git(
+            remote="https://github.com/bsc-pm/bots",
+            local="bots.git",
             limit=5,
-            refspec='HEAD')
+            refspec="HEAD",
+        )
     ]
 
     path_dict = {
@@ -44,7 +46,7 @@ class BOTSGroup(bb.Project):
         "sort": "serial/sort",
         "sparselu": "serial/sparselu",
         "strassen": "serial/strassen",
-        "uts": "serial/uts"
+        "uts": "serial/uts",
     }
 
     input_dict = {
@@ -52,23 +54,35 @@ class BOTSGroup(bb.Project):
         "floorplan": ["input.15", "input.20", "input.5"],
         "health": ["large.input", "medium.input", "small.input", "test.input"],
         "knapsack": [
-            "knapsack-012.input", "knapsack-016.input", "knapsack-020.input",
-            "knapsack-024.input", "knapsack-032.input", "knapsack-036.input",
-            "knapsack-040.input", "knapsack-044.input", "knapsack-048.input",
-            "knapsack-064.input", "knapsack-096.input", "knapsack-128.input"
+            "knapsack-012.input",
+            "knapsack-016.input",
+            "knapsack-020.input",
+            "knapsack-024.input",
+            "knapsack-032.input",
+            "knapsack-036.input",
+            "knapsack-040.input",
+            "knapsack-044.input",
+            "knapsack-048.input",
+            "knapsack-064.input",
+            "knapsack-096.input",
+            "knapsack-128.input",
         ],
         "uts": [
-            "huge.input", "large.input", "medium.input", "small.input",
-            "test.input", "tiny.input"
-        ]
+            "huge.input",
+            "large.input",
+            "medium.input",
+            "small.input",
+            "test.input",
+            "tiny.input",
+        ],
     }
 
     def compile(self):
-        bots_repo = local.path(self.source_of('bots.git'))
+        bots_repo = local.path(self.source_of("bots.git"))
         makefile_config = bots_repo / "config" / "make.config"
         clang = bb.compiler.cc(self)
 
-        with open(makefile_config, 'w') as config:
+        with open(makefile_config, "w") as config:
             lines = [
                 "LABEL=benchbuild",
                 "ENABLE_OMPSS=",
@@ -97,7 +111,7 @@ class BOTSGroup(bb.Project):
 
     def run_tests(self):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        bots_repo = local.path(self.source_of('bots.git'))
+        bots_repo = local.path(self.source_of("bots.git"))
         binary_path = bots_repo / "bin" / binary_name
         exp = bb.wrap(binary_path, self)
         _exp = bb.watch(exp)
@@ -111,44 +125,44 @@ class BOTSGroup(bb.Project):
 
 
 class Alignment(BOTSGroup):
-    NAME = 'alignment'
+    NAME = "alignment"
 
 
 class FFT(BOTSGroup):
-    NAME = 'fft'
+    NAME = "fft"
 
 
 class Fib(BOTSGroup):
-    NAME = 'fib'
+    NAME = "fib"
 
 
 class FloorPlan(BOTSGroup):
-    NAME = 'floorplan'
+    NAME = "floorplan"
 
 
 class Health(BOTSGroup):
-    NAME = 'health'
+    NAME = "health"
 
 
 class Knapsack(BOTSGroup):
-    NAME = 'knapsack'
+    NAME = "knapsack"
 
 
 class NQueens(BOTSGroup):
-    NAME = 'nqueens'
+    NAME = "nqueens"
 
 
 class Sort(BOTSGroup):
-    NAME = 'sort'
+    NAME = "sort"
 
 
 class SparseLU(BOTSGroup):
-    NAME = 'sparselu'
+    NAME = "sparselu"
 
 
 class Strassen(BOTSGroup):
-    NAME = 'strassen'
+    NAME = "strassen"
 
 
 class UTS(BOTSGroup):
-    NAME = 'uts'
+    NAME = "uts"

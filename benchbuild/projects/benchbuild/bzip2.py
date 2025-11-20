@@ -26,8 +26,7 @@ class Bzip2(bb.Project):
         ),
     ]
 
-    CONTAINER = ContainerImage().from_("benchbuild:alpine"
-                                      ).run("apk", "add", "make")
+    CONTAINER = ContainerImage().from_("benchbuild:alpine").run("apk", "add", "make")
     # yapf: disable
     WORKLOADS = {
         WorkloadSet("compression"): [

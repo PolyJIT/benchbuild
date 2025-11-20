@@ -11,21 +11,21 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class OpenBlas(bb.Project):
-    NAME = 'openblas'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "openblas"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://github.com/xianyi/OpenBLAS',
-            local='OpenBLAS',
+            remote="https://github.com/xianyi/OpenBLAS",
+            local="OpenBLAS",
             limit=5,
-            refspec='HEAD'
+            refspec="HEAD",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        openblas_repo = local.path(self.source_of('OpenBLAS'))
+        openblas_repo = local.path(self.source_of("OpenBLAS"))
         clang = bb.compiler.cc(self)
         with local.cwd(openblas_repo):
             _make = bb.watch(make)
@@ -33,24 +33,24 @@ class OpenBlas(bb.Project):
 
     def run_tests(self):
         log = logging.getLogger(__name__)
-        log.warning('Not implemented')
+        log.warning("Not implemented")
 
 
 class Lapack(bb.Project):
-    NAME = 'lapack'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "lapack"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
-            remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
-            local='clapack.tgz'
+            remote={"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"},
+            local="clapack.tgz",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        clapack_source = local.path(self.source_of('clapack.tgz'))
-        clapack_version = self.version_of('clapack.tgz')
+        clapack_source = local.path(self.source_of("clapack.tgz"))
+        clapack_version = self.version_of("clapack.tgz")
 
         tar("xfz", clapack_source)
         unpack_dir = "CLAPACK-{0}".format(clapack_version)
@@ -58,23 +58,30 @@ class Lapack(bb.Project):
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
         with local.cwd(unpack_dir):
-            with open("make.inc", 'w') as makefile:
+            with open("make.inc", "w") as makefile:
                 content = [
-                    "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
-                    "CC        = " + str(clang) + "\n", "CXX       = " +
-                    str(clang_cxx) + "\n", "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
-                    "LOADER    = " + str(clang) + "\n", "LOADOPTS  = \n",
+                    "SHELL     = /bin/sh\n",
+                    "PLAT      = _LINUX\n",
+                    "CC        = " + str(clang) + "\n",
+                    "CXX       = " + str(clang_cxx) + "\n",
+                    "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
+                    "LOADER    = " + str(clang) + "\n",
+                    "LOADOPTS  = \n",
                     "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
-                    "DRVCFLAGS = $(CFLAGS)\n", "F2CCFLAGS = $(CFLAGS)\n",
-                    "TIMER     = INT_CPU_TIME\n", "ARCH      = ar\n",
-                    "ARCHFLAGS = cr\n", "RANLIB    = ranlib\n",
-                    "BLASLIB   = ../../blas$(PLAT).a\n", "XBLASLIB  = \n",
+                    "DRVCFLAGS = $(CFLAGS)\n",
+                    "F2CCFLAGS = $(CFLAGS)\n",
+                    "TIMER     = INT_CPU_TIME\n",
+                    "ARCH      = ar\n",
+                    "ARCHFLAGS = cr\n",
+                    "RANLIB    = ranlib\n",
+                    "BLASLIB   = ../../blas$(PLAT).a\n",
+                    "XBLASLIB  = \n",
                     "LAPACKLIB = lapack$(PLAT).a\n",
                     "F2CLIB    = ../../F2CLIBS/libf2c.a\n",
                     "TMGLIB    = tmglib$(PLAT).a\n",
                     "EIGSRCLIB = eigsrc$(PLAT).a\n",
                     "LINSRCLIB = linsrc$(PLAT).a\n",
-                    "F2CLIB    = ../../F2CLIBS/libf2c.a\n"
+                    "F2CLIB    = ../../F2CLIBS/libf2c.a\n",
                 ]
                 makefile.writelines(content)
 
@@ -85,7 +92,7 @@ class Lapack(bb.Project):
                 _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat3")
 
     def run_tests(self):
-        clapack_version = self.version_of('clapack.tgz')
+        clapack_version = self.version_of("clapack.tgz")
         unpack_dir = local.path("CLAPACK-{0}".format(clapack_version))
         with local.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)

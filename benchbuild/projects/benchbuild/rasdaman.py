@@ -11,33 +11,33 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class Rasdaman(bb.Project):
-    """ Rasdaman """
+    """Rasdaman"""
 
-    NAME = 'Rasdaman'
-    DOMAIN = 'database'
-    GROUP = 'benchbuild'
+    NAME = "Rasdaman"
+    DOMAIN = "database"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='git://rasdaman.org/rasdaman.git',
-            local='rasdaman.git',
+            remote="git://rasdaman.org/rasdaman.git",
+            local="rasdaman.git",
             limit=5,
-            refspec='HEAD'
+            refspec="HEAD",
         ),
         Git(
-            remote='https://github.com/OSGeo/gdal',
-            local='gdal.git',
+            remote="https://github.com/OSGeo/gdal",
+            local="gdal.git",
             limit=5,
-            refspec='HEAD'
-        )
+            refspec="HEAD",
+        ),
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"
 
     def compile(self):
-        rasdaman_repo = local.path(self.source_of('rasdaman.git'))
-        gdal_repo = local.path(self.source_of('gdal.git'))
+        rasdaman_repo = local.path(self.source_of("rasdaman.git"))
+        gdal_repo = local.path(self.source_of("gdal.git"))
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -48,8 +48,11 @@ class Rasdaman(bb.Project):
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure(
-                    "--with-pic", "--enable-static", "--with-gnu-ld",
-                    "--without-ld-shared", "--without-libtool"
+                    "--with-pic",
+                    "--enable-static",
+                    "--with-gnu-ld",
+                    "--without-ld-shared",
+                    "--without-libtool",
                 )
                 _make = bb.watch(make)
                 _make("-j", get_number_of_jobs(CFG))
@@ -61,13 +64,16 @@ class Rasdaman(bb.Project):
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure(
-                    "--without-debug-symbols", "--with-static-libs",
-                    "--disable-java", "--with-pic", "--disable-debug",
-                    "--without-docs"
+                    "--without-debug-symbols",
+                    "--with-static-libs",
+                    "--disable-java",
+                    "--with-pic",
+                    "--disable-debug",
+                    "--without-docs",
                 )
             _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
         log = logging.getLogger(__name__)
-        log.warning('Not implemented')
+        log.warning("Not implemented")

@@ -5,7 +5,7 @@ Extract information from likwid's CSV output.
 """
 
 
-def fetch_cols(fstream, split_char=','):
+def fetch_cols(fstream, split_char=","):
     """
     Fetch columns from likwid's output stream.
 
@@ -163,23 +163,22 @@ def perfcounters(infile):
         A list of all measurements extracted from likwid's file stream.
     """
     measurements = []
-    with open(infile, 'r') as in_file:
+    with open(infile, "r") as in_file:
         read_struct(in_file)
         for region_struct in read_structs(in_file):
             region = region_struct["1"][1]
             core_info = region_struct["Region Info"]
-            measurements += \
-                get_measurements(region, core_info, region_struct)
+            measurements += get_measurements(region, core_info, region_struct)
 
             for table_struct in read_tables(in_file):
                 core_info = None
                 if "Event" in table_struct:
                     offset = 1
                     core_info = table_struct["Event"][offset:]
-                    measurements += get_measurements(region, core_info,
-                                                     table_struct, offset)
+                    measurements += get_measurements(
+                        region, core_info, table_struct, offset
+                    )
                 elif "Metric" in table_struct:
                     core_info = table_struct["Metric"]
-                    measurements += get_measurements(region, core_info,
-                                                     table_struct)
+                    measurements += get_measurements(region, core_info, table_struct)
     return measurements

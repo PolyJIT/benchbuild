@@ -1,6 +1,7 @@
 """
 gzip experiment within gentoo chroot.
 """
+
 from plumbum import local
 
 import benchbuild as bb
@@ -10,16 +11,15 @@ from benchbuild.utils.cmd import tar
 
 class GZip(GentooGroup):
     """
-        app-arch/gzip
+    app-arch/gzip
     """
+
     NAME = "gzip"
     DOMAIN = "app-arch"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = [
-        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
-    ]
+    testfiles = ["text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"]
 
     def compile(self):
         super().compile()
@@ -30,7 +30,7 @@ class GZip(GentooGroup):
         tar("fxz", test_archive)
 
     def run_tests(self):
-        gzip = bb.wrap(local.path('/bin/gzip'), self)
+        gzip = bb.wrap(local.path("/bin/gzip"), self)
         gzip = bb.watch(gzip)
 
         # Compress

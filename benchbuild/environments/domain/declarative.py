@@ -40,9 +40,9 @@ class ContainerImage(list):
         layers = [l for l in self if isinstance(l, model.FromLayer)]
         if layers:
             return layers.pop(0).base
-        return ''
+        return ""
 
-    def env(self, **kwargs: str) -> 'ContainerImage':
+    def env(self, **kwargs: str) -> "ContainerImage":
         """
         Create an environment layer in this image.
 
@@ -55,7 +55,7 @@ class ContainerImage(list):
         self.append(model.UpdateEnv(kwargs))
         return self
 
-    def from_(self, base_image: str) -> 'ContainerImage':
+    def from_(self, base_image: str) -> "ContainerImage":
         """
         Specify a new base layer for this image.
 
@@ -67,7 +67,7 @@ class ContainerImage(list):
         self.append(model.FromLayer(base_image))
         return self
 
-    def context(self, func: tp.Callable[[], None]) -> 'ContainerImage':
+    def context(self, func: tp.Callable[[], None]) -> "ContainerImage":
         """
         Interact with the build context of the container.
 
@@ -84,7 +84,7 @@ class ContainerImage(list):
         self.append(model.ContextLayer(func))
         return self
 
-    def add(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
+    def add(self, sources: tp.Iterable[str], tgt: str) -> "ContainerImage":
         """
         Add given files from the source to the container image.
 
@@ -97,7 +97,7 @@ class ContainerImage(list):
         self.append(model.AddLayer(tuple(sources), tgt))
         return self
 
-    def copy_(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
+    def copy_(self, sources: tp.Iterable[str], tgt: str) -> "ContainerImage":
         """
         Copy given files from the source to the container image.
 
@@ -110,7 +110,7 @@ class ContainerImage(list):
         self.append(model.CopyLayer(tuple(sources), tgt))
         return self
 
-    def run(self, command: str, *args: str, **kwargs: str) -> 'ContainerImage':
+    def run(self, command: str, *args: str, **kwargs: str) -> "ContainerImage":
         """
         Run a command in the container image.
 
@@ -125,7 +125,7 @@ class ContainerImage(list):
         self.append(model.RunLayer(command, args, kwargs))
         return self
 
-    def workingdir(self, directory: str) -> 'ContainerImage':
+    def workingdir(self, directory: str) -> "ContainerImage":
         """
         Change the working directory in the container.
 
@@ -140,7 +140,7 @@ class ContainerImage(list):
         self.append(model.WorkingDirectory(directory))
         return self
 
-    def entrypoint(self, *args: str) -> 'ContainerImage':
+    def entrypoint(self, *args: str) -> "ContainerImage":
         """
         Set the entrypoint of the container.
 
@@ -154,7 +154,7 @@ class ContainerImage(list):
         self.append(model.EntryPoint(args))
         return self
 
-    def command(self, *args: str) -> 'ContainerImage':
+    def command(self, *args: str) -> "ContainerImage":
         """
         Set the default command the container runs.
 
@@ -168,12 +168,25 @@ class ContainerImage(list):
 
 
 DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
-    'benchbuild:alpine': ContainerImage() \
-            .from_("docker.io/alpine:3.17") \
-            .run('apk', 'update') \
-            .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
-                 'linux-headers', 'musl-dev', 'git', 'gcc', 'g++',
-                 'sqlite-libs', 'libgit2-dev', 'libffi-dev', 'py3-pip')
+    "benchbuild:alpine": ContainerImage()
+    .from_("docker.io/alpine:3.17")
+    .run("apk", "update")
+    .run(
+        "apk",
+        "add",
+        "python3",
+        "python3-dev",
+        "postgresql-dev",
+        "linux-headers",
+        "musl-dev",
+        "git",
+        "gcc",
+        "g++",
+        "sqlite-libs",
+        "libgit2-dev",
+        "libffi-dev",
+        "py3-pip",
+    )
 }
 
 
@@ -194,34 +207,29 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
     Returns:
         the modified container image.
     """
-    crun = str(CFG['container']['runtime'])
-    src_dir = str(CFG['container']['source'])
-    tgt_dir = '/benchbuild'
+    crun = str(CFG["container"]["runtime"])
+    src_dir = str(CFG["container"]["source"])
+    tgt_dir = "/benchbuild"
 
     def from_source(image: ContainerImage) -> None:
-        LOG.debug('BenchBuild will be installed from  source.')
+        LOG.debug("BenchBuild will be installed from  source.")
 
-        mount = f'type=bind,src={src_dir},target={tgt_dir}'
+        mount = f"type=bind,src={src_dir},target={tgt_dir}"
         if buildah_version() >= (1, 24, 0):
-            mount += ',rw'
+            mount += ",rw"
 
         # The image requires git, pip and a working python3.7 or better.
-        image.run('mkdir', f'{tgt_dir}', runtime=crun)
-        image.run('pip3', 'install', 'setuptools', runtime=crun)
+        image.run("mkdir", f"{tgt_dir}", runtime=crun)
+        image.run("pip3", "install", "setuptools", runtime=crun)
         image.run(
-            'pip3',
-            'install',
-            '--ignore-installed',
-            tgt_dir,
-            mount=mount,
-            runtime=crun
+            "pip3", "install", "--ignore-installed", tgt_dir, mount=mount, runtime=crun
         )
 
     def from_pip(image: ContainerImage) -> None:
-        LOG.debug('installing benchbuild from pip release.')
-        image.run('pip3', 'install', 'benchbuild', runtime=crun)
+        LOG.debug("installing benchbuild from pip release.")
+        image.run("pip3", "install", "benchbuild", runtime=crun)
 
-    if bool(CFG['container']['from_source']):
+    if bool(CFG["container"]["from_source"]):
         from_source(layers)
     else:
         from_pip(layers)

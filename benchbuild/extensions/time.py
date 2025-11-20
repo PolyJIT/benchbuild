@@ -31,8 +31,9 @@ class RunWithTime(base.Extension):
             for run_info in run_infos:
                 if may_wrap:
                     timings = fetch_time_output(
-                        time_tag, time_tag + "{:g}-{:g}-{:g}",
-                        run_info.stderr.split("\n")
+                        time_tag,
+                        time_tag + "{:g}-{:g}-{:g}",
+                        run_info.stderr.split("\n"),
                     )
                     if timings:
                         db.persist_time(run_info.db_run, session, timings)
@@ -48,8 +49,9 @@ class RunWithTime(base.Extension):
         return "Time execution of wrapped binary"
 
 
-def fetch_time_output(marker: str, format_s: str,
-                      ins: tp.List[str]) -> tp.List[parse.Match]:
+def fetch_time_output(
+    marker: str, format_s: str, ins: tp.List[str]
+) -> tp.List[parse.Match]:
     """
     Fetch the output /usr/bin/time from a.
 

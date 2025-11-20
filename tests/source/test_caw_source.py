@@ -13,6 +13,7 @@ from benchbuild.source import (
 
 class TestProject(Project):
     """Test project that does nothing."""
+
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
@@ -34,14 +35,10 @@ def test_enumerate_output(make_source, caw_src_0, caw_src_1):
     TestProject.SOURCE = [src_primary, caw_src_0, caw_src_1]
 
     expected_variants = [
-        [Variant(src_primary, "0"),
-         Variant(caw_src_0, "v0.1")],
-        [Variant(src_primary, "0"),
-         Variant(caw_src_0, "v0.2")],
-        [Variant(src_primary, "1"),
-         Variant(caw_src_1, "v1.1")],
-        [Variant(src_primary, "1"),
-         Variant(caw_src_1, "v1.2")],
+        [Variant(src_primary, "0"), Variant(caw_src_0, "v0.1")],
+        [Variant(src_primary, "0"), Variant(caw_src_0, "v0.2")],
+        [Variant(src_primary, "1"), Variant(caw_src_1, "v1.1")],
+        [Variant(src_primary, "1"), Variant(caw_src_1, "v1.2")],
     ]
 
     revs = enumerate_revisions(TestProject)
@@ -59,12 +56,12 @@ def test_caw_filter(make_source, caw_src_0):
     TestProject.SOURCE = [src_primary, v_filter]
     revs = enumerate_revisions(TestProject)
 
-    assert v_filter.is_context_free() is False, \
-           "is_context_free needs to be delegated to child."
+    assert v_filter.is_context_free() is False, (
+        "is_context_free needs to be delegated to child."
+    )
 
     expected_variants = [
-        [Variant(src_primary, "0"),
-         Variant(v_filter, "v0.2")],
+        [Variant(src_primary, "0"), Variant(v_filter, "v0.2")],
         [Variant(src_primary, "1")],
     ]
 
@@ -80,17 +77,17 @@ def test_source_mapping(make_source, caw_src_0):
     src_secondary = make_source(["s1", "s2"])
     TestProject.SOURCE = [src_primary, caw_src_0, src_secondary]
 
-    with patch.dict(
-        ProjectRegistry.projects, {"test/test": TestProject}, clear=True
-    ):
+    with patch.dict(ProjectRegistry.projects, {"test/test": TestProject}, clear=True):
         res: tp.Mapping[str, tp.Type[Project]] = populate(["test/test"])
         assert res["test/test"] == TestProject
 
         expected_revisions = [
             str(
                 Revision(
-                    TestProject, Variant(src_primary, "0"),
-                    Variant(caw_src_0, "v0.1"), Variant(src_secondary, "s1")
+                    TestProject,
+                    Variant(src_primary, "0"),
+                    Variant(caw_src_0, "v0.1"),
+                    Variant(src_secondary, "s1"),
                 )
             )
         ]

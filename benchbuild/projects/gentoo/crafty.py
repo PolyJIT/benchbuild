@@ -1,6 +1,7 @@
 """
 crafty experiment within gentoo chroot.
 """
+
 from plumbum import local
 
 import benchbuild as bb
@@ -10,8 +11,9 @@ from benchbuild.utils.cmd import cat
 
 class Crafty(GentooGroup):
     """
-        games-board/crafty
+    games-board/crafty
     """
+
     NAME = "crafty"
     DOMAIN = "games-board"
 
@@ -26,8 +28,8 @@ class Crafty(GentooGroup):
         crafty_path = local.path("/usr/bin/crafty")
         crafty = bb.wrap(crafty_path, self)
 
-        with open("test1.sh", 'w') as test1:
-            lines = '''
+        with open("test1.sh", "w") as test1:
+            lines = """
 st=10
 ponder=off
 display nomoves
@@ -91,12 +93,12 @@ move
 mt=0
 quit
 EOF
-'''
+"""
 
             test1.write(lines)
 
-        with open("test2.sh", 'w') as test2:
-            lines = '''
+        with open("test2.sh", "w") as test2:
+            lines = """
 st=10
 ponder=off
 mt=2
@@ -104,12 +106,12 @@ setboard 2r2rk1/1bqnbpp1/1p1ppn1p/pP6/N1P1P3/P2B1N1P/1B2QPP1/R2R2K1 b
 move
 mt=0
 quit
-'''
+"""
 
             test2.write(lines)
 
-        crafty_test1 = bb.watch((cat['test1.sh'] | crafty))
+        crafty_test1 = bb.watch((cat["test1.sh"] | crafty))
         crafty_test1()
 
-        crafty_test2 = bb.watch((cat['test2.sh'] | crafty))
+        crafty_test2 = bb.watch((cat["test2.sh"] | crafty))
         crafty_test2()

@@ -7,40 +7,34 @@ from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
 class Crafty(bb.Project):
-    """ crafty benchmark """
+    """crafty benchmark"""
 
-    NAME = 'crafty'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "crafty"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
             remote={
-                '25.2': (
-                    'http://www.craftychess.com/downloads/source/'
-                    'crafty-25.2.zip'
-                )
+                "25.2": ("http://www.craftychess.com/downloads/source/crafty-25.2.zip")
             },
-            local='crafty.zip'
+            local="crafty.zip",
+        ),
+        HTTP(
+            remote={"1.0": "http://www.craftychess.com/downloads/book/book.bin"},
+            local="book.bin",
         ),
         HTTP(
             remote={
-                '1.0': 'http://www.craftychess.com/downloads/book/book.bin'
+                "2016-11-crafty.tar.gz": "http://lairosiel.de/dist/2016-11-crafty.tar.gz"
             },
-            local='book.bin'
+            local="inputs.tar.gz",
         ),
-        HTTP(
-            remote={
-                '2016-11-crafty.tar.gz':
-                    'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
-            },
-            local='inputs.tar.gz'
-        )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        crafty_source = local.path(self.source_of('crafty.zip'))
-        book_source = local.path(self.source_of('inputs.tar.gz'))
+        crafty_source = local.path(self.source_of("crafty.zip"))
+        book_source = local.path(self.source_of("inputs.tar.gz"))
 
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)
@@ -54,13 +48,15 @@ class Crafty(bb.Project):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
             _make = bb.watch(make)
             _make(
-                "target=UNIX", "CC=" + str(clang),
-                "opt=" + " ".join(target_opts), "crafty-make"
+                "target=UNIX",
+                "CC=" + str(clang),
+                "opt=" + " ".join(target_opts),
+                "crafty-make",
             )
 
     def run_tests(self):
-        unpack_dir = local.path('crafty.src')
-        test_source = local.path(self.source_of('inputs.tar.gz'))
+        unpack_dir = local.path("crafty.src")
+        test_source = local.path(self.source_of("inputs.tar.gz"))
 
         with local.cwd(unpack_dir):
             crafty = bb.wrap("./crafty", self)

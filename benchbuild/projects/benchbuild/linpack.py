@@ -11,18 +11,18 @@ LOG = logging.getLogger(__name__)
 
 
 class Linpack(bb.Project):
-    """ Linpack (C-Version) """
+    """Linpack (C-Version)"""
 
-    NAME = 'linpack'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
+    NAME = "linpack"
+    DOMAIN = "scientific"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
-            remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
-            local='linpack.c'
+            remote={"5_88": "http://www.netlib.org/benchmark/linpackc.new"},
+            local="linpack.c",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     WORKLOADS = {WorkloadSet(): [Command(SourceRoot(".") / "linpack")]}
 
@@ -33,4 +33,4 @@ class Linpack(bb.Project):
         self.ldflags += ["-lm"]
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
-        _clang("-o", 'linpack', "linpack.c")
+        _clang("-o", "linpack", "linpack.c")

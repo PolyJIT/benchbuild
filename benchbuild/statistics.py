@@ -1,6 +1,7 @@
 """
 Handle all statsitic related classes and methods.
 """
+
 import logging
 
 from benchbuild.extensions import Extension
@@ -42,7 +43,7 @@ class Statistics(Extension):
             del result  # Unused temporarily
             t_statistic = 0
             p_value = 0
-            #t_statistic, p_value = scipy.stats.ttest_1samp(result, TRUE_MU)
+            # t_statistic, p_value = scipy.stats.ttest_1samp(result, TRUE_MU)
             LOG.debug("t-statistic = %f, pvalue = %f", t_statistic, p_value)
         return p_value >= 1 - significance
 
@@ -63,28 +64,26 @@ class Statistics(Extension):
         session = Session()
 
         while iterator < timeout:
-            #get an run_info object after executing the run with its extensions
+            # get an run_info object after executing the run with its extensions
             ri_object = self.call_next(*args, **kwargs)
 
-            #check if the experiment defines the result function
-            if hasattr(self.experiment, 'res_func'):
+            # check if the experiment defines the result function
+            if hasattr(self.experiment, "res_func"):
                 results = self.experiment.res_func(ri_object)
                 if self.t_test(results):
                     LOG.info("The run was significant.")
                     break
 
-                #check if this was the last iteration
+                # check if this was the last iteration
                 if iterator == (timeout - 1):
-                    LOG.warning(
-                        "No significant run happened before the timeout!"
-                    )
+                    LOG.warning("No significant run happened before the timeout!")
                 iterator += 1
 
             # no need to repeat the run without a result function
             else:
                 break
 
-        #Commit the database session containing all runs
+        # Commit the database session containing all runs
         session.commit()
 
         LOG.info("Overall one command was executed %s times.", iterator)

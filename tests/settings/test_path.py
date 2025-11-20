@@ -8,8 +8,7 @@ import unittest
 import pytest
 import yaml
 
-from benchbuild.utils.settings import (ConfigPath, path_constructor,
-                                       path_representer)
+from benchbuild.utils.settings import ConfigPath, path_constructor, path_representer
 
 
 def test_root_path():

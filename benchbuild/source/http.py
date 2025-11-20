@@ -1,12 +1,13 @@
 """
 Declare a http source.
 """
+
 import typing as tp
 
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir, mv
+from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -63,8 +64,8 @@ class HTTP(base.FetchableSource):
         target_path = pb.local.path(target_dir) / target_name
         active_loc = pb.local.path(target_dir) / self.local
 
-        cp('-ar', cache_path, target_path)
-        ln('-sf', target_name, active_loc)
+        cp("-ar", cache_path, target_path)
+        ln("-sf", target_name, active_loc)
 
         return target_path
 
@@ -113,7 +114,7 @@ class HTTPUntar(HTTP):
         mkdir(target_path)
         tar("-x", "--no-same-owner", "-C", target_path, "-f", archive_path)
 
-        ln('-sf', target_path, active_loc)
+        ln("-sf", target_path, active_loc)
 
         return target_path
 
@@ -141,7 +142,7 @@ class HTTPMultiple(HTTP):
         target_name = versioned_target_name(self.local, version)
 
         cache_path = pb.local.path(prefix) / target_name
-        mkdir('-p', cache_path)
+        mkdir("-p", cache_path)
 
         for file in self._files:
             download_single_version(
@@ -153,7 +154,7 @@ class HTTPMultiple(HTTP):
 
 def normalize_remotes(remote: VarRemotes) -> Remotes:
     if isinstance(remote, str):
-        raise TypeError('\'remote\' needs to be a mapping type')
+        raise TypeError("'remote' needs to be a mapping type")
 
     # FIXME: What the hell?
     _remotes: Remotes = {}
@@ -177,10 +178,12 @@ def download_single_version(
         wget(url, '--no-check-certificate', '-O', target_path)
 
     from benchbuild.utils.download import update_hash
+
     update_hash(target_path)
     return target_path
 
 
 def download_required(target_path: str) -> bool:
     from benchbuild.utils.download import source_required
+
     return source_required(target_path)

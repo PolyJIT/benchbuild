@@ -1,4 +1,5 @@
 """Experiment helpers."""
+
 import datetime
 import functools
 import logging
@@ -18,9 +19,7 @@ CommandResult = t.Tuple[int, str, str]
 
 
 class WatchableCommand(Protocol):
-
-    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
-        ...
+    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult: ...
 
 
 CFG = settings.CFG
@@ -71,7 +70,7 @@ class RunInfo:
 
         db_run, session = create_run(command, project, experiment, group)
         db_run.begin = datetime.datetime.now()
-        db_run.status = 'running'
+        db_run.status = "running"
         log = s.RunLog()
         log.run_id = db_run.id
         log.begin = datetime.datetime.now()
@@ -110,7 +109,7 @@ class RunInfo:
         log.end = datetime.datetime.now()
 
         self.db_run.end = datetime.datetime.now()
-        self.db_run.status = 'completed'
+        self.db_run.status = "completed"
         self.session.add(log)
         self.session.add(self.db_run)
 
@@ -133,6 +132,7 @@ class RunInfo:
 
         # pylint: disable=import-outside-toplevel
         from benchbuild.utils.schema import RunLog
+
         run_id = self.db_run.id
 
         log = self.session.query(RunLog).filter(RunLog.run_id == run_id).one()
@@ -142,7 +142,7 @@ class RunInfo:
         log.end = datetime.datetime.now()
 
         self.db_run.end = datetime.datetime.now()
-        self.db_run.status = 'failed'
+        self.db_run.status = "failed"
         self.failed = True
         self.session.add(log)
         self.session.add(self.db_run)
@@ -160,9 +160,7 @@ class RunInfo:
     payload = attr.ib(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
-        self.__begin(
-            self.cmd, self.project, self.experiment, self.project.run_uuid
-        )
+        self.__begin(self.cmd, self.project, self.experiment, self.project.run_uuid)
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
         if CFG["db"]["enabled"]:
@@ -188,14 +186,13 @@ class RunInfo:
         with local.env(**cmd_env):
             try:
                 bin_name = sys.argv[0]
-                retcode, stdout, stderr = \
-                    self.cmd & TEE(retcode=expected_retcode)
+                retcode, stdout, stderr = self.cmd & TEE(retcode=expected_retcode)
                 f_stdout = bin_name + ".stdout"
                 f_stderr = bin_name + ".stderr"
-                with open(f_stdout, 'w') as fd_stdout:
+                with open(f_stdout, "w") as fd_stdout:
                     fd_stdout.write(stdout)
 
-                with open(f_stderr, 'w') as fd_stderr:
+                with open(f_stderr, "w") as fd_stderr:
                     fd_stderr.write(stderr)
 
                 self.retcode = retcode
@@ -246,7 +243,7 @@ def begin_run_group(project, experiment):
 
     group, session = create_run_group(project, experiment)
     group.begin = datetime.datetime.now()
-    group.status = 'running'
+    group.status = "running"
 
     session.commit()
     return group, session
@@ -261,7 +258,7 @@ def end_run_group(group, session):
         session: The database transaction we will finish.
     """
     group.end = datetime.datetime.now()
-    group.status = 'completed'
+    group.status = "completed"
     session.commit()
 
 
@@ -274,7 +271,7 @@ def fail_run_group(group, session):
         session: The database transaction we will finish.
     """
     group.end = datetime.datetime.now()
-    group.status = 'failed'
+    group.status = "failed"
     session.commit()
 
 
@@ -336,10 +333,10 @@ def watch(command: BaseCommand) -> WatchableCommand:
 
     def f(*args: t.Any, retcode: int = 0, **kwargs: t.Any) -> CommandResult:
         final_command = command[args]
-        buffered = not bool(CFG['force_watch_unbuffered'])
+        buffered = not bool(CFG["force_watch_unbuffered"])
         return t.cast(
             CommandResult,
-            final_command.run_tee(retcode=retcode, buffered=buffered, **kwargs)
+            final_command.run_tee(retcode=retcode, buffered=buffered, **kwargs),
         )
 
     return f
@@ -358,6 +355,7 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     """
     # pylint: disable=import-outside-toplevel
     from plumbum.commands.base import BoundCommand, BoundEnvCommand
+
     if isinstance(cmd, BoundCommand):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
     elif isinstance(cmd, BoundEnvCommand):
@@ -366,7 +364,7 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     return cmd
 
 
-def in_builddir(sub: str = '.'):
+def in_builddir(sub: str = "."):
     """
     Decorate a project phase with a local working directory change.
 

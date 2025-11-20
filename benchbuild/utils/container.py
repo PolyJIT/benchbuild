@@ -1,4 +1,5 @@
 """Container utilites."""
+
 import logging
 import os
 from datetime import datetime
@@ -63,9 +64,9 @@ class Container:
 
 class Gentoo(Container):
     name = "gentoo"
-    _LATEST_TXT = \
-        "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
-        "latest-stage3-amd64.txt"
+    _LATEST_TXT = (
+        "http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64.txt"
+    )
 
     @property
     @cached
@@ -77,12 +78,12 @@ class Gentoo(Container):
             Latest src_uri from gentoo's distfiles mirror.
         """
         try:
-            src_uri = (curl[Gentoo._LATEST_TXT] | tail["-n", "+3"] |
-                       cut["-f1", "-d "])().strip()
+            src_uri = (
+                curl[Gentoo._LATEST_TXT] | tail["-n", "+3"] | cut["-f1", "-d "]
+            )().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
-            LOG.error("Could not determine latest stage3 src uri: %s",
-                      str(proc_ex))
+            LOG.error("Could not determine latest stage3 src uri: %s", str(proc_ex))
         return src_uri
 
     @property
@@ -90,11 +91,10 @@ class Gentoo(Container):
     def version(self):
         """Return the build date of the gentoo container."""
         try:
-            _version = (curl[Gentoo._LATEST_TXT] | \
-                    awk['NR==2{print}'] | \
-                    cut["-f2", "-d="])().strip()
-            _version = datetime.utcfromtimestamp(int(_version))\
-                .strftime("%Y-%m-%d")
+            _version = (
+                curl[Gentoo._LATEST_TXT] | awk["NR==2{print}"] | cut["-f2", "-d="]
+            )().strip()
+            _version = datetime.utcfromtimestamp(int(_version)).strftime("%Y-%m-%d")
         except ProcessExecutionError as proc_ex:
             _version = "unknown"
             LOG.error("Could not determine timestamp: %s", str(proc_ex))
@@ -103,8 +103,9 @@ class Gentoo(Container):
     @property
     def remote(self):
         """Get a remote URL of the requested container."""
-        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-            .format(self.src_file)
+        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".format(
+            self.src_file
+        )
 
 
 def is_valid(container, path):
@@ -120,14 +121,14 @@ def is_valid(container, path):
     """
     try:
         tmp_hash_path = container.filename + ".hash"
-        with open(tmp_hash_path, 'r') as tmp_file:
+        with open(tmp_hash_path, "r") as tmp_file:
             tmp_hash = tmp_file.readline()
     except IOError:
         LOG.info("No .hash-file in the tmp-directory.")
 
     container_hash_path = local.path(path) / "gentoo.tar.bz2.hash"
     if container_hash_path.exists():
-        with open(container_hash_path, 'r') as hash_file:
+        with open(container_hash_path, "r") as hash_file:
             container_hash = hash_file.readline()
             return container_hash == tmp_hash
     return False
@@ -159,14 +160,13 @@ def unpack(container, path):
         Wget(container.remote, name)
 
         uchroot = no_args()
-        uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w",
-                          os.path.abspath("."), "--"]
+        uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w", os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
-            "-c",
-            "tar --list -f './{0}' | grep --silent '.erlent'".format(name)]
-        has_erlent = (has_erlent & TF)
+            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(name)
+        ]
+        has_erlent = has_erlent & TF
 
         untar = local["/bin/tar"]["xf", "./" + name]
         if not has_erlent:
@@ -177,8 +177,9 @@ def unpack(container, path):
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
-            LOG.warning("File contents do not match: %s != %s", name,
-                        container.filename)
+            LOG.warning(
+                "File contents do not match: %s != %s", name, container.filename
+            )
         cp(container.filename + ".hash", path)
 
 

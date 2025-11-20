@@ -157,6 +157,12 @@ class PodmanRegistry(ContainerRegistry):
         interactive = bool(CFG['container']['interactive'])
 
         create_cmd = bb_podman('create', '--replace')
+
+        if seccomp_config := CFG['container']['seccomp_config']:
+            create_cmd = create_cmd['--security-opt',
+                                    f'seccomp={seccomp_config}', '--cap-add',
+                                    'PERFMON']
+
         if interactive:
             create_cmd = create_cmd['-it', '--entrypoint', '/bin/sh']
 

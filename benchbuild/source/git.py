@@ -34,6 +34,7 @@ class Git(base.FetchableSource):
         limit: tp.Optional[int] = 10,
         refspec: str = 'HEAD',
         shallow: bool = True,
+        submodule_set_urls: tp.Optional[tp.Dict[str, str]] = None,
         version_filter: tp.Callable[[str], bool] = lambda version: True
     ):
         super().__init__(local, remote)
@@ -42,6 +43,7 @@ class Git(base.FetchableSource):
         self.limit = limit
         self.refspec = refspec
         self.shallow = shallow
+        self.submodule_set_urls = submodule_set_urls
         self.version_filter = version_filter
 
     @property
@@ -64,19 +66,27 @@ class Git(base.FetchableSource):
             str: [description]
         """
         prefix = base.target_prefix()
-        clone = maybe_shallow(
-            git['clone', '--recurse-submodules'], self.shallow
-        )
+        clone = maybe_shallow(git['clone'], self.shallow)
         fetch = git['fetch', '--update-shallow', '--all']
         checkout = git['checkout', '-f', '--recurse-submodules']
+        set_url = git['submodule', 'set-url']
+        submodule_update = git['submodule', 'update', '--init', '--recursive']
+
         flat_local = self.local.replace(os.sep, '-')
         cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)
-            if "HEAD" not in self.refspec:
-                with pb.local.cwd(cache_path):
+
+            with pb.local.cwd(cache_path):
+                if "HEAD" not in self.refspec:
                     checkout(self.refspec.split('/')[-1])
+
+                if self.submodule_set_urls:
+                    for submodule, url in self.submodule_set_urls.items():
+                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        set_url(submodule, url)
+                submodule_update()
         else:
             if self in _fetched_cache:
                 LOG.debug('Already fetched %s, skipping.', self.local)
@@ -110,7 +120,9 @@ class Git(base.FetchableSource):
         clone = git['clone']
         pull = git['pull']
         rev_parse = git['rev-parse']
-        checkout = git['checkout', '-f', '--recurse-submodules']
+        set_url = git['submodule', 'set-url']
+        submodule_update = git['submodule', 'update', '--init', '--recursive']
+        checkout = git['checkout', '-f']
 
         with pb.local.cwd(src_loc):
             is_shallow = rev_parse('--is-shallow-repository').strip()
@@ -125,11 +137,14 @@ class Git(base.FetchableSource):
         else:
             mkdir('-p', tgt_loc)
             with pb.local.cwd(tgt_loc):
-                clone(
-                    '--dissociate', '--recurse-submodules', '--reference',
-                    src_loc, self.remote, '.'
-                )
+                clone('--dissociate', '--reference', src_loc, self.remote, '.')
                 checkout('--detach', version)
+
+                if self.submodule_set_urls:
+                    for submodule, url in self.submodule_set_urls.items():
+                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        set_url(submodule, url)
+                submodule_update()
 
         ln('-nsf', tgt_subdir, active_loc)
         return tgt_loc

@@ -7,7 +7,7 @@ authors = [
     { name = "Andreas Simbuerger", email = "simbuerg@lairosiel.de" }
 ]
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
   'Development Status :: 4 - Beta', 'Intended Audience :: Developers',
   'Topic :: Software Development :: Testing',

@@ -4,6 +4,7 @@ from functools import partial
 import rich
 from plumbum import cli, local
 from rich import print
+from rich import traceback
 
 from benchbuild import experiment, plugins, project, settings, source
 from benchbuild.environments import bootstrap
@@ -12,7 +13,7 @@ from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 from benchbuild.settings import CFG
 
-rich.traceback.install()
+traceback.install()
 
 
 class BenchBuildContainer(cli.Application):

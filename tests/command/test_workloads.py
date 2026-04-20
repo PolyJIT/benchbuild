@@ -46,7 +46,7 @@ class OnlyInWorkloadProject(Project):
 def project(bb_git_repo: GitRepo) -> ProjectT:
     DefaultWorkloadProject.SOURCE = [
         Git(
-            remote=bb_git_repo.workspace,
+            remote=str(bb_git_repo.workspace),
             local="workload-test.git",
             shallow=False
         )
@@ -63,7 +63,7 @@ def project(bb_git_repo: GitRepo) -> ProjectT:
 def only_in_project(bb_git_repo: GitRepo) -> ProjectT:
     OnlyInWorkloadProject.SOURCE = [
         Git(
-            remote=bb_git_repo.workspace,
+            remote=str(bb_git_repo.workspace),
             local="workload-test.git",
             shallow=False
         )

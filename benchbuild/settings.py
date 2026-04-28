@@ -234,12 +234,16 @@ CFG["slurm"] = {
         "default": True
     },
     "multithread": {
-        "desc": "Hint SLURM to disable multithreading. False adds --hint=nomultithread.",
-        "default": False
+        "desc":
+            "Hint SLURM to disable multithreading. False adds --hint=nomultithread.",
+        "default":
+            False
     },
     "turbo": {
-        "desc": "Enable Intel Turbo Boost via SLURM. False adds --pstate-turbo=off.",
-        "default": False
+        "desc":
+            "Enable Intel Turbo Boost via SLURM. False adds --pstate-turbo=off.",
+        "default":
+            False
     },
     "logs": {
         "desc": "Location the SLURM logs will be stored",
@@ -384,13 +388,15 @@ CFG["container"] = {
     },
     "storage_driver": {
         "default": None,
-        "desc": "Storage driver for containers."
-                "If 'null' use podman's default."
+        "desc":
+            "Storage driver for containers."
+            "If 'null' use podman's default."
     },
     "storage_opts": {
         "default": [],
-        "desc": "Storage options for containers."
-                "If 'null', ignore 'storage.conf'."
+        "desc":
+            "Storage options for containers."
+            "If 'null', ignore 'storage.conf'."
     },
     "seccomp_config": {
         "default": None,
@@ -517,6 +523,10 @@ CFG['container']['strategy']['polyjit'] = {
 }
 
 CFG["versions"] = {
+    "separator": {
+        "default": ",",
+        "desc": "Separator used to join versions."
+    },
     "full": {
         "default": False,
         "desc": "Ignore default sampling and provide full version exploration."

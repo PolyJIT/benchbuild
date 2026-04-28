@@ -1,5 +1,5 @@
 attrs>=22
-dill>=0
+dill>=0.4.1
 Jinja2>=3
 parse>=1
 pathos>=0

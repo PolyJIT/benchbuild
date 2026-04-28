@@ -32,7 +32,7 @@ setup(
     install_requires=[
         "Jinja2>=3", "PyYAML>=6", "attrs>=22", "dill>=0", "pathos>=0.3",
         "parse>=1", "plumbum>=1", "psutil>=5", "psycopg2-binary>=2",
-        "pygit2>=1", "pygtrie>=2", "pyparsing>=3", "rich>=13",
+        "pygit2>=1", "pygtrie>=2", "pyparsing>=3", "rich>=15",
         "SQLAlchemy>=2", "typing-extensions>=4", "virtualenv>=20",
         "schema>=0", "result>=0"
     ],

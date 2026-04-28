@@ -1,6 +1,6 @@
 attrs>=22
 dill>=0
-Jinja2>=3
+Jinja2>=3.1.6
 parse>=1
 pathos>=0
 plumbum>=1

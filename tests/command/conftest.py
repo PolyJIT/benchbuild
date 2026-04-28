@@ -1,3 +1,5 @@
+import stat
+
 import pytest
 from pytest_git import GitRepo
 
@@ -9,7 +11,7 @@ def bb_git_repo(git_repo: GitRepo) -> GitRepo:
 
     test = git_repo.workspace / "test"
     test.touch()
-    test.chmod("u+x")
+    test.chmod(test.stat().st_mode | stat.S_IXUSR)
 
     git_repo.api.index.add(path)
     git_repo.api.index.add(test)

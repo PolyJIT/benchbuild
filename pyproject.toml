@@ -78,11 +78,12 @@ benchbuild = [
 
 [dependency-groups]
 dev = [
+    "act-bin>=0.2.89",
     "codecov>=2.1.13",
     "faker>=37.4.2",
     "gitpython>=3.1.45",
     "mock>=5.2.0",
-    "pre-commit>=4.2.0",
+    "prek>=0.3.11",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "pytest-describe>=2.2.0",

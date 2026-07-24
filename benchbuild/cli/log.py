@@ -99,7 +99,7 @@ class BenchBuildLog(cli.Application):
 
     def main(self, *projects):
         """Run the log command."""
-        from benchbuild.utils.schema import Session, Run, RunLog
+        from benchbuild.utils.schema import Run, RunLog, Session
 
         session = Session()
 

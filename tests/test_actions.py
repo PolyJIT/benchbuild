@@ -13,8 +13,8 @@ from plumbum import ProcessExecutionError
 
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.experiment import Experiment
-from benchbuild.project import __add_single_filter__, Project
-from benchbuild.source import nosource, HTTP
+from benchbuild.project import Project, __add_single_filter__
+from benchbuild.source import HTTP, nosource
 from benchbuild.source.base import RevisionStr
 from benchbuild.utils import actions as a
 from benchbuild.utils.actions import SetProjectVersion

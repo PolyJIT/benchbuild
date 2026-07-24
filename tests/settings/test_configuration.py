@@ -3,9 +3,9 @@ import uuid
 import pytest
 
 from benchbuild.utils.settings import (
-    Configuration,
     _INNER_NODE_SCHEMA,
     _INNER_NODE_VALUE,
+    Configuration,
 )
 
 

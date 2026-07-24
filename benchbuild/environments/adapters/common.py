@@ -3,10 +3,10 @@ import typing as tp
 
 from plumbum import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
-from result import Ok, Err, Result
+from result import Err, Ok, Result
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import podman, buildah
+from benchbuild.utils.cmd import buildah, podman
 
 LOG = logging.getLogger(__name__)
 

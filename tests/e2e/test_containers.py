@@ -5,12 +5,12 @@ import pytest
 from plumbum import ProcessExecutionError
 
 from benchbuild.environments.adapters.podman import (
-    remove_container,
     ContainerCreateError,
+    remove_container,
 )
-from benchbuild.environments.domain import declarative as decl
 from benchbuild.environments.domain import commands, events
-from benchbuild.environments.service_layer import messagebus, handlers
+from benchbuild.environments.domain import declarative as decl
+from benchbuild.environments.service_layer import handlers, messagebus
 from benchbuild.environments.service_layer import unit_of_work as uow
 from benchbuild.settings import CFG
 from benchbuild.utils import settings

@@ -1,6 +1,7 @@
 """
 Declare a git source.
 """
+
 import logging
 import os
 import typing as tp
@@ -18,7 +19,7 @@ LOG = logging.getLogger(__name__)
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
-_fetched_cache: tp.Set['Git'] = set()
+_fetched_cache: tp.Set["Git"] = set()
 
 
 class Git(base.FetchableSource):
@@ -35,7 +36,7 @@ class Git(base.FetchableSource):
         refspec: str = "HEAD",
         shallow: bool = True,
         submodule_set_urls: tp.Optional[tp.Dict[str, str]] = None,
-        version_filter: tp.Callable[[str], bool] = lambda version: True
+        version_filter: tp.Callable[[str], bool] = lambda version: True,
     ):
         super().__init__(local, remote)
 
@@ -66,13 +67,13 @@ class Git(base.FetchableSource):
             str: [description]
         """
         prefix = base.target_prefix()
-        clone = maybe_shallow(git['clone'], self.shallow)
-        fetch = git['fetch', '--update-shallow', '--all']
-        checkout = git['checkout', '-f', '--recurse-submodules']
-        set_url = git['submodule', 'set-url']
-        submodule_update = git['submodule', 'update', '--init', '--recursive']
+        clone = maybe_shallow(git["clone"], self.shallow)
+        fetch = git["fetch", "--update-shallow", "--all"]
+        checkout = git["checkout", "-f", "--recurse-submodules"]
+        set_url = git["submodule", "set-url"]
+        submodule_update = git["submodule", "update", "--init", "--recursive"]
 
-        flat_local = self.local.replace(os.sep, '-')
+        flat_local = self.local.replace(os.sep, "-")
         cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
@@ -80,18 +81,18 @@ class Git(base.FetchableSource):
 
             with pb.local.cwd(cache_path):
                 if "HEAD" not in self.refspec:
-                    checkout(self.refspec.split('/')[-1])
+                    checkout(self.refspec.split("/")[-1])
 
                 if self.submodule_set_urls:
                     for submodule, url in self.submodule_set_urls.items():
-                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        LOG.debug("Setting url for submodule %s to %s.", submodule, url)
                         set_url(submodule, url)
                 submodule_update()
         else:
             if self in _fetched_cache:
-                LOG.debug('Already fetched %s, skipping.', self.local)
+                LOG.debug("Already fetched %s, skipping.", self.local)
             else:
-                LOG.debug('Fetching %s.', self.local)
+                LOG.debug("Fetching %s.", self.local)
                 _fetched_cache.add(self)
                 with pb.local.cwd(cache_path):
                     fetch()
@@ -117,12 +118,12 @@ class Git(base.FetchableSource):
         tgt_subdir = f"{self.local}-{version}"
         tgt_loc = pb.local.path(target_dir) / tgt_subdir
 
-        clone = git['clone']
-        pull = git['pull']
-        rev_parse = git['rev-parse']
-        set_url = git['submodule', 'set-url']
-        submodule_update = git['submodule', 'update', '--init', '--recursive']
-        checkout = git['checkout', '-f']
+        clone = git["clone"]
+        pull = git["pull"]
+        rev_parse = git["rev-parse"]
+        set_url = git["submodule", "set-url"]
+        submodule_update = git["submodule", "update", "--init", "--recursive"]
+        checkout = git["checkout", "-f"]
 
         with pb.local.cwd(src_loc):
             is_shallow = rev_parse("--is-shallow-repository").strip()
@@ -138,16 +139,16 @@ class Git(base.FetchableSource):
         else:
             mkdir("-p", tgt_loc)
             with pb.local.cwd(tgt_loc):
-                clone('--dissociate', '--reference', src_loc, self.remote, '.')
-                checkout('--detach', version)
+                clone("--dissociate", "--reference", src_loc, self.remote, ".")
+                checkout("--detach", version)
 
                 if self.submodule_set_urls:
                     for submodule, url in self.submodule_set_urls.items():
-                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        LOG.debug("Setting url for submodule %s to %s.", submodule, url)
                         set_url(submodule, url)
                 submodule_update()
 
-        ln('-nsf', tgt_subdir, active_loc)
+        ln("-nsf", tgt_subdir, active_loc)
         return tgt_loc
 
     def versions(self) -> tp.List[base.Variant]:

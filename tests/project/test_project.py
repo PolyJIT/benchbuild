@@ -3,17 +3,16 @@ import typing as tp
 
 import attr
 import pytest
-import yaml
 from plumbum import local
 
 from benchbuild import Project
 from benchbuild.environments.domain import declarative
 from benchbuild.project import (
-    discovered,
     __add_filters__,
     __add_indexed_filters__,
     __add_named_filters__,
     __add_single_filter__,
+    discovered,
 )
 from benchbuild.source import (
     FetchableSource,

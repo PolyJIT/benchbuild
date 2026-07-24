@@ -34,7 +34,7 @@ from benchbuild import extensions, source
 from benchbuild.command import Command, SupportsUnwrap
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
-from benchbuild.source import primary, Git
+from benchbuild.source import Git, primary
 from benchbuild.utils import db, run
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange

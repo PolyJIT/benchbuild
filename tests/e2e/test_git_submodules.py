@@ -3,12 +3,12 @@ import typing as tp
 import pytest
 
 import benchbuild as bb
-from benchbuild import source, engine
+from benchbuild import engine, source
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.extensions.base import Extension
 from benchbuild.settings import CFG
 from benchbuild.source import Git, GitSubmodule
-from benchbuild.utils import run, log
+from benchbuild.utils import log, run
 
 log.configure()
 log.set_defaults()

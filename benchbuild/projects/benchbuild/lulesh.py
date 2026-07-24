@@ -1,7 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.command import WorkloadSet, Command, SourceRoot
+from benchbuild.command import Command, SourceRoot, WorkloadSet
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import Git
 

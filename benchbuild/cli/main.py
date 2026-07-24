@@ -40,7 +40,7 @@ class BenchBuild(cli.Application):
         plugins.discover()
 
         if cfg["db"]["create_functions"]:
-            from benchbuild.utils.schema import init_functions, Session
+            from benchbuild.utils.schema import Session, init_functions
 
             init_functions(Session())
 

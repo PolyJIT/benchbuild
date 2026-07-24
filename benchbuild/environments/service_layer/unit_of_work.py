@@ -7,8 +7,8 @@ from plumbum import local
 from plumbum.path.utils import delete
 from result import Err
 
-from benchbuild.environments.adapters import common, buildah, podman
-from benchbuild.environments.domain import model, events
+from benchbuild.environments.adapters import buildah, common, podman
+from benchbuild.environments.domain import events, model
 
 LOG = logging.getLogger(__name__)
 

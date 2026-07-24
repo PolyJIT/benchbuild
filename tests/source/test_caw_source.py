@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from benchbuild.project import Project, ProjectRegistry, populate
 from benchbuild.source import (
-    enumerate_revisions,
-    Variant,
-    SingleVersionFilter,
     FetchableSource,
     Revision,
+    SingleVersionFilter,
+    Variant,
+    enumerate_revisions,
 )
 
 

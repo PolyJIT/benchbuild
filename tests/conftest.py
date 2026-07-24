@@ -1,8 +1,8 @@
+import os
+import shutil
+import sys
 import tempfile as tf
 import typing as tp
-import shutil
-import os
-import sys
 
 import faker
 import git
@@ -51,19 +51,20 @@ def mk_git_repo():
         return (tmp_dir, repo)
 
     yield _git_repository
-    
+
     try:
         tmp_dir.delete()
     except (OSError, PermissionError) as e:
         # on Windows, git operations can lock files
         # try to use shutil.rmtree with error handling
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             try:
+
                 def handle_remove_readonly(func, path, exc):
                     if os.path.exists(path):
                         os.chmod(path, 0o777)
                         func(path)
-                
+
                 shutil.rmtree(str(tmp_dir), onerror=handle_remove_readonly)
             except Exception:
                 # if all else fails, just pass - the temp directory will be

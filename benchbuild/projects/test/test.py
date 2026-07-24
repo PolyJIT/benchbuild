@@ -5,7 +5,7 @@ import plumbum as pb
 import benchbuild as bb
 from benchbuild import project
 from benchbuild.environments.domain.declarative import ContainerImage
-from benchbuild.source import nosource, Variant, FetchableSource, Revision
+from benchbuild.source import FetchableSource, Revision, Variant, nosource
 
 
 class TestSource(FetchableSource):

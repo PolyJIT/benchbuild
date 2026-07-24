@@ -1,4 +1,5 @@
-""" Path utilities for benchbuild. """
+"""Path utilities for benchbuild."""
+
 try:
     import fcntl
 except ImportError:

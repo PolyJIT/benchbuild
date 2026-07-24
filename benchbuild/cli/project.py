@@ -6,7 +6,7 @@ from plumbum import cli
 
 import benchbuild as bb
 from benchbuild.environments.domain.declarative import ContainerImage
-from benchbuild.project import ProjectIndex, Project
+from benchbuild.project import Project, ProjectIndex
 from benchbuild.settings import CFG
 
 

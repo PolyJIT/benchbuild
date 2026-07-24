@@ -7,7 +7,7 @@ import typing as tp
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, ln, wget, tar, mkdir
+from benchbuild.utils.cmd import cp, ln, mkdir, tar, wget
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -22,7 +22,7 @@ class HTTP(base.FetchableSource):
         self,
         local: str,
         remote: tp.Union[str, tp.Dict[str, str]],
-        check_certificate: bool = True
+        check_certificate: bool = True,
     ):
         super().__init__(local, remote)
         self._check_certificate = check_certificate
@@ -129,7 +129,7 @@ class HTTPMultiple(HTTP):
         local: str,
         remote: tp.Union[str, tp.Dict[str, str]],
         files: tp.List[str],
-        check_certificate: bool = True
+        check_certificate: bool = True,
     ):
         super().__init__(local, remote, check_certificate)
         self._files = files
@@ -146,7 +146,7 @@ class HTTPMultiple(HTTP):
 
         for file in self._files:
             download_single_version(
-                f'{url}/{file}', cache_path / file, self._check_certificate
+                f"{url}/{file}", cache_path / file, self._check_certificate
             )
 
         return cache_path
@@ -166,16 +166,14 @@ def versioned_target_name(target_name: str, version: str) -> str:
     return "{}-{}".format(version, target_name)
 
 
-def download_single_version(
-    url: str, target_path: str, check_certificate: bool
-) -> str:
+def download_single_version(url: str, target_path: str, check_certificate: bool) -> str:
     if not download_required(target_path):
         return target_path
 
     if check_certificate:
-        wget(url, '-O', target_path)
+        wget(url, "-O", target_path)
     else:
-        wget(url, '--no-check-certificate', '-O', target_path)
+        wget(url, "--no-check-certificate", "-O", target_path)
 
     from benchbuild.utils.download import update_hash
 

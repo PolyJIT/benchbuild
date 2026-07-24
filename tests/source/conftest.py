@@ -3,7 +3,7 @@ import typing as tp
 import plumbum as pb
 import pytest
 
-from benchbuild.source import Variant, Revision, FetchableSource
+from benchbuild.source import FetchableSource, Revision, Variant
 
 
 class VersionSource(FetchableSource):

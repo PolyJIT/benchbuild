@@ -6,12 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import logging
-import os
 
 import importlib.metadata
-
-import benchbuild.utils
 
 # pylint: skip-file
 __version__ = importlib.metadata.version("benchbuild")

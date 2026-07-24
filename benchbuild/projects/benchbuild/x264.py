@@ -2,7 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import CFG
-from benchbuild.command import WorkloadSet, Command, SourceRoot
+from benchbuild.command import Command, SourceRoot, WorkloadSet
 from benchbuild.environments.domain import declarative
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make

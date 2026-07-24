@@ -5,6 +5,7 @@ import unittest
 class TestPathToList(unittest.TestCase):
     def test_path_to_list(self):
         from benchbuild.utils.path import path_to_list
+
         test_path = f"a{os.pathsep}b"
         p = path_to_list(test_path)
         self.assertEqual(p, ["a", "b"])

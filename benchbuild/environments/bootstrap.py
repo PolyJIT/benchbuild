@@ -1,12 +1,12 @@
 import typing as tp
 from functools import partial
 
-from benchbuild.environments.domain import events, commands
+from benchbuild.environments.domain import commands, events
 from benchbuild.environments.service_layer import (
+    debug,
+    handlers,
     messagebus,
     ui,
-    handlers,
-    debug,
 )
 from benchbuild.environments.service_layer import unit_of_work as uow
 

@@ -2,18 +2,18 @@ import abc
 import logging
 import typing as tp
 
-from plumbum import local, ProcessExecutionError
-from result import Result, Err, Ok
+from plumbum import ProcessExecutionError, local
+from result import Err, Ok, Result
 from rich import print
 
 from benchbuild.environments.adapters import buildah
 from benchbuild.environments.adapters.common import (
-    run,
-    run_tee,
-    run_fg,
     bb_podman,
+    run,
+    run_fg,
+    run_tee,
 )
-from benchbuild.environments.domain import model, events
+from benchbuild.environments.domain import events, model
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
@@ -153,12 +153,12 @@ class PodmanRegistry(ContainerRegistry):
         ]
         interactive = bool(CFG["container"]["interactive"])
 
-        create_cmd = bb_podman('create', '--replace')
+        create_cmd = bb_podman("create", "--replace")
 
-        if seccomp_config := CFG['container']['seccomp_config']:
-            create_cmd = create_cmd['--security-opt',
-                                    f'seccomp={seccomp_config}', '--cap-add',
-                                    'PERFMON']
+        if seccomp_config := CFG["container"]["seccomp_config"]:
+            create_cmd = create_cmd[
+                "--security-opt", f"seccomp={seccomp_config}", "--cap-add", "PERFMON"
+            ]
 
         if interactive:
             create_cmd = create_cmd["-it", "--entrypoint", "/bin/sh"]

@@ -18,7 +18,7 @@ import sys
 import typing as tp
 import uuid
 import warnings
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 import attr
 import schema

@@ -1,7 +1,7 @@
 """Test the revision_ranges module."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import benchbuild.utils.revision_ranges as ranges

@@ -55,8 +55,7 @@ class CommandAlias(ModuleType):
     def __getattr__(self, command: str) -> pb.commands.ConcreteCommand:
         """Proxy getter for plumbum commands."""
         from benchbuild.settings import CFG
-        from benchbuild.utils.path import list_to_path
-        from benchbuild.utils.path import path_to_list
+        from benchbuild.utils.path import list_to_path, path_to_list
 
         check = [command]
 

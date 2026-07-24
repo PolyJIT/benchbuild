@@ -4,15 +4,15 @@ import logging
 import os
 import typing as tp
 
-from plumbum import local, ProcessExecutionError
-from result import Ok, Err, Result
+from plumbum import ProcessExecutionError, local
+from result import Err, Ok, Result
 
 from benchbuild.environments.adapters.common import (
-    run,
-    bb_buildah,
     ImageCreateError,
+    bb_buildah,
+    run,
 )
-from benchbuild.environments.domain import model, events
+from benchbuild.environments.domain import events, model
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mktemp
 

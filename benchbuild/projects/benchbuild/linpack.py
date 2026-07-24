@@ -1,7 +1,7 @@
 import logging
 
 import benchbuild as bb
-from benchbuild.command import Command, WorkloadSet, SourceRoot
+from benchbuild.command import Command, SourceRoot, WorkloadSet
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils import path

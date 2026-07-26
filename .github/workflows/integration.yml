@@ -13,6 +13,9 @@ jobs:
         db_support: [true, false]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - uses: ./.github/actions/setup-runner
         with:
           python-version: "${{ matrix.python-version }}"

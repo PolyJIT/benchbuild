@@ -18,6 +18,7 @@ runs:
           ${{ runner.os }}-apt-
 
     - name: Install APT Dependencies
+      shell: bash
       run: |
         sudo apt update
         sudo apt install -y \
@@ -34,5 +35,6 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install the project
+      shell: bash
       run: |
         uv sync --locked --all-extras --dev

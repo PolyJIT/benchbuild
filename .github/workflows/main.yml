@@ -20,5 +20,6 @@ jobs:
     secrets: inherit
 
   docs:
+    needs: [unittests, integration]
     uses: ./.github/workflows/docs.yml
     secrets: inherit

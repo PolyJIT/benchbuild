@@ -1,18 +1,21 @@
----
 name: Integration Tests
 on:
-  workflow_run:
-    workflows: ["Unittests"]
-    branches: [ master ]
-    types:
-      - completed
-
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 jobs:
+  prepare:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    uses: ./.github/workflows/setup-benchbuild-runner.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+
   integration:
+    needs: prepare
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,54 +23,41 @@ jobs:
         db_support: [true, false]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
+      - name: Install the project
+        run: |
+          uv sync --locked --all-extras --dev
 
-    - name: Install system dependencies for CI
-      run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang slurm-client
+      - name: Run integration tests
+        env:
+          BB_DB_ENABLED: ${{ matrix.db_support }}
+          BB_DB_CONNECT_STRING: "sqlite://"
+          BB_COVERAGE_COLLECT: true
+          BB_COVERAGE_PATH: ${{ github.workspace }}
+          BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
+          BB_CONTAINER_ROOT: ${{ runner.temp }}
+          BB_CONTAINER_RUNROOT: ${{ runner.temp }}
+          BB_VERBOSITY: 5
+        run: |
+          source .venv/bin/activate
+          coverage run -p .venv/bin/benchbuild bootstrap -s
+          coverage run -p .venv/bin/benchbuild config view
+          coverage run -p .venv/bin/benchbuild experiment view
+          coverage run -p .venv/bin/benchbuild project view
+          coverage run -p .venv/bin/benchbuild run --full test
+          coverage run -p .venv/bin/benchbuild slurm -E empty test
+          coverage run -p .venv/bin/benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+          coverage run -p .venv/bin/benchbuild run -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container run -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container bases --export -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container bases --import -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container rmi --with-projects -E raw bzip2/benchbuild
+          coverage combine
+          coverage report -m
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
-
-    - name: Install the project
-      run: |
-        uv sync --locked --all-extras --dev
-
-    - name: Run integration tests
-      env:
-        BB_DB_ENABLED: ${{ matrix.db_support }}
-        BB_DB_CONNECT_STRING: "sqlite://"
-        BB_COVERAGE_COLLECT: true
-        BB_COVERAGE_PATH: ${{ github.workspace }}
-        BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
-        BB_CONTAINER_ROOT: ${{ runner.temp }}
-        BB_CONTAINER_RUNROOT: ${{ runner.temp }}
-        BB_VERBOSITY: 5
-      run: |
-        source .venv/bin/activate
-        coverage run -p .venv/bin/benchbuild bootstrap -s
-        coverage run -p .venv/bin/benchbuild config view
-        coverage run -p .venv/bin/benchbuild experiment view
-        coverage run -p .venv/bin/benchbuild project view
-        coverage run -p .venv/bin/benchbuild run --full test
-        coverage run -p .venv/bin/benchbuild slurm -E empty test
-        coverage run -p .venv/bin/benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        coverage run -p .venv/bin/benchbuild run -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container run -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container bases --export -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container bases --import -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container rmi --with-projects -E raw bzip2/benchbuild
-        coverage combine
-        coverage report -m
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: coverage-integration-${{ matrix.python-version }}
-        path: ./.coverage
+      - uses: actions/upload-artifact@master
+        with:
+          name: coverage-integration-${{ matrix.python-version }}
+          path: ./.coverage
 
   upload_coverage:
     needs: [unittests, integration]

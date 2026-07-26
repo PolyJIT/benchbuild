@@ -5,7 +5,17 @@ on:
   pull_request:
     branches: [ master ]
 jobs:
+  prepare:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    uses: ./.github/workflows/setup-benchbuild-runner.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+
   unittests:
+    needs: prepare
+
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -13,29 +23,10 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v7
-
     # - name: Check pre-commit
     #   uses: j178/prek-action@v2
     #   with:
     #     show-verbose-logs: false
-
-    - name: Install system dependencies for CI
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          podman \
-          clang \
-          time \
-          unionfs-fuse \
-          libfuse-dev \
-          libgit2-dev
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        python-version: ${{ matrix.python-version }}
 
     - name: Install the project
       run: |

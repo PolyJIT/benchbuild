@@ -1,4 +1,5 @@
-name: sphinx
+name: "Generate sphinx documentation"
+description: "Generate sphinx documentation and push to gh-pages"
 on: [push, pull_request]
 
 env:
@@ -11,18 +12,10 @@ jobs:
     name: Build and gh-pages
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: true
-
-      # https://github.com/marketplace/actions/setup-python
-      # ^-- This gives info on matrix testing.
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version-file: ".python-version"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6

@@ -3,8 +3,7 @@ from functools import partial
 
 import rich
 from plumbum import cli, local
-from rich import print
-from rich import traceback
+from rich import print, traceback
 
 from benchbuild import experiment, plugins, project, settings, source
 from benchbuild.environments import bootstrap

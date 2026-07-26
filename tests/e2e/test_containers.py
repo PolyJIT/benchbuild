@@ -126,7 +126,7 @@ def test_image_run_no_args(true_image, publish) -> None:
     cmd = commands.CreateImage(name, true_image)
     publish(cmd)
 
-    run_cmd_no_args = commands.RunProjectContainer(name, name, '/', '/', False, False)
+    run_cmd_no_args = commands.RunProjectContainer(name, name, "/", "/", False, False)
     try:
         publish(run_cmd_no_args)
     except ContainerCreateError:
@@ -142,7 +142,7 @@ def test_image_run_args(true_image, publish) -> None:
     publish(cmd)
 
     run_cmd_args = commands.RunProjectContainer(
-        name, name, '/', '/', False, False, ('arg1', 'arg2')
+        name, name, "/", "/", False, False, ("arg1", "arg2")
     )
     try:
         publish(run_cmd_args)
@@ -159,7 +159,7 @@ def test_interactive_without_entrypoint(no_entrypoint, publish, config) -> None:
     publish(cmd)
 
     run_cmd_args = commands.RunProjectContainer(
-        name, name, '/', '/', False, False, ('arg1', 'arg2')
+        name, name, "/", "/", False, False, ("arg1", "arg2")
     )
     config["container"]["interactive"] = True
     try:

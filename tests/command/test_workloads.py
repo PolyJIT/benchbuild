@@ -42,11 +42,7 @@ class OnlyInWorkloadProject(Project):
 @pytest.fixture
 def project(bb_git_repo: GitRepo) -> ProjectT:
     DefaultWorkloadProject.SOURCE = [
-        Git(
-            remote=str(bb_git_repo.workspace),
-            local="workload-test.git",
-            shallow=False
-        )
+        Git(remote=str(bb_git_repo.workspace), local="workload-test.git", shallow=False)
     ]
     DefaultWorkloadProject.WORKLOADS = {
         WorkloadSet("always"): [Command(SourceRoot("workload-test.git") / "test")]
@@ -57,11 +53,7 @@ def project(bb_git_repo: GitRepo) -> ProjectT:
 @pytest.fixture
 def only_in_project(bb_git_repo: GitRepo) -> ProjectT:
     OnlyInWorkloadProject.SOURCE = [
-        Git(
-            remote=str(bb_git_repo.workspace),
-            local="workload-test.git",
-            shallow=False
-        )
+        Git(remote=str(bb_git_repo.workspace), local="workload-test.git", shallow=False)
     ]
     OnlyInWorkloadProject.WORKLOADS = {
         OnlyIn(RevisionRange("HEAD~1", "HEAD"), WorkloadSet("sometimes")): [

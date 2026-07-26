@@ -15,6 +15,7 @@ jobs:
     secrets: inherit
 
   coverage:
+    needs: [unittests, integration]
     uses: ./.github/workflows/coverage-upload.yml
     secrets: inherit
 

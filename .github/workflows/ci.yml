@@ -1,28 +1,23 @@
 name: Unittests
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to use"
+        type: string
+        required: false
+        default: "3.14"
+
 jobs:
   unittests:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-    # - name: Check pre-commit
-    #   uses: j178/prek-action@v2
-    #   with:
-    #     show-verbose-logs: false
       - uses: ./.github/actions/setup-runner
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: "${{ inputs.python-version }}"
 
       - name: Run unittests
         env:
@@ -38,5 +33,5 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: coverage-unittests-${{ matrix.python-version }}
+          name: coverage-unittests-${{ inputs.python-version }}
           path: ./.coverage

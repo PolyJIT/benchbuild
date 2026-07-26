@@ -1,0 +1,44 @@
+name: Combine coverage data.
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to use"
+        type: string
+        required: false
+        default: "3.14"
+
+jobs:
+  upload_coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: actions/download-artifact@master
+      with:
+        name: coverage-unittests-${{ inputs.python-version }}
+        path: ./.coverage.unittests
+
+    - uses: actions/download-artifact@master
+      with:
+        name: coverage-integration-${{ inputs.python-version }}
+        path: ./.coverage.integration
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+        enable-cache: true
+
+    - run: |
+        uv sync --locked --all-extras --dev
+        uv pip install coverage
+        uv run coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
+        uv run coverage xml
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml

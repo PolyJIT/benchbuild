@@ -1,7 +1,7 @@
 name: "Generate sphinx documentation"
 description: "Generate sphinx documentation and push to gh-pages"
-on: [push, pull_request]
-
+on:
+  workflow_call:
 env:
   DEFAULT_BRANCH: "master"
   #SPHINXOPTS: "-W --keep-going -T"

@@ -1,28 +1,32 @@
 name: Integration Tests
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to use"
+        type: string
+        required: false
+        default: "3.14"
+      db_support:
+        description: "Use BenchBuild's DB support"
+        type: boolean
+        required: false
+        default: false
+
 jobs:
   integration:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-        db_support: [true, false]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup-runner
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: "${{ inputs.python-version }}"
 
       - name: Run integration tests
         env:
-          BB_DB_ENABLED: ${{ matrix.db_support }}
+          BB_DB_ENABLED: ${{ inputs.db_support }}
           BB_DB_CONNECT_STRING: "sqlite://"
           BB_COVERAGE_COLLECT: true
           BB_COVERAGE_PATH: ${{ github.workspace }}
@@ -49,70 +53,5 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: coverage-integration-${{ matrix.python-version }}
+          name: coverage-integration-${{ inputs.python-version }}
           path: ./.coverage
-#   upload_coverage:
-#     needs: [unittests, integration]
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         python-version: ["3.11", "3.12", "3.13", "3.14"]
-#
-#     steps:
-#     - uses: actions/checkout@v5
-#
-#     - uses: actions/download-artifact@master
-#       with:
-#         name: coverage-unittests-${{ matrix.python-version }}
-#         path: ./.coverage.unittests
-#
-#     - uses: actions/download-artifact@master
-#       with:
-#         name: coverage-integration-${{ matrix.python-version }}
-#         path: ./.coverage.integration
-#
-#     - name: Install uv
-#       uses: astral-sh/setup-uv@v6
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#         enable-cache: true
-#
-#     - run: |
-#         ls -lah .
-#         uv sync --locked --all-extras --dev
-#         uv pip install coverage
-#         uv run coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
-#         uv run coverage xml
-#
-#     - name: Upload coverage report
-#       uses: codecov/codecov-action@v5
-#       with:
-#         token: ${{ secrets.CODECOV_TOKEN }}
-#         file: ./coverage.xml
-#
-#   docs:
-#     needs: [unittests, integration]
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         python-version: ["3.11", "3.12", "3.13", "3.14"]
-#
-#     steps:
-#     - uses: actions/checkout@v4
-#       with:
-#         fetch-depth: 0
-#
-#     - name: Install uv
-#       uses: astral-sh/setup-uv@v6
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#         enable-cache: true
-#
-#     - name: Setup a git user
-#       run: |
-#         git config user.name github-actions
-#         git config user.email github-actions@github.com
-#
-#     - name: Install the project
-#       run: |
-#         uv sync --locked --all-extras --group docs

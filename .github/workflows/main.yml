@@ -1,0 +1,23 @@
+name: CI Pipeline for BenchBuild
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  unittests:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  integration:
+    uses: ./.github/workflows/integration.yml
+    secrets: inherit
+
+  coverage:
+    uses: ./.github/workflows/coverage-upload.yml
+    secrets: inherit
+
+  docs:
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit

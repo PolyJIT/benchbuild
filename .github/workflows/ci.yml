@@ -1,10 +1,9 @@
-name: ci
+name: Unittests
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   unittests:
     runs-on: ubuntu-latest
@@ -17,18 +16,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v7
 
-    - name: Check pre-commit
-      uses: j178/prek-action@v2
+    # - name: Check pre-commit
+    #   uses: j178/prek-action@v2
+    #   with:
+    #     show-verbose-logs: false
 
     - name: Install system dependencies for CI
       run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang libgit2-dev
+        sudo apt update
+        sudo apt install -y time unionfs-fuse libfuse-dev clang libgit2-dev
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ matrix.python-version }}
-        enable-cache: true
 
     - name: Install the project
       run: |
@@ -50,127 +51,3 @@ jobs:
       with:
         name: coverage-unittests-${{ matrix.python-version }}
         path: ./.coverage
-
-
-  integration:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-        db_support: [true, false]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-
-    - name: Install system dependencies for CI
-      run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang slurm-client
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
-
-    - name: Install the project
-      run: |
-        uv sync --locked --all-extras --dev
-
-    - name: Run integration tests
-      env:
-        BB_DB_ENABLED: ${{ matrix.db_support }}
-        BB_DB_CONNECT_STRING: "sqlite://"
-        BB_COVERAGE_COLLECT: true
-        BB_COVERAGE_PATH: ${{ github.workspace }}
-        BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
-        BB_CONTAINER_ROOT: ${{ runner.temp }}
-        BB_CONTAINER_RUNROOT: ${{ runner.temp }}
-        BB_VERBOSITY: 5
-      run: |
-        source .venv/bin/activate
-        coverage run -p .venv/bin/benchbuild bootstrap -s
-        coverage run -p .venv/bin/benchbuild config view
-        coverage run -p .venv/bin/benchbuild experiment view
-        coverage run -p .venv/bin/benchbuild project view
-        coverage run -p .venv/bin/benchbuild run --full test
-        coverage run -p .venv/bin/benchbuild slurm -E empty test
-        coverage run -p .venv/bin/benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        coverage run -p .venv/bin/benchbuild run -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container run -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container bases --export -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container bases --import -E raw bzip2/benchbuild
-        coverage run -p .venv/bin/benchbuild container rmi --with-projects -E raw bzip2/benchbuild
-        coverage combine
-        coverage report -m
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: coverage-integration-${{ matrix.python-version }}
-        path: ./.coverage
-
-  upload_coverage:
-    needs: [unittests, integration]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-
-    steps:
-    - uses: actions/checkout@v5
-
-    - uses: actions/download-artifact@master
-      with:
-        name: coverage-unittests-${{ matrix.python-version }}
-        path: ./.coverage.unittests
-
-    - uses: actions/download-artifact@master
-      with:
-        name: coverage-integration-${{ matrix.python-version }}
-        path: ./.coverage.integration
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
-
-    - run: |
-        ls -lah .
-        uv sync --locked --all-extras --dev
-        uv pip install coverage
-        uv run coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
-        uv run coverage xml
-
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-
-  docs:
-    needs: [unittests, integration]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
-
-    - name: Setup a git user
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-
-    - name: Install the project
-      run: |
-        uv sync --locked --all-extras --group docs

@@ -30,11 +30,20 @@ from plumbum import local
 from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import extensions, source
+from benchbuild import extensions
 from benchbuild.command import Command, SupportsUnwrap
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
-from benchbuild.source import Git, primary
+from benchbuild.source import (
+    BaseVersionFilter,
+    FetchableSource,
+    Git,
+    Revision,
+    SingleVersionFilter,
+    primary,
+    secondaries,
+    sources_as_dict,
+)
 from benchbuild.utils import db, run
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange
@@ -43,7 +52,7 @@ LOG = logging.getLogger(__name__)
 
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
-Sources = tp.List[source.FetchableSource]
+Sources = tp.List[FetchableSource]
 ContainerDeclaration = tp.Union[
     ContainerImage, tp.List[tp.Tuple[RevisionRange, ContainerImage]]
 ]
@@ -80,10 +89,10 @@ class ProjectRegistry(type):
 
 
 class MultiVersioned:
-    _active_revision: tp.Optional[source.Revision]
-    _active_revisions: tp.List[source.Revision]
+    _active_revision: tp.Optional[Revision]
+    _active_revisions: tp.List[Revision]
 
-    revision: source.Revision
+    revision: Revision
 
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
@@ -92,7 +101,7 @@ class MultiVersioned:
         cls._active_revisions = []
 
     @property
-    def active_revision(self) -> source.Revision:
+    def active_revision(self) -> Revision:
         """
         Get the active revision.
 
@@ -108,12 +117,12 @@ class MultiVersioned:
         return self._active_revision
 
     @active_revision.setter
-    def active_revision(self, revision: source.Revision) -> None:
+    def active_revision(self, revision: Revision) -> None:
         self._active_revisions.append(revision)
         self._active_revision = revision
 
     @property
-    def active_revisions(self) -> tp.Sequence[source.Revision]:
+    def active_revisions(self) -> tp.Sequence[Revision]:
         return self._active_revisions
 
 
@@ -253,19 +262,19 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
 
         return new_self
 
-    revision: source.Revision = attr.ib()
+    revision: Revision = attr.ib()
 
     @revision.default
-    def __default_revision(self) -> source.Revision:  # pylint: disable=unused-private-member
+    def __default_revision(self) -> Revision:  # pylint: disable=unused-private-member
         srcs = type(self).SOURCE
         if len(srcs) == 0:
             raise ValueError("A project requires at least one source!")
 
         assert len(srcs) > 0, "A project requires at least one source!"
-        return source.Revision(
+        return Revision(
             type(self),
-            source.primary(srcs[0]).default,
-            *[src.default for src in source.secondaries(srcs[1:])],
+            primary(srcs[0]).default,
+            *[src.default for src in secondaries(srcs[1:])],
         )
 
     name: str = attr.ib(
@@ -318,7 +327,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
 
     @primary_source.default
     def __default_primary_source(self) -> str:  # pylint: disable=unused-private-member
-        return source.primary(*self.source).key
+        return primary(*self.source).key
 
     compiler_extension = attr.ib(
         default=attr.Factory(extensions.MissingExtension, takes_self=False)
@@ -337,7 +346,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
             )
         else:
             primary_source = primary(*self.SOURCE)
-            if isinstance(primary_source, source.BaseVersionFilter):
+            if isinstance(primary_source, BaseVersionFilter):
                 primary_source = primary_source.child
             if not isinstance(primary_source, Git):
                 raise AssertionError(
@@ -403,7 +412,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
         except KeyError:
             LOG.debug("%s not found in revision. Skipping.", name)
 
-        if name in (all_sources := source.sources_as_dict(*self.source)):
+        if name in (all_sources := sources_as_dict(*self.source)):
             return str(self.builddir / all_sources[name].local)
 
         return None
@@ -473,7 +482,7 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     victim = sources[0]
-    victim = source.SingleVersionFilter(victim, version)
+    victim = SingleVersionFilter(victim, version)
     sources[0] = victim
 
     project.SOURCE = sources
@@ -486,7 +495,7 @@ def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> Projec
     for i in range(min(len(sources), len(versions))):
         if versions[i] == "*":
             continue
-        sources[i] = source.SingleVersionFilter(sources[i], versions[i])
+        sources[i] = SingleVersionFilter(sources[i], versions[i])
 
     project.SOURCE = sources
     return project
@@ -495,16 +504,14 @@ def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> Projec
 def __add_named_filters__(project: ProjectT, versions: tp.Dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     sources = [src for src in project.SOURCE if src.is_expandable]
-    named_sources: tp.Dict[str, source.base.FetchableSource] = {
-        s.key: s for s in sources
-    }
+    named_sources: tp.Dict[str, FetchableSource] = {s.key: s for s in sources}
     for k, v in versions.items():
         if v == "*":
             continue
 
         if k in named_sources:
-            victim: source.base.FetchableSource = named_sources[k]
-            victim = source.SingleVersionFilter(victim, v)
+            victim: FetchableSource = named_sources[k]
+            victim = SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())
 

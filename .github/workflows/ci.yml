@@ -9,7 +9,7 @@ on:
         default: "3.14"
 
 jobs:
-  unittests:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,7 +31,11 @@ jobs:
           uv run pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
           uv run pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
 
-      - uses: actions/upload-artifact@master
+          find . -type f -iname '*.coverage*'
+
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-unittests-${{ inputs.python-version }}
           path: ./.coverage
+          # Security: Careful with adding wildcard patterns above!
+          include-hidden-files: true

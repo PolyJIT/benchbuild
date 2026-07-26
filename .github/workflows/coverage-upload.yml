@@ -41,4 +41,5 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        overwrite: true
         file: ./coverage.xml

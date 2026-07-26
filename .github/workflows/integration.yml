@@ -51,7 +51,9 @@ jobs:
           coverage combine
           coverage report -m
 
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-integration-${{ inputs.python-version }}
           path: ./.coverage
+          # Security: Careful with adding wildcard patterns above!
+          include-hidden-files: true

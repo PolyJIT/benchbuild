@@ -5,14 +5,6 @@ on:
   pull_request:
     branches: [ master ]
 jobs:
-  prepare:
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-    uses: ./.github/workflows/setup-benchbuild-runner.yml
-    with:
-      python-version: ${{ matrix.python-version }}
-
   unittests:
     needs: prepare
 
@@ -27,24 +19,23 @@ jobs:
     #   uses: j178/prek-action@v2
     #   with:
     #     show-verbose-logs: false
+      - uses: ./.github/actions/setup-runner
+        with:
+          python-version: "${{ matrix.python-version }}"
 
-    - name: Install the project
-      run: |
-        uv sync --locked --all-extras --dev
+      - name: Run unittests
+        env:
+          # Avoid 50 char hard-limit of podman. These are enforced because of
+          # a kernel limit of 128-chars for socket paths.
+          BB_CONTAINER_RUNROOT: "/tmp"
+          BB_CONTAINER_ROOT: "/tmp"
+        run: |
+          git config --global protocol.file.allow always
 
-    - name: Run unittests
-      env:
-        # Avoid 50 char hard-limit of podman. These are enforced because of
-        # a kernel limit of 128-chars for socket paths.
-        BB_CONTAINER_RUNROOT: "/tmp"
-        BB_CONTAINER_ROOT: "/tmp"
-      run: |
-        git config --global protocol.file.allow always
+          uv run pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
+          uv run pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
 
-        uv run pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
-        uv run pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: coverage-unittests-${{ matrix.python-version }}
-        path: ./.coverage
+      - uses: actions/upload-artifact@master
+        with:
+          name: coverage-unittests-${{ matrix.python-version }}
+          path: ./.coverage

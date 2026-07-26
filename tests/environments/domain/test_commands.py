@@ -15,6 +15,6 @@ def test_image_name_is_lowercase():
 def test_containerimage_name_is_lowercase():
     expected = ["test-1", "containername1"]
 
-    cmd_1 = commands.RunProjectContainer("TEST-1", "ContainerName1", "")
+    cmd_1 = commands.RunProjectContainer("TEST-1", "ContainerName1", "", "", "", "")
 
     assert [cmd_1.image, cmd_1.name] == expected

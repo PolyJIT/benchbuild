@@ -9,7 +9,7 @@ def bb_git_repo(git_repo: GitRepo) -> GitRepo:
 
     test = git_repo.workspace / "test"
     test.touch()
-    test.chmod("u+x")
+    test.chmod(0o700)
 
     git_repo.api.index.add(path)
     git_repo.api.index.add(test)

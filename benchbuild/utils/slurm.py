@@ -133,7 +133,7 @@ def __save__(
     slurm_options = merge_slurm_options(project_options, experiment.REQUIREMENTS)
     slurm_options = merge_slurm_options(slurm_options, get_slurm_options_from_config())
 
-    prefix = local.path(str(CFG["slurm"]["node_dir"]), str(experiment.id))
+    prefix = Path(str(CFG['slurm']['node_dir'])) / str(experiment.id)
 
     with open(script_name, "w") as slurm2:
         slurm2.write(

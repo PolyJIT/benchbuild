@@ -6,6 +6,11 @@ on:
     branches: [ master ]
     types:
       - completed
+
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 jobs:
   integration:
     runs-on: ubuntu-latest

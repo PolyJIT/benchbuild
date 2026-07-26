@@ -17,9 +17,6 @@ runs:
         restore-keys: |
           ${{ runner.os }}-apt-
 
-    - name: Checkout
-      uses: actions/checkout@v7
-
     - name: Install APT Dependencies
       run: |
         sudo apt update

@@ -6,8 +6,6 @@ on:
     branches: [ master ]
 jobs:
   unittests:
-    needs: prepare
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

@@ -19,10 +19,10 @@ jobs:
     - uses: benny123tw/action-ruff@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        reporter: github-pr-review
+        reporter: github-pr-check
 
     - name: Run reviewdog
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        uv run reviewdog -runners=mypy -reporter=github-pr-review -conf=.reviewdog.yml
+        uv run reviewdog -runners=mypy -reporter=github-pr-check -conf=.reviewdog.yml

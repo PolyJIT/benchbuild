@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>benchbuild.utils.settings</title>
+    
+          <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../../../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script src="../../../../_static/documentation_options.js?v=68fef311"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../../../_static/theme-vendors.js"></script> -->
+      <script src="../../../../_static/theme.js" defer></script>
+    
+  <link rel="author" title="About these documents" href="../../../../about/" />
+  <link rel="index" title="Index" href="../../../../genindex/" />
+  <link rel="search" title="Search" href="../../../../search/" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../../../" class="home-link">
+    
+      <span class="site-name">BenchBuild</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../../../search/" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../../../#welcome-to-bencbuild-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../about/" class="reference internal ">BenchBuild Documentation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/configuration/" class="reference internal ">Configure</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/containers/" class="reference internal ">Containers</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../basics/actions/" class="reference internal ">Actions</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/command/" class="reference internal ">Commands</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/source/" class="reference internal ">Source</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/environments/" class="reference internal ">Environment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/projects/" class="reference internal ">Project</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../concepts/experiments/" class="reference internal ">Experiment</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/" class="reference internal ">SLURM</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../advanced/cli/" class="reference internal ">CLI</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../../../CHANGELOG/" class="reference internal ">6.8 (2023-10-09)</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../../../">Docs</a> &raquo;</li>
+    
+      <li><a href="../../../">Module code</a> &raquo;</li>
+    
+    <li>benchbuild.utils.settings</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <h1>Source code for benchbuild.utils.settings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Configuration utilities.</span>
+
+<span class="sd">Settings are stored in a dictionary-like configuration object.</span>
+<span class="sd">All settings are modifiable by environment variables that encode</span>
+<span class="sd">the path in the dictionary tree.</span>
+
+<span class="sd">Inner nodes in the dictionary tree can be any dictionary.</span>
+<span class="sd">A leaf node in the dictionary tree is represented by an inner node that</span>
+<span class="sd">contains a value key.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">tp</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">importlib.metadata</span> <span class="kn">import</span> <span class="n">version</span><span class="p">,</span> <span class="n">PackageNotFoundError</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">import</span> <span class="nn">schema</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="kn">import</span> <span class="n">LocalPath</span><span class="p">,</span> <span class="n">local</span>
+
+<span class="kn">import</span> <span class="nn">benchbuild.utils.user_interface</span> <span class="k">as</span> <span class="nn">ui</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Indexable">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Indexable">[docs]</a>
+<span class="k">class</span> <span class="nc">Indexable</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;Indexable&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Indexable&#39;</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;benchbuild&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;could not find version information.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="available_cpu_count">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.available_cpu_count">[docs]</a>
+<span class="k">def</span> <span class="nf">available_cpu_count</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the number of available CPUs.</span>
+
+<span class="sd">    Number of available virtual or physical CPUs on this system, i.e.</span>
+<span class="sd">    user/real as output by time(1) when called with an optimally scaling</span>
+<span class="sd">    userspace-only program.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of avaialable CPUs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># cpuset</span>
+    <span class="c1"># cpuset may restrict the number of *available* processors</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;(?m)^Cpus_allowed:\s*(.*)$&#39;</span><span class="p">,</span>
+            <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/self/status&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="mi">16</span><span class="p">))</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">res</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not get the number of allowed CPUs&quot;</span><span class="p">)</span>
+
+    <span class="c1"># http://code.google.com/p/psutil/</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">psutil</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>  <span class="c1"># psutil.NUM_CPUS on old versions</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not get the number of allowed CPUs&quot;</span><span class="p">)</span>
+
+    <span class="c1"># POSIX</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sysconf</span><span class="p">(</span><span class="s1">&#39;SC_NPROCESSORS_ONLN&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not get the number of allowed CPUs&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Linux</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/cpuinfo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;processor</span><span class="se">\t</span><span class="s1">:&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not get the number of allowed CPUs&quot;</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can not determine number of CPUs on this system&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="current_available_threads">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.current_available_threads">[docs]</a>
+<span class="k">def</span> <span class="nf">current_available_threads</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the number of currently available threads for BB.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sched_getaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="get_number_of_jobs">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.get_number_of_jobs">[docs]</a>
+<span class="k">def</span> <span class="nf">get_number_of_jobs</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="s1">&#39;Configuration&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the number of jobs set in the config.&quot;&quot;&quot;</span>
+    <span class="n">jobs_configured</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">jobs_configured</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">current_available_threads</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">jobs_configured</span></div>
+
+
+
+<div class="viewcode-block" id="InvalidConfigKey">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.InvalidConfigKey">[docs]</a>
+<span class="k">class</span> <span class="nc">InvalidConfigKey</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warn, if you access a non-existing key benchbuild&#39;s configuration.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="escape_yaml">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.escape_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">escape_yaml</span><span class="p">(</span><span class="n">raw_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shell-Escape a yaml input string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raw_str: The unescaped string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">escape_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">raw_str</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;!&#39;</span><span class="p">,</span> <span class="s1">&#39;{&#39;</span><span class="p">,</span> <span class="s1">&#39;[&#39;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">escape_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">raw_str</span>
+
+    <span class="n">str_quotes</span> <span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span>
+    <span class="n">i_str_quotes</span> <span class="o">=</span> <span class="s2">&quot;&#39;&quot;</span>
+    <span class="k">if</span> <span class="n">str_quotes</span> <span class="ow">in</span> <span class="n">raw_str</span> <span class="ow">and</span> <span class="n">str_quotes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">raw_str</span>
+
+    <span class="k">if</span> <span class="n">str_quotes</span> <span class="ow">in</span> <span class="n">raw_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">raw_str</span> <span class="o">=</span> <span class="n">i_str_quotes</span> <span class="o">+</span> <span class="n">raw_str</span> <span class="o">+</span> <span class="n">i_str_quotes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">raw_str</span> <span class="o">=</span> <span class="n">str_quotes</span> <span class="o">+</span> <span class="n">raw_str</span> <span class="o">+</span> <span class="n">str_quotes</span>
+    <span class="k">return</span> <span class="n">raw_str</span></div>
+
+
+
+<div class="viewcode-block" id="is_yaml">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.is_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">is_yaml</span><span class="p">(</span><span class="n">cfg_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Is the given cfg_file a YAML file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cfg_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.yml&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ConfigLoader">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.ConfigLoader">[docs]</a>
+<span class="k">class</span> <span class="nc">ConfigLoader</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">CSafeLoader</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid polluting yaml&#39;s namespace with our modifications.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ConfigDumper">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.ConfigDumper">[docs]</a>
+<span class="k">class</span> <span class="nc">ConfigDumper</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid polluting yaml&#39;s namespace with our modifications.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="to_yaml">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.to_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">to_yaml</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given value to a YAML string.&quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">dumper</span> <span class="o">=</span> <span class="n">ConfigDumper</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dumper</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+        <span class="n">dumper</span><span class="o">.</span><span class="n">represent</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">dumper</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">dumper</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">val</span></div>
+
+
+
+<div class="viewcode-block" id="to_env_var">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.to_env_var">[docs]</a>
+<span class="k">def</span> <span class="nf">to_env_var</span><span class="p">(</span><span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create an environment variable from a name and a value.</span>
+
+<span class="sd">    This generates a shell-compatible representation of an</span>
+<span class="sd">    environment variable that is assigned a YAML representation of</span>
+<span class="sd">    a value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        env_var (str): Name of the environment variable.</span>
+<span class="sd">        value (Any): A value we convert from.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">to_yaml</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">ret_val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">env_var</span><span class="p">,</span> <span class="n">escape_yaml</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">ret_val</span></div>
+
+
+
+<span class="n">InnerNode</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span>
+
+<span class="c1"># This schema allows a configuration to be initialized/set from a standard</span>
+<span class="c1"># dictionary. If you want to nest a new configuration node deeper than 1 level,</span>
+<span class="c1"># you have to use dummy nodes to help benchbuild validate your nodes as</span>
+<span class="c1"># Configuration nodes instead of plain dictionary values.</span>
+<span class="c1">#</span>
+<span class="c1"># Example:</span>
+<span class="c1">#  CFG[&#39;container&#39;] = {</span>
+<span class="c1">#    &#39;strategy&#39;: {</span>
+<span class="c1">#      &#39;dummy&#39;: { &#39;default&#39;: True, &#39;desc&#39;: &#39;Update portage tree&#39; }</span>
+<span class="c1">#    }</span>
+<span class="c1">#  }</span>
+<span class="c1">#  This opens the &#39;strategy&#39; node up for deeper nesting in a second step:</span>
+<span class="c1">#</span>
+<span class="c1">#  CFG[&#39;container&#39;][&#39;strategy&#39;][&#39;polyjit&#39;] = {</span>
+<span class="c1">#    &#39;sync&#39;: { &#39;default&#39;: True&#39;, &#39;desc&#39;: &#39;...&#39; }</span>
+<span class="c1">#  }</span>
+<span class="n">_INNER_NODE_VALUE</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">({</span>
+    <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">):</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;desc&#39;</span><span class="p">):</span> <span class="nb">str</span>
+<span class="p">})</span>
+<span class="n">_INNER_NODE_SCHEMA</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">({</span>
+    <span class="n">schema</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">len</span><span class="p">):</span> <span class="p">{</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">):</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;desc&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span> <span class="nb">dict</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="Configuration">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration">[docs]</a>
+<span class="k">class</span> <span class="nc">Configuration</span><span class="p">(</span><span class="n">Indexable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary-like data structure to contain all configuration variables.</span>
+
+<span class="sd">    This serves as a configuration dictionary throughout benchbuild. You can</span>
+<span class="sd">    use it to access all configuration options that are available. Whenever the</span>
+<span class="sd">    structure is updated with a new subtree, all variables defined in the new</span>
+<span class="sd">    subtree are updated from the environment.</span>
+
+<span class="sd">    Environment variables are generated from the tree paths automatically.</span>
+<span class="sd">        CFG[&quot;build_dir&quot;] becomes BB_BUILD_DIR</span>
+<span class="sd">        CFG[&quot;llvm&quot;][&quot;dir&quot;] becomes BB_LLVM_DIR</span>
+
+<span class="sd">    The configuration can be stored/loaded as YAML.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">node</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">InnerNode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Configuration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_key</span> <span class="o">=</span> <span class="n">parent_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_from_env</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Configuration.filter_exports">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.filter_exports">[docs]</a>
+    <span class="k">def</span> <span class="nf">filter_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_default</span><span class="p">():</span>
+            <span class="n">do_export</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="s2">&quot;export&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+                <span class="n">do_export</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;export&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">do_export</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selfcopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">selfcopy</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+                    <span class="n">selfcopy</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">filter_exports</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="n">selfcopy</span><span class="o">.</span><span class="vm">__dict__</span></div>
+
+
+<div class="viewcode-block" id="Configuration.store">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.store">[docs]</a>
+    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="n">LocalPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Store the configuration dictionary to a file.&quot;&quot;&quot;</span>
+
+        <span class="n">selfcopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">selfcopy</span><span class="o">.</span><span class="n">filter_exports</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                <span class="n">selfcopy</span><span class="o">.</span><span class="n">node</span><span class="p">,</span>
+                <span class="n">outf</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+                <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">Dumper</span><span class="o">=</span><span class="n">ConfigDumper</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Configuration.load">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_from</span><span class="p">:</span> <span class="n">LocalPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the configuration dictionary from file.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">load_rec</span><span class="p">(</span>
+            <span class="n">inode</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursive part of loading.&quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inode</span><span class="p">:</span>
+                        <span class="n">load_rec</span><span class="p">(</span><span class="n">inode</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;+ config element: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">inode</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">_from</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">obj</span><span class="p">:</span> <span class="n">Configuration</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">ConfigLoader</span><span class="p">)</span>
+            <span class="n">upgrade</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">load_rec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;config_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">_from</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Configuration.has_value">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.has_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check, if the node contains a &#39;value&#39;.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span></div>
+
+
+<div class="viewcode-block" id="Configuration.has_default">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.has_default">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check, if the node contains a &#39;default&#39; value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span></div>
+
+
+<div class="viewcode-block" id="Configuration.is_leaf">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.is_leaf">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check, if the node is a &#39;leaf&#39; node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_default</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Configuration.init_from_env">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.init_from_env">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_from_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize this node from environment.</span>
+
+<span class="sd">        If we&#39;re a leaf node, i.e., a node containing a dictionary that</span>
+<span class="sd">        consist of a &#39;default&#39; key, compute our env variable and initialize</span>
+<span class="sd">        our value from the environment.</span>
+<span class="sd">        Otherwise, init our children.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="n">env_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+            <span class="n">env_val</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">env_var</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">env_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">env_val</span><span class="p">),</span> <span class="n">Loader</span><span class="o">=</span><span class="n">ConfigLoader</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">env_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">init_from_env</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the node value, if we&#39;re a leaf node.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">node_value</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node_value</span><span class="p">,</span> <span class="s1">&#39;validate&#39;</span><span class="p">):</span>
+                <span class="n">node_value</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">node_value</span>
+
+        <span class="k">if</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Configuration&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Access to non-existing config element: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+                <span class="n">category</span><span class="o">=</span><span class="n">InvalidConfigKey</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">Configuration</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Configuration</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_INNER_NODE_SCHEMA</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_INNER_NODE_VALUE</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a value to a list value.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Inner configuration node does not support +=.&quot;</span><span class="p">)</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;__iadd__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Configuration node value does not support +=.&quot;</span><span class="p">)</span>
+
+        <span class="n">value</span> <span class="o">+=</span> <span class="n">rhs</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the node&#39;s value to int, if available.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Inner configuration nodes cannot be converted to int.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the node&#39;s value to bool, if available.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Represents the configuration as a list of environment variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_repr</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">to_env_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_default</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">to_env_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="n">_repr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_repr</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__to_env_var__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">parent_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_key</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">parent_key</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">parent_key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Configuration.to_env_dict">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.Configuration.to_env_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_env_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert configuration object to a flat dictionary.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_value</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">():</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_default</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__to_env_var__</span><span class="p">():</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]}</span>
+
+        <span class="n">entries</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="n">entries</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">to_env_dict</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">entries</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="convert_components">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.convert_components">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_components</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">is_str</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span>
+    <span class="n">new_value</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="n">is_str</span><span class="p">:</span>
+        <span class="n">new_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span> <span class="ow">in</span> <span class="n">new_value</span><span class="p">:</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="n">new_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_value</span><span class="p">]</span>
+    <span class="n">new_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">new_value</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_value</span></div>
+
+
+
+<div class="viewcode-block" id="ConfigPath">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.ConfigPath">[docs]</a>
+<span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ConfigPath</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around paths represented as list of strings.&quot;&quot;&quot;</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="n">convert_components</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConfigPath.validate">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.ConfigPath.validate">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure this configuration path exists.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">ConfigPath</span><span class="o">.</span><span class="n">path_to_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The path &#39;</span><span class="si">%s</span><span class="s2">&#39; is required by your configuration.&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">yes</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span>
+                <span class="s2">&quot;Should I create &#39;</span><span class="si">%s</span><span class="s2">&#39; for you?&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">,</span>
+                <span class="n">default_answer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">default_answer_str</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">yes</span><span class="p">:</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;User denied path creation of &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The path &#39;</span><span class="si">%s</span><span class="s2">&#39; needs to exist.&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfigPath.path_to_str">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.ConfigPath.path_to_str">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">path_to_str</span><span class="p">(</span><span class="n">components</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ConfigPath</span><span class="o">.</span><span class="n">path_to_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="path_representer">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.path_representer">[docs]</a>
+<span class="k">def</span> <span class="nf">path_representer</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent a ConfigPath object as a scalar YAML node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_scalar</span><span class="p">(</span><span class="s1">&#39;!create-if-needed&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="path_constructor">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.path_constructor">[docs]</a>
+<span class="k">def</span> <span class="nf">path_constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">    Construct a ConfigPath object form a scalar YAML node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">construct_scalar</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ConfigPath</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_config">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.find_config">[docs]</a>
+<span class="k">def</span> <span class="nf">find_config</span><span class="p">(</span>
+    <span class="n">test_file</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">defaults</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">curdir</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">LocalPath</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the path to the default config file.</span>
+
+<span class="sd">    We look at :root: for the :default: config file. If we can&#39;t find it</span>
+<span class="sd">    there we start looking at the parent directory recursively until we</span>
+<span class="sd">    find a file named :default: and return the absolute path to it.</span>
+<span class="sd">    If we can&#39;t find anything, we return None.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        test_file:</span>
+<span class="sd">        default: The name of the config file we look for.</span>
+<span class="sd">        root: The directory to start looking for.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the default config file, None if we can&#39;t find anything.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.benchbuild.yml&quot;</span><span class="p">,</span> <span class="s2">&quot;.benchbuild.yaml&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">walk_rec</span><span class="p">(</span><span class="n">cfg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalPath</span><span class="p">:</span>
+        <span class="n">cur_path</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">cfg_name</span>
+        <span class="k">if</span> <span class="n">cur_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">cur_path</span>
+
+        <span class="n">new_root</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span>
+        <span class="k">return</span> <span class="n">walk_rec</span><span class="p">(</span><span class="n">cfg_name</span><span class="p">,</span> <span class="n">new_root</span><span class="p">)</span> <span class="k">if</span> <span class="n">new_root</span> <span class="o">!=</span> <span class="n">root</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">test_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">walk_rec</span><span class="p">(</span><span class="n">test_file</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">test_f</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">walk_rec</span><span class="p">(</span><span class="n">test_f</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="setup_config">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.setup_config">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_config</span><span class="p">(</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">,</span>
+    <span class="n">config_filenames</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">env_var_name</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This will initialize the given configuration object.</span>
+
+<span class="sd">    The following resources are available in the same order:</span>
+<span class="sd">        1) Default settings.</span>
+<span class="sd">        2) Config file.</span>
+<span class="sd">        3) Environment variables.</span>
+
+<span class="sd">    WARNING: Environment variables do _not_ take precedence over the config</span>
+<span class="sd">             file right now. (init_from_env will refuse to update the</span>
+<span class="sd">             value, if there is already one.)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_filenames: list of possible config filenames</span>
+<span class="sd">        env_var_name: name of the environment variable holding the config path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">env_var_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">env_var_name</span> <span class="o">=</span> <span class="s2">&quot;BB_CONFIG_FILE&quot;</span>
+
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">env_var_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config_path</span><span class="p">:</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">find_config</span><span class="p">(</span><span class="n">defaults</span><span class="o">=</span><span class="n">config_filenames</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config_path</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">init_from_env</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="update_env">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.update_env">[docs]</a>
+<span class="k">def</span> <span class="nf">update_env</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;PATH&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]])</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="n">lib_path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">lib_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lib_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;LD_LIBRARY_PATH&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">lib_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="n">lib_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]</span>
+        <span class="p">])</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lib_path</span>
+
+    <span class="n">home</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HOME&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">home</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;HOME&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home</span>
+
+    <span class="c1"># Update local&#39;s env property because we changed the environment</span>
+    <span class="c1"># of the running python process.</span>
+    <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">])</span>
+    <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">home</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">HOME</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="upgrade">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.upgrade">[docs]</a>
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provide forward migration for configuration files.&quot;&quot;&quot;</span>
+    <span class="n">db_node</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">]</span>
+    <span class="n">old_db_elems</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="s2">&quot;pass&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;dialect&quot;</span><span class="p">]</span>
+    <span class="n">has_old_db_elems</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="ow">in</span> <span class="n">db_node</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">old_db_elems</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">has_old_db_elems</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Old database configuration found. &quot;</span>
+            <span class="s2">&quot;Converting to new connect_string. &quot;</span>
+            <span class="s2">&quot;This will *not* be stored in the configuration automatically.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;connect_string&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="s2">&quot;</span><span class="si">{dialect}</span><span class="s2">://</span><span class="si">{user}</span><span class="s2">:</span><span class="si">{password}</span><span class="s2">@</span><span class="si">{host}</span><span class="s2">:</span><span class="si">{port}</span><span class="s2">/</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">dialect</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;dialect&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;pass&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="uuid_representer">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.uuid_representer">[docs]</a>
+<span class="k">def</span> <span class="nf">uuid_representer</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a uuid.UUID object as a scalar YAML node.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_scalar</span><span class="p">(</span><span class="s1">&#39;!uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="uuid_constructor">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.uuid_constructor">[docs]</a>
+<span class="k">def</span> <span class="nf">uuid_constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&quot;Construct a uuid.UUID object form a scalar YAML node.&quot;&quot;&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">construct_scalar</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="uuid_add_implicit_resolver">
+<a class="viewcode-back" href="../../../../basics/configuration/#benchbuild.utils.settings.uuid_add_implicit_resolver">[docs]</a>
+<span class="k">def</span> <span class="nf">uuid_add_implicit_resolver</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">ConfigLoader</span><span class="p">,</span> <span class="n">dumper</span><span class="o">=</span><span class="n">ConfigDumper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach an implicit pattern resolver for UUID objects.&quot;&quot;&quot;</span>
+    <span class="n">uuid_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^\b[a-f0-9]</span><span class="si">{8}</span><span class="s1">-\b[a-f0-9]</span><span class="si">{4}</span><span class="s1">-\b[a-f0-9]</span><span class="si">{4}</span><span class="s1">-\b[a-f0-9]</span><span class="si">{4}</span><span class="s1">-\b[a-f0-9]</span><span class="si">{12}</span><span class="s1">$&#39;</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">uuid_regex</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">add_implicit_resolver</span><span class="p">(</span><span class="s1">&#39;!uuid&#39;</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">loader</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">dumper</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">__init_module__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span> <span class="n">uuid_representer</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">ConfigDumper</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">ConfigPath</span><span class="p">,</span> <span class="n">path_representer</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">ConfigDumper</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!uuid&#39;</span><span class="p">,</span> <span class="n">uuid_constructor</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">ConfigLoader</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
+        <span class="s1">&#39;!create-if-needed&#39;</span><span class="p">,</span> <span class="n">path_constructor</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">ConfigLoader</span>
+    <span class="p">)</span>
+    <span class="n">uuid_add_implicit_resolver</span><span class="p">()</span>
+
+
+<span class="n">__init_module__</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, Andreas Simbürger.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

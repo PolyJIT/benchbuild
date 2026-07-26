@@ -76,8 +76,8 @@ class RunProjectContainer(model.Command):
 
     build_dir: str = attr.ib()
     tmp_dir: str = attr.ib()
-    mount_build_dir: bool = attr.ib()
-    mount_tmp_dir: bool = attr.ib()
+    mount_build_dir: bool = attr.ib(default=False)
+    mount_tmp_dir: bool = attr.ib(default=False)
     args: tp.Sequence[str] = attr.ib(default=attr.Factory(list))
 
 

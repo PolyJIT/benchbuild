@@ -126,7 +126,7 @@ def test_image_run_no_args(true_image, publish) -> None:
     cmd = commands.CreateImage(name, true_image)
     publish(cmd)
 
-    run_cmd_no_args = commands.RunProjectContainer(name, name, "/")
+    run_cmd_no_args = commands.RunProjectContainer(name, name, "/", "", "")
     try:
         publish(run_cmd_no_args)
     except ContainerCreateError:

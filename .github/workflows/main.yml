@@ -7,11 +7,23 @@ on:
 
 jobs:
   unittests:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     uses: ./.github/workflows/ci.yml
+    with:
+      python-version: "${{ matrix.python-version }}"
     secrets: inherit
 
   integration:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        db_support: [true, false]
     uses: ./.github/workflows/integration.yml
+    with:
+      python-version: "${{ matrix.python-version }}"
+      db_support: "${{ matrix.db_support }}"
     secrets: inherit
 
   coverage:

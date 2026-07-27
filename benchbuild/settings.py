@@ -356,8 +356,6 @@ CFG["container"] = {
     },
     "input": {"default": "container.tar.bz2", "desc": "Input container file/folder."},
     "output": {"default": "container-out.tar.bz2", "desc": "Output container file."},
-    "input": {"default": "container.tar.bz2", "desc": "Input container file/folder."},
-    "output": {"default": "container-out.tar.bz2", "desc": "Output container file."},
     "mounts": {
         "default": [],
         "desc": "List of paths that will be mounted inside the container.",

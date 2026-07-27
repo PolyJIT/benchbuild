@@ -50,13 +50,13 @@ from benchbuild.utils.revision_ranges import RevisionRange
 
 LOG = logging.getLogger(__name__)
 
-MaybeGroupNames = tp.Optional[tp.List[str]]
-ProjectNames = tp.List[str]
-Sources = tp.List[FetchableSource]
+MaybeGroupNames = tp.Optional[list[str]]
+ProjectNames = list[str]
+Sources = list[FetchableSource]
 ContainerDeclaration = tp.Union[
-    ContainerImage, tp.List[tp.Tuple[RevisionRange, ContainerImage]]
+    ContainerImage, list[tuple[RevisionRange, ContainerImage]]
 ]
-Workloads = tp.MutableMapping[SupportsUnwrap, tp.List[Command]]
+Workloads = tp.MutableMapping[SupportsUnwrap, list[Command]]
 
 __REGISTRATION_SEPARATOR = "/"
 __REGISTRATION_OPTIONALS = ["/", "-"]
@@ -68,13 +68,13 @@ class ProjectRegistry(type):
     projects = StringTrie()
 
     def __new__(
-        mcs: tp.Type["Project"],
+        mcs: type["Project"],
         name: str,
-        bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any],
+        bases: tuple[type, ...],
+        attrs: dict[str, tp.Any],
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
+        cls = super().__new__(mcs, name, bases, attrs)
         name = attrs["NAME"] if "NAME" in attrs else cls.NAME
         domain = attrs["DOMAIN"] if "DOMAIN" in attrs else cls.DOMAIN
         group = attrs["GROUP"] if "GROUP" in attrs else cls.GROUP
@@ -89,8 +89,8 @@ class ProjectRegistry(type):
 
 
 class MultiVersioned:
-    _active_revision: tp.Optional[Revision]
-    _active_revisions: tp.List[Revision]
+    _active_revision: Revision | None
+    _active_revisions: list[Revision]
 
     revision: Revision
 
@@ -131,7 +131,7 @@ class PathTracker:
     Remember paths in any subclass
     """
 
-    _tracked_paths: tp.Set[Path]
+    _tracked_paths: set[Path]
 
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
@@ -157,11 +157,11 @@ class ProjectRunnables:
 
         if hasattr(cls, "run_tests"):
             f_run_tests = run.in_builddir()(run.store_config(cls.run_tests))
-            setattr(cls, "run_tests", f_run_tests)
+            cls.run_tests = f_run_tests
 
         if hasattr(cls, "compile"):
             f_compile = run.in_builddir()(run.store_config(cls.compile))
-            setattr(cls, "compile", f_compile)
+            cls.compile = f_compile
 
     @abstractmethod
     def compile(self) -> None:
@@ -239,7 +239,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
-    REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
+    REQUIREMENTS: tp.ClassVar[list[Requirement]] = []
     SOURCE: tp.ClassVar[Sources] = []
     WORKLOADS: tp.ClassVar[Workloads] = {}
 
@@ -247,7 +247,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
         """Create a new project instance and set some defaults."""
         del args, kwargs
 
-        new_self = super(Project, cls).__new__(cls)
+        new_self = super().__new__(cls)
         mod_ident = f"{cls.__name__} @ {cls.__module__}"
         if not cls.NAME:
             raise AttributeError(f"{mod_ident} does not define a NAME class attribute.")
@@ -291,9 +291,9 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
 
     container: ContainerImage = attr.ib(default=attr.Factory(ContainerImage))
 
-    cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
+    cflags: list[str] = attr.ib(default=attr.Factory(list))
 
-    ldflags: tp.List[str] = attr.ib(default=attr.Factory(list))
+    ldflags: list[str] = attr.ib(default=attr.Factory(list))
 
     run_uuid: uuid.UUID = attr.ib()
 
@@ -388,7 +388,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
 
-    def source_of(self, name: str) -> tp.Optional[str]:
+    def source_of(self, name: str) -> str | None:
         """
         Retrieve source for given index name.
 
@@ -417,7 +417,7 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
 
         return None
 
-    def version_of(self, name: str) -> tp.Optional[str]:
+    def version_of(self, name: str) -> str | None:
         """
         Retrieve version for given index name.
 
@@ -458,10 +458,10 @@ class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRe
         return source_str
 
 
-ProjectT = tp.Type[Project]
+ProjectT = type[Project]
 
 
-def __split_project_input__(project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
+def __split_project_input__(project_input: str) -> tuple[str, str | None]:
     split_input = project_input.rsplit("@", maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -469,7 +469,7 @@ def __split_project_input__(project_input: str) -> tp.Tuple[str, tp.Optional[str
     return (first, second)
 
 
-def discovered() -> tp.Dict[str, ProjectT]:
+def discovered() -> dict[str, ProjectT]:
     """Return all discovered projects."""
     return dict(ProjectRegistry.projects)
 
@@ -489,7 +489,7 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     return project
 
 
-def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> ProjectT:
+def __add_indexed_filters__(project: ProjectT, versions: list[str]) -> ProjectT:
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     for i in range(min(len(sources), len(versions))):
@@ -501,10 +501,10 @@ def __add_indexed_filters__(project: ProjectT, versions: tp.List[str]) -> Projec
     return project
 
 
-def __add_named_filters__(project: ProjectT, versions: tp.Dict[str, str]) -> ProjectT:
+def __add_named_filters__(project: ProjectT, versions: dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     sources = [src for src in project.SOURCE if src.is_expandable]
-    named_sources: tp.Dict[str, FetchableSource] = {s.key: s for s in sources}
+    named_sources: dict[str, FetchableSource] = {s.key: s for s in sources}
     for k, v in versions.items():
         if v == "*":
             continue
@@ -537,7 +537,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     if not project.SOURCE:
         return project
 
-    def csv(in_str: tp.Union[tp.Any, str]) -> bool:
+    def csv(in_str: tp.Any | str) -> bool:
         if isinstance(in_str, str):
             return len(in_str.split(",")) > 1
         return False

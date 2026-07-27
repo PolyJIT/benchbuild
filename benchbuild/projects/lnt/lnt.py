@@ -143,7 +143,7 @@ class SPEC2006(LNTGroup):
 
     def compile(self):
         if bb.download.CopyNoFail("speccpu2006"):
-            super(SPEC2006, self).compile()
+            super().compile()
         else:
             print("======================================================")
             print(

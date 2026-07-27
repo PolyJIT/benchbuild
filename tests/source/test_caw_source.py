@@ -17,7 +17,7 @@ class TestProject(Project):
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
-    SOURCE: tp.ClassVar[tp.List[FetchableSource]] = []
+    SOURCE: tp.ClassVar[list[FetchableSource]] = []
 
     def compile(self):
         pass
@@ -78,7 +78,7 @@ def test_source_mapping(make_source, caw_src_0):
     TestProject.SOURCE = [src_primary, caw_src_0, src_secondary]
 
     with patch.dict(ProjectRegistry.projects, {"test/test": TestProject}, clear=True):
-        res: tp.Mapping[str, tp.Type[Project]] = populate(["test/test"])
+        res: tp.Mapping[str, type[Project]] = populate(["test/test"])
         assert res["test/test"] == TestProject
 
         expected_revisions = [

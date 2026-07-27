@@ -14,7 +14,7 @@ Supported methods:
 import hashlib
 import logging
 import os
-from typing import Callable, List, Optional, Type
+from collections.abc import Callable
 
 from plumbum import local
 
@@ -23,7 +23,7 @@ from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
-AnyC = Type[object]
+AnyC = type[object]
 
 
 def get_hash_of_dirs(directory: str) -> str:
@@ -278,11 +278,11 @@ def Git(
 
 def with_git(
     repo: str,
-    target_dir: Optional[str] = None,
-    limit: Optional[int] = None,
+    target_dir: str | None = None,
+    limit: int | None = None,
     refspec: str = "HEAD",
     clone: bool = True,
-    rev_list_args: Optional[List[str]] = None,
+    rev_list_args: list[str] | None = None,
     shallow_clone: bool = True,
     version_filter: Callable[[str], bool] = lambda version: True,
 ) -> Callable[[AnyC], AnyC]:

@@ -60,8 +60,8 @@ class Crafty(bb.Project):
 
         with local.cwd(unpack_dir):
             crafty = bb.wrap("./crafty", self)
-            _test1 = bb.watch((cat[test_source / "test1.sh"] | crafty))
-            _test2 = bb.watch((cat[test_source / "test2.sh"] | crafty))
+            _test1 = bb.watch(cat[test_source / "test1.sh"] | crafty)
+            _test2 = bb.watch(cat[test_source / "test2.sh"] | crafty)
 
             _test1(retcode=[0, 120])
             _test2(retcode=[0, 120])

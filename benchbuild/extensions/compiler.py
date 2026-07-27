@@ -29,7 +29,7 @@ class RunCompiler(base.Extension):
         project: "Project",
         experiment: "Experiment",
         *extensions: base.Extension,
-        config: tp.Optional[tp.Dict[str, str]] = None,
+        config: dict[str, str] | None = None,
     ):
         self.project = project
         self.experiment = experiment
@@ -43,7 +43,7 @@ class RunCompiler(base.Extension):
         project: tp.Optional["Project"] = None,
         rerun_on_error: bool = True,
         **kwargs: tp.Any,
-    ) -> tp.List[run.RunInfo]:
+    ) -> list[run.RunInfo]:
         if project:
             self.project = project
 

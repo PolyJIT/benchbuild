@@ -59,11 +59,11 @@ class StepResult(enum.IntEnum):
     ERROR = 3
 
 
-StepResultList = tp.List[StepResult]
+StepResultList = list[StepResult]
 
 
 def step_has_failed(
-    result: StepResult, error_status: tp.Optional[tp.List[StepResult]] = None
+    result: StepResult, error_status: list[StepResult] | None = None
 ) -> bool:
     if not error_status:
         error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
@@ -75,13 +75,13 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     """Prepends the output of `func` with the status."""
 
     @tp.overload
-    def wrapper(self: "Step", indent: int) -> str: ...
+    def wrapper(self: Step, indent: int) -> str: ...
 
     @tp.overload
-    def wrapper(self: "Step") -> str: ...
+    def wrapper(self: Step) -> str: ...
 
     @ft.wraps(func)
-    def wrapper(self: "Step", *args: tp.Any, **kwargs: tp.Any) -> str:
+    def wrapper(self: Step, *args: tp.Any, **kwargs: tp.Any) -> str:
         """Wrapper stub."""
         res = func(self, *args, **kwargs)
         if self.status is not StepResult.UNSET:
@@ -132,10 +132,8 @@ class Step:
     def __init_subclass__(cls, **kwargs: tp.Any):
         super().__init_subclass__(**kwargs)
 
-        setattr(
-            cls, "__call__", log_before_after(cls.NAME, cls.DESCRIPTION)(cls.__call__)
-        )
-        setattr(cls, "__str__", prepend_status(cls.__str__))
+        cls.__call__ = log_before_after(cls.NAME, cls.DESCRIPTION)(cls.__call__)
+        cls.__str__ = prepend_status(cls.__str__)
 
     def __init__(self, status: StepResult) -> None:
         self.status = status
@@ -168,9 +166,9 @@ class ProjectStep(Step):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    project: "benchbuild.project.Project"
+    project: benchbuild.project.Project
 
-    def __init__(self, project: "benchbuild.project.Project") -> None:
+    def __init__(self, project: benchbuild.project.Project) -> None:
         super().__init__(StepResult.UNSET)
         self.project = project
 
@@ -200,9 +198,7 @@ class MultiStep(Step, tp.Generic[StepTy_co]):
 
     actions: tp.MutableSequence[StepTy_co]
 
-    def __init__(
-        self, actions: tp.Optional[tp.MutableSequence[StepTy_co]] = None
-    ) -> None:
+    def __init__(self, actions: tp.MutableSequence[StepTy_co] | None = None) -> None:
         super().__init__(StepResult.UNSET)
 
         self.actions = list(actions) if actions else []
@@ -229,7 +225,7 @@ class Clean(ProjectStep):
     DESCRIPTION = "Cleans the build directory"
 
     def __init__(
-        self, project: "benchbuild.project.Project", check_empty: bool = False
+        self, project: benchbuild.project.Project, check_empty: bool = False
     ) -> None:
         super().__init__(project)
         self.check_empty = check_empty
@@ -321,12 +317,12 @@ class Run(ProjectStep):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
 
-    experiment: "benchbuild.experiment.Experiment"
+    experiment: benchbuild.experiment.Experiment
 
     def __init__(
         self,
-        project: "benchbuild.project.Project",
-        experiment: "benchbuild.experiment.Experiment",
+        project: benchbuild.project.Project,
+        experiment: benchbuild.experiment.Experiment,
     ) -> None:
         super().__init__(project)
 
@@ -420,12 +416,12 @@ class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    experiment: "benchbuild.experiment.Experiment"
+    experiment: benchbuild.experiment.Experiment
 
     def __init__(
         self,
-        experiment: "benchbuild.experiment.Experiment",
-        actions: tp.Optional[tp.MutableSequence[Step]],
+        experiment: benchbuild.experiment.Experiment,
+        actions: tp.MutableSequence[Step] | None,
     ) -> None:
         _actions: tp.MutableSequence[Step] = [
             Echo(message=f"Start experiment: {experiment.name}")
@@ -438,7 +434,7 @@ class Experiment(Any):
 
     def begin_transaction(
         self,
-    ) -> tp.Tuple["benchbuild.utils.schema.Experiment", tp.Any]:
+    ) -> tuple[benchbuild.utils.schema.Experiment, tp.Any]:
         import sqlalchemy as sa  # pylint: disable=import-outside-toplevel
 
         experiment, session = db.persist_experiment(self.experiment)
@@ -460,7 +456,7 @@ class Experiment(Any):
 
     @staticmethod
     def end_transaction(
-        experiment: "benchbuild.utils.schema.Experiment", session: tp.Any
+        experiment: benchbuild.utils.schema.Experiment, session: tp.Any
     ) -> None:
         import sqlalchemy as sa  # pylint: disable=import-outside-toplevel
 
@@ -471,7 +467,7 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
-    def __run_children(self, num_processes: int) -> tp.List[StepResult]:
+    def __run_children(self, num_processes: int) -> list[StepResult]:
         # pylint: disable=import-outside-toplevel
         import pathos.multiprocessing as mp
 
@@ -518,7 +514,7 @@ class RequireAll(MultiStep):
     DESCRIPTION = "All child steps need to succeed"
 
     def __call__(self) -> StepResult:
-        results: tp.List[StepResult] = []
+        results: list[StepResult] = []
 
         total_steps = len(self.actions)
 
@@ -573,7 +569,7 @@ class RunWorkload(ProjectStep):
     NAME = "RUN WORKLOAD"
     DESCRIPTION = "Run a project's workload"
 
-    _workload: tp.Optional[WorkloadTy]
+    _workload: WorkloadTy | None
 
     @property
     def workload_ref(self) -> WorkloadTy:
@@ -583,8 +579,8 @@ class RunWorkload(ProjectStep):
 
     def __init__(
         self,
-        project: "benchbuild.project.Project",
-        workload: tp.Optional[WorkloadTy] = None,
+        project: benchbuild.project.Project,
+        workload: WorkloadTy | None = None,
     ) -> None:
         super().__init__(project)
 
@@ -603,21 +599,21 @@ class RunWorkload(ProjectStep):
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(f"* Run: {str(self.workload_ref)}", indent * " ")
+        return textwrap.indent(f"* Run: {self.workload_ref!s}", indent * " ")
 
 
 class RunWorkloads(MultiStep):
     NAME = "RUN WORKLOADS"
     DESCRIPTION = "Generic run all project workloads"
 
-    project: "benchbuild.project.Project"
-    experiment: "benchbuild.experiment.Experiment"
+    project: benchbuild.project.Project
+    experiment: benchbuild.experiment.Experiment
 
     def __init__(
         self,
-        project: "benchbuild.project.Project",
-        experiment: "benchbuild.experiment.Experiment",
-        run_only: tp.Optional[command.WorkloadSet] = None,
+        project: benchbuild.project.Project,
+        experiment: benchbuild.experiment.Experiment,
+        run_only: command.WorkloadSet | None = None,
     ) -> None:
         super().__init__()
 
@@ -729,7 +725,7 @@ class SetProjectVersion(ProjectStep):
 
     def __init__(
         self,
-        project: "benchbuild.project.Project",
+        project: benchbuild.project.Project,
         *revision_strings: source.base.RevisionStr,
     ) -> None:
         super().__init__(project)

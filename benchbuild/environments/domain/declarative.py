@@ -37,7 +37,7 @@ class ContainerImage(list):
 
     @property
     def base(self) -> str:
-        layers = [l for l in self if isinstance(l, model.FromLayer)]
+        layers = [layer for layer in self if isinstance(layer, model.FromLayer)]
         if layers:
             return layers.pop(0).base
         return ""
@@ -167,7 +167,7 @@ class ContainerImage(list):
         return self
 
 
-DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
+DEFAULT_BASES: dict[str, ContainerImage] = {
     "benchbuild:alpine": ContainerImage()
     .from_("docker.io/alpine:3.17")
     .run("apk", "update")

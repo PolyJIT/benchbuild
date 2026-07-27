@@ -7,9 +7,9 @@ import unittest
 from plumbum import local
 from plumbum.cmd import rm
 
-import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers
+from benchbuild import project
 from benchbuild.environments.domain import declarative
 from benchbuild.source.base import nosource
 
@@ -64,7 +64,7 @@ class RunStatic(WrapperTests):
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap(self.tmp_script, EmptyProject())
-            self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
+            self.assertTrue(os.path.exists(f"{self.tmp_script}.bin"))
         self.assertTrue(os.path.exists(str(cmd)))
 
 

@@ -32,4 +32,4 @@ class BBConfigWrite(cli.Application):
     def main(self):
         config_path = ".benchbuild.yml"
         settings.CFG.store(config_path)
-        print("Storing config in {0}".format(os.path.abspath(config_path)))
+        print(f"Storing config in {os.path.abspath(config_path)}")

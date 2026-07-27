@@ -2,7 +2,6 @@
 Test the actions module.
 """
 
-import copy
 import importlib
 import sys
 import typing as tp
@@ -95,7 +94,7 @@ class TestProject(Project):
 
 
 @pytest.fixture
-def t_project() -> tp.Type[Project]:
+def t_project() -> type[Project]:
     yield TestProject
     importlib.reload(sys.modules[__name__])
 
@@ -157,8 +156,6 @@ def test_SetProjectVersion_can_set_revision_through_filter(t_project) -> None:
     """
     Check, if we can set a filtered version.
     """
-    source_backup = copy.deepcopy(t_project.SOURCE)
-
     project_cls = __add_single_filter__(t_project, "v3")
     exp = TestExperiment(projects=[project_cls])
     context = exp.sample(project_cls)[0]
@@ -189,4 +186,4 @@ def test_SetProjectVersion_raises_error_when_no_revision_is_found() -> None:
     with pytest.raises(
         ValueError, match="Revisions (.+) not found in any available source."
     ):
-        spv = SetProjectVersion(prj, RevisionStr("does-not-exist"))
+        SetProjectVersion(prj, RevisionStr("does-not-exist"))

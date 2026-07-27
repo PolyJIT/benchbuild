@@ -110,8 +110,8 @@ quit
 
             test2.write(lines)
 
-        crafty_test1 = bb.watch((cat["test1.sh"] | crafty))
+        crafty_test1 = bb.watch(cat["test1.sh"] | crafty)
         crafty_test1()
 
-        crafty_test2 = bb.watch((cat["test2.sh"] | crafty))
+        crafty_test2 = bb.watch(cat["test2.sh"] | crafty)
         crafty_test2()

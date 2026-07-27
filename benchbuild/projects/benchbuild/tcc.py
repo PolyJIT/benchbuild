@@ -48,9 +48,8 @@ class TCC(bb.Project):
     def run_tests(self):
         tcc_version = self.version_of("tcc.tar.bz2")
         unpack_dir = local.path(f"tcc-{tcc_version}.tar.bz2")
-        with local.cwd(unpack_dir):
-            with local.cwd("build"):
-                bb.wrap("tcc", self)
-                inc_path = path.abspath("..")
-                _make = bb.watch(make)
-                _make("TCCFLAGS=-B{}".format(inc_path), "test", "-i")
+        with local.cwd(unpack_dir), local.cwd("build"):
+            bb.wrap("tcc", self)
+            inc_path = path.abspath("..")
+            _make = bb.watch(make)
+            _make(f"TCCFLAGS=-B{inc_path}", "test", "-i")

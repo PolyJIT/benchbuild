@@ -12,13 +12,13 @@ from benchbuild.source import FetchableSource, Variant
 
 
 class SimpleSource(FetchableSource):
-    test_versions: tp.List[str] = attr.ib()
+    test_versions: list[str] = attr.ib()
 
     def __init__(
         self,
         local: str,
-        remote: tp.Union[str, tp.Dict[str, str]],
-        test_versions: tp.List[str],
+        remote: str | dict[str, str],
+        test_versions: list[str],
     ):
         super().__init__(local, remote)
 

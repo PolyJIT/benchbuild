@@ -6,12 +6,11 @@ except ImportError:
     import winfcntl as fcntl
 import os
 from contextlib import contextmanager
-from typing import List, Optional
 
 import benchbuild.utils.user_interface as ui
 
 
-def list_to_path(pathlist: List[str]) -> str:
+def list_to_path(pathlist: list[str]) -> str:
     """
     Convert a list of path elements to a path string.
 
@@ -24,7 +23,7 @@ def list_to_path(pathlist: List[str]) -> str:
     return os.path.pathsep.join(pathlist)
 
 
-def path_to_list(pathstr: str) -> List[str]:
+def path_to_list(pathstr: str) -> list[str]:
     """
     Convert a path string to a list of path elements.
 
@@ -54,7 +53,7 @@ __ROOT__ = __self__()
 __RESOURCES_ROOT__ = os.path.join(__ROOT__, "..", "res")
 
 
-def template_files(path: str, exts: Optional[List[str]] = None) -> List[str]:
+def template_files(path: str, exts: list[str] | None = None) -> list[str]:
     """
     Return a list of filenames found at @path.
 
@@ -121,16 +120,14 @@ def mkdir_interactive(dirpath: str) -> None:
         return
 
     response = ui.ask(
-        "The directory {dirname} does not exist yet. Should I create it?".format(
-            dirname=dirpath
-        ),
+        f"The directory {dirpath} does not exist yet. Should I create it?",
         default_answer=True,
         default_answer_str="yes",
     )
 
     if response:
         mkdir("-p", dirpath)
-        print("Created directory {0}.".format(dirpath))
+        print(f"Created directory {dirpath}.")
 
 
 @contextmanager

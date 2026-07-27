@@ -27,5 +27,5 @@ class BBExperimentView(cli.Application):
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or "-- no docstring --"
-            print(("    " + docstring))
+            print("    " + docstring)
         return 0

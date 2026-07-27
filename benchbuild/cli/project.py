@@ -1,7 +1,5 @@
 """Subcommand for project handling."""
 
-import typing as tp
-
 from plumbum import cli
 
 import benchbuild as bb
@@ -56,7 +54,7 @@ class BBProjectDetails(cli.Application):
         return 0
 
 
-def print_project(project: tp.Type[Project], limit: int) -> None:
+def print_project(project: type[Project], limit: int) -> None:
     """
     Print details for a single project.
 
@@ -109,14 +107,12 @@ def print_projects(projects: ProjectIndex) -> None:
         print("Your selection didn't include any projects for this experiment.")
         return
 
-    grouped_by: tp.Dict[str, tp.List[str]] = {}
+    grouped_by: dict[str, list[str]] = {}
     for prj in set(projects.values()):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append(
-            "{name}/{group}".format(name=prj.NAME, group=prj.GROUP)
-        )
+        grouped_by[prj.GROUP].append(f"{prj.NAME}/{prj.GROUP}")
 
     project_column_width = max([len(f"{p.NAME}/{p.GROUP}") for p in projects.values()])
     project_header_format = (

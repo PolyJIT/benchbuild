@@ -14,13 +14,11 @@ a set of actions that should be run during execution.
 
 Example:
 ```{python}
-def actions_for_project(self, project: 'Project'):
-  project.runtime_extension = time.RunWithTime(
-    run.RuntimeExtensions(project, self))
-  project.runtime_extension = time.WithTimeout(
-    run.RunCompiler(project, self))
+def actions_for_project(self, project: "Project"):
+    project.runtime_extension = time.RunWithTime(run.RuntimeExtensions(project, self))
+    project.runtime_extension = time.WithTimeout(run.RunCompiler(project, self))
 
-  return self.default_runtime_actions(project)
+    return self.default_runtime_actions(project)
 ```
 
 This takes care of compiling, running and cleanup during experiment execution.

@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import tempfile as tf
-import typing as tp
 
 import faker
 import git
@@ -10,7 +9,7 @@ import plumbum as pb
 import pytest
 from faker.providers import file
 
-RepoT = tp.Tuple[pb.local.path, git.Repo]
+RepoT = tuple[pb.local.path, git.Repo]
 
 
 @pytest.fixture
@@ -20,7 +19,7 @@ def mk_git_repo():
     fake.add_provider(file)
 
     def _git_repository(
-        num_commits: int = 2, git_submodule: tp.Optional[git.Repo] = None
+        num_commits: int = 2, git_submodule: git.Repo | None = None
     ) -> RepoT:
         nonlocal tmp_dir
 

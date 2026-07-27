@@ -1,5 +1,4 @@
 import logging
-import typing as tp
 
 from plumbum import local
 
@@ -23,7 +22,7 @@ CFG["projects"] = {
 }
 
 
-def get_dump_arrays_output(data: tp.List[str]) -> tp.List[str]:
+def get_dump_arrays_output(data: list[str]) -> list[str]:
     start_tag = "==BEGIN"
     end_tag = "==END"
 

@@ -16,7 +16,7 @@ __MSG_SHORTER_PATH_REQUIRED = (
 )
 
 
-def buildah_version() -> tp.Tuple[int, int, int]:
+def buildah_version() -> tuple[int, int, int]:
     """
     Returns the local buildah version.
     """

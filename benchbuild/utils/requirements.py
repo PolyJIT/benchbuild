@@ -36,7 +36,7 @@ class Requirement:
     @classmethod
     @abc.abstractmethod
     def merge_requirements(
-        cls: tp.Type[RequirementSubType],
+        cls: type[RequirementSubType],
         lhs_option: RequirementSubType,
         rhs_option: RequirementSubType,
     ) -> RequirementSubType:
@@ -185,7 +185,7 @@ class SlurmHint(SlurmRequirement):
         def __str__(self) -> str:
             return str(self.value)
 
-    hints: tp.Set[SlurmHints] = attr.ib()
+    hints: set[SlurmHints] = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
         return f"--hint={','.join(map(str, self.hints))}"
@@ -194,7 +194,7 @@ class SlurmHint(SlurmRequirement):
         return f"Hints: {','.join(map(str, self.hints))}"
 
     def __repr__(self) -> str:
-        return f"Hint ({str(self)})"
+        return f"Hint ({self!s})"
 
     @classmethod
     def merge_requirements(
@@ -212,7 +212,7 @@ class SlurmHint(SlurmRequirement):
         return SlurmHint(combined_hints)
 
     @staticmethod
-    def __hints_not_mutually_exclusive(hints: tp.Set[SlurmHints]) -> bool:
+    def __hints_not_mutually_exclusive(hints: set[SlurmHints]) -> bool:
         """
         Checks that a list of `SlurmHints` does not include mutally exclusive
         hints.
@@ -234,7 +234,7 @@ class SlurmHint(SlurmRequirement):
         return True
 
 
-def _convert_to_time_tuple(time_specifier: str) -> tp.Tuple[int, int, int, int]:
+def _convert_to_time_tuple(time_specifier: str) -> tuple[int, int, int, int]:
     """
     Convert slurm time specifier to tuple.
 
@@ -299,7 +299,7 @@ class SlurmTime(SlurmRequirement):
     "days-hours", "days-hours:minutes" and "days-hours:minutes:seconds".
     """
 
-    timelimit: tp.Tuple[int, int, int, int] = attr.ib(converter=_convert_to_time_tuple)
+    timelimit: tuple[int, int, int, int] = attr.ib(converter=_convert_to_time_tuple)
 
     def to_slurm_time_format(self) -> str:
         """
@@ -382,7 +382,7 @@ def _to_bytes(byte_str: str) -> int:
     raise ValueError("Passed byte size was wrongly formatted")
 
 
-def _to_biggests_byte_size(num_bytes: int) -> tp.Tuple[int, str]:
+def _to_biggests_byte_size(num_bytes: int) -> tuple[int, str]:
     """
     >>> _to_biggests_byte_size(4)
     (4, 'B')
@@ -432,12 +432,12 @@ class SlurmMem(SlurmRequirement):
 
 
 def merge_slurm_options(
-    list_1: tp.List[Requirement], list_2: tp.List[Requirement]
-) -> tp.List[Requirement]:
+    list_1: list[Requirement], list_2: list[Requirement]
+) -> list[Requirement]:
     """
     Merged two lists of SlurmOptions into one.
     """
-    merged_options: tp.Dict[tp.Type[Requirement], Requirement] = dict()
+    merged_options: dict[type[Requirement], Requirement] = dict()
 
     for opt in list_1 + list_2:
         key = type(opt)
@@ -450,12 +450,12 @@ def merge_slurm_options(
     return list(merged_options.values())
 
 
-def get_slurm_options_from_config() -> tp.List[Requirement]:
+def get_slurm_options_from_config() -> list[Requirement]:
     """
     Generates a list of `SlurmOptions` which are specified in the BenchBuild
     config.
     """
-    slurm_options: tp.List[Requirement] = []
+    slurm_options: list[Requirement] = []
     if CFG["slurm"]["exclusive"]:
         slurm_options.append(SlurmExclusive())
 

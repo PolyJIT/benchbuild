@@ -10,13 +10,13 @@ from benchbuild.experiment import Experiment
 from benchbuild.project import Project
 from benchbuild.utils import actions, tasks
 
-ExperimentCls = tp.Type[Experiment]
-Experiments = tp.List[ExperimentCls]
-ProjectCls = tp.Type[Project]
-Projects = tp.List[ProjectCls]
-ExperimentProject = tp.Tuple[ExperimentCls, ProjectCls]
+ExperimentCls = type[Experiment]
+Experiments = list[ExperimentCls]
+ProjectCls = type[Project]
+Projects = list[ProjectCls]
+ExperimentProject = tuple[ExperimentCls, ProjectCls]
 Actions = tp.Sequence[actions.Step]
-StepResults = tp.List[actions.StepResult]
+StepResults = list[actions.StepResult]
 
 
 @attr.s
@@ -44,5 +44,5 @@ class Experimentator:
 
     def print_plan(self) -> None:
         p = self.plan()
-        print("Number of actions to execute: {}".format(self.num_actions))
+        print(f"Number of actions to execute: {self.num_actions}")
         print(*p)

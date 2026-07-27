@@ -9,7 +9,7 @@ from benchbuild.environments.service_layer import ensure
 LOG = logging.getLogger(__name__)
 
 Message = tp.Union[model.Command, model.Event]
-Messages = tp.List[Message]
+Messages = list[Message]
 
 # EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
 EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None, None]]
@@ -17,13 +17,13 @@ EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None, None]
 #    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
 CommandHandlerT = tp.Callable[[model.Command], tp.Generator[model.Event, None, None]]
 
-MessageT = tp.Union[tp.Type[model.Command], tp.Type[model.Event]]
+MessageT = tp.Union[type[model.Command], type[model.Event]]
 
 MessageHandler = tp.Callable[[Message], tp.Generator]
-MessageHandlers = tp.Dict[MessageT, MessageHandler]
+MessageHandlers = dict[MessageT, MessageHandler]
 
-EventHandlers = tp.Dict[tp.Type[model.Event], EventHandlerT]
-CommandHandlers = tp.Dict[tp.Type[model.Command], CommandHandlerT]
+EventHandlers = dict[type[model.Event], EventHandlerT]
+CommandHandlers = dict[type[model.Command], CommandHandlerT]
 
 
 def handle(
@@ -57,7 +57,7 @@ def _handle_event(handlers: EventHandlers, event: model.Event, queue: Messages) 
         queue: The message queue to hold  new events/commands that spawn from
                this handler.
     """
-    for handler in tp.cast(tp.List[EventHandlerT], handlers[type(event)]):
+    for handler in tp.cast(list[EventHandlerT], handlers[type(event)]):
         try:
             queue.extend(handler(event))
         except Exception:
@@ -82,10 +82,8 @@ def _handle_command(
         queue.extend(handler(command))
     except ensure.ImageNotFound as ex:
         print(
-            (
-                "Command could not be executed, because I could not find a required"
-                f" image: {ex}"
-            )
+            "Command could not be executed, because I could not find a required"
+            f" image: {ex}"
         )
     except Exception:
         LOG.exception("Exception handling command %s", command)

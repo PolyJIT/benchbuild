@@ -37,7 +37,7 @@ class Extension(metaclass=ABCMeta):
     def __init__(
         self,
         *extensions: "Extension",
-        config: tp.Optional[tp.Dict[str, str]] = None,
+        config: dict[str, str] | None = None,
         **kwargs: tp.Any,
     ):
         """Initialize an extension with an arbitrary number of children."""
@@ -45,7 +45,7 @@ class Extension(metaclass=ABCMeta):
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, *args: tp.Any, **kwargs: tp.Any) -> tp.List[run.RunInfo]:
+    def call_next(self, *args: tp.Any, **kwargs: tp.Any) -> list[run.RunInfo]:
         """Call all child extensions with the given arguments.
 
         This calls all child extensions and collects the results for
@@ -85,7 +85,7 @@ class Extension(metaclass=ABCMeta):
 
     def __call__(
         self, command: BoundCommand, *args: str, **kwargs: tp.Any
-    ) -> tp.List[run.RunInfo]:
+    ) -> list[run.RunInfo]:
         return self.call_next(*args, **kwargs)
 
     def __str__(self) -> str:
@@ -107,5 +107,5 @@ class MissingExtension(Extension):
     existing old experiments.
     """
 
-    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+    def __call__(self, *args, **kwargs) -> list[run.RunInfo]:
         raise ExtensionRequired()

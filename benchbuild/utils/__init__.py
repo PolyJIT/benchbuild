@@ -7,7 +7,6 @@ get deleted afterwards.
 import logging
 import os
 import sys
-import typing as tp
 from types import ModuleType
 
 import plumbum as pb

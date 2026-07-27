@@ -31,13 +31,13 @@ class BenchBuildContainer(cli.Application):
 
 @BenchBuildContainer.subcommand("run")
 class BenchBuildContainerRun(cli.Application):
-    experiment_args: tp.List[str] = []
-    group_args: tp.List[str] = []
+    experiment_args: list[str] = []
+    group_args: list[str] = []
 
     @cli.switch(
         ["-E", "--experiment"], str, list=True, help="Specify experiments to run"
     )
-    def set_experiments(self, names: tp.List[str]) -> None:
+    def set_experiments(self, names: list[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(
@@ -47,7 +47,7 @@ class BenchBuildContainerRun(cli.Application):
         requires=["--experiment"],
         help="Run a group of projects under the given experiments",
     )
-    def set_group(self, groups: tp.List[str]) -> None:
+    def set_group(self, groups: list[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(
@@ -161,13 +161,13 @@ class BenchBuildContainerBase(cli.Application):
     Prepare all base images for the selected projects and experiments.
     """
 
-    experiment_args: tp.List[str] = []
-    group_args: tp.List[str] = []
+    experiment_args: list[str] = []
+    group_args: list[str] = []
 
     @cli.switch(
         ["-E", "--experiment"], str, list=True, help="Specify experiments to run"
     )
-    def set_experiments(self, names: tp.List[str]) -> None:
+    def set_experiments(self, names: list[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(
@@ -177,7 +177,7 @@ class BenchBuildContainerBase(cli.Application):
         requires=["--experiment"],
         help="Run a group of projects under the given experiments",
     )
-    def set_group(self, groups: tp.List[str]) -> None:
+    def set_group(self, groups: list[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(
@@ -246,13 +246,13 @@ class BenchBuildContainerRemoveImages(cli.Application):
     Prepare all base images for the selected projects and experiments.
     """
 
-    experiment_args: tp.List[str] = []
-    group_args: tp.List[str] = []
+    experiment_args: list[str] = []
+    group_args: list[str] = []
 
     @cli.switch(
         ["-E", "--experiment"], str, list=True, help="Specify experiments to run"
     )
-    def set_experiments(self, names: tp.List[str]) -> None:
+    def set_experiments(self, names: list[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(
@@ -262,7 +262,7 @@ class BenchBuildContainerRemoveImages(cli.Application):
         requires=["--experiment"],
         help="Run a group of projects under the given experiments",
     )
-    def set_group(self, groups: tp.List[str]) -> None:
+    def set_group(self, groups: list[str]) -> None:
         self.group_args = groups
 
     delete_project_images = cli.Flag(
@@ -313,7 +313,7 @@ def cli_process(
     cli_experiments: tp.Iterable[str],
     cli_projects: tp.Iterable[str],
     cli_groups: tp.Iterable[str],
-) -> tp.Tuple[ExperimentIndex, ProjectIndex]:
+) -> tuple[ExperimentIndex, ProjectIndex]:
     """
     Shared CLI processing of projects/experiment selection.
     """
@@ -402,7 +402,7 @@ def create_base_images(
                   Tuples.
     """
     publish = bootstrap.bus()
-    image_commands: tp.Set[commands.CreateBenchbuildBase] = set()
+    image_commands: set[commands.CreateBenchbuildBase] = set()
 
     for prj in enumerate_projects(experiments, projects):
         image = prj.container

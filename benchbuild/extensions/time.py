@@ -1,5 +1,4 @@
 import logging
-import typing as tp
 
 import parse
 
@@ -49,9 +48,7 @@ class RunWithTime(base.Extension):
         return "Time execution of wrapped binary"
 
 
-def fetch_time_output(
-    marker: str, format_s: str, ins: tp.List[str]
-) -> tp.List[parse.Match]:
+def fetch_time_output(marker: str, format_s: str, ins: list[str]) -> list[parse.Match]:
     """
     Fetch the output /usr/bin/time from a.
 

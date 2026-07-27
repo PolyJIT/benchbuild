@@ -29,7 +29,7 @@ class BaseVersionFilter(base.FetchableSource):
         return self.child.version(target_dir, version)
 
     @abc.abstractmethod
-    def versions(self) -> tp.List[base.Variant]:
+    def versions(self) -> list[base.Variant]:
         """
         List all available versions of this source.
 
@@ -37,7 +37,7 @@ class BaseVersionFilter(base.FetchableSource):
             List[str]: The list of all available versions.
         """
 
-    def explore(self) -> tp.List[base.Variant]:
+    def explore(self) -> list[base.Variant]:
         """
         Explore all revisions of the child source.
 
@@ -67,7 +67,7 @@ class SingleVersionFilter(BaseVersionFilter):
         super().__init__(child)
         self.filter_version = filter_version
 
-    def versions(self) -> tp.List[base.Variant]:
+    def versions(self) -> list[base.Variant]:
         return [v for v in self.child.versions() if str(v) == self.filter_version]
 
     def versions_with_context(self, ctx: base.Revision) -> tp.Sequence[base.Variant]:
@@ -77,5 +77,5 @@ class SingleVersionFilter(BaseVersionFilter):
             if str(v) == self.filter_version
         ]
 
-    def explore(self) -> tp.List[base.Variant]:
+    def explore(self) -> list[base.Variant]:
         return list(self.child.explore())

@@ -33,10 +33,8 @@ def print_layer_creation_failed(
     _: unit_of_work.ImageUnitOfWork, event: events.LayerCreationFailed
 ) -> None:
     print(
-        (
-            f"[bold]{event.name}[/bold]\n"
-            f"[red]Failed to create layer while building {event.image_tag}.[/red]\n"
-        )
+        f"[bold]{event.name}[/bold]\n"
+        f"[red]Failed to create layer while building {event.image_tag}.[/red]\n"
     )
     print(f"[red]{event.message}[/red]")
 

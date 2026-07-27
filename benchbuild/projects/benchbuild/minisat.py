@@ -42,9 +42,7 @@ class Minisat(bb.Project):
 
         minisat = bb.wrap(minisat_bin / "minisat", self)
         for test_f in testfiles:
-            _minisat = bb.watch(
-                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib) < test_f)
-            )
+            _minisat = bb.watch(minisat.with_env(LD_LIBRARY_PATH=minisat_lib) < test_f)
             _minisat()
 
     def compile(self):

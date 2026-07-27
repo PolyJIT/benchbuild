@@ -65,7 +65,7 @@ def available_cpu_count() -> int:
             res = bin(int(match.group(1).replace(",", ""), 16)).count("1")
             if res > 0:
                 return res
-    except IOError:
+    except OSError:
         LOG.debug("Could not get the number of allowed CPUs")
 
     # http://code.google.com/p/psutil/
@@ -91,7 +91,7 @@ def available_cpu_count() -> int:
 
         if res > 0:
             return res
-    except IOError:
+    except OSError:
         LOG.debug("Could not get the number of allowed CPUs")
 
     raise Exception("Can not determine number of CPUs on this system")
@@ -150,7 +150,7 @@ class ConfigDumper(yaml.SafeDumper):
     """Avoid polluting yaml's namespace with our modifications."""
 
 
-def to_yaml(value: tp.Any) -> tp.Optional[str]:
+def to_yaml(value: tp.Any) -> str | None:
     """Convert a given value to a YAML string."""
     stream = yaml.io.StringIO()
     dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
@@ -183,7 +183,7 @@ def to_env_var(env_var: str, value: tp.Any) -> str:
     return ret_val
 
 
-InnerNode = tp.Dict[str, tp.Any]
+InnerNode = dict[str, tp.Any]
 
 # This schema allows a configuration to be initialized/set from a standard
 # dictionary. If you want to nest a new configuration node deeper than 1 level,
@@ -234,7 +234,7 @@ class Configuration(Indexable):
     def __init__(
         self,
         parent_key: str,
-        node: tp.Optional[InnerNode] = None,
+        node: InnerNode | None = None,
         parent: tp.Optional["Configuration"] = None,
         init: bool = True,
     ):
@@ -279,7 +279,7 @@ class Configuration(Indexable):
     def load(self, _from: LocalPath) -> None:
         """Load the configuration dictionary from file."""
 
-        def load_rec(inode: tp.Dict[str, tp.Any], config: Configuration) -> None:
+        def load_rec(inode: dict[str, tp.Any], config: Configuration) -> None:
             """Recursive part of loading."""
             for k in config:
                 if isinstance(config[k], dict) and k not in ["value", "default"]:
@@ -349,7 +349,7 @@ class Configuration(Indexable):
     def __getitem__(self, key: str) -> "Configuration":
         if key not in self.node:
             warnings.warn(
-                "Access to non-existing config element: {0}".format(key),
+                f"Access to non-existing config element: {key}",
                 category=InvalidConfigKey,
                 stacklevel=2,
             )
@@ -425,14 +425,14 @@ class Configuration(Indexable):
         if self.has_default():
             return {self.__to_env_var__(): self.node["default"]}
 
-        entries: tp.Dict[str, str] = {}
+        entries: dict[str, str] = {}
         for k in self.node:
             entries.update(self[k].to_env_dict())
 
         return entries
 
 
-def convert_components(value: tp.Union[str, tp.List[str]]) -> tp.List[str]:
+def convert_components(value: str | list[str]) -> list[str]:
     is_str = isinstance(value, six.string_types)
     new_value = value
     if is_str:
@@ -470,7 +470,7 @@ class ConfigPath:
             LOG.error("The path '%s' needs to exist.", path)
 
     @staticmethod
-    def path_to_str(components: tp.List[str]) -> str:
+    def path_to_str(components: list[str]) -> str:
         if components:
             return os.path.sep + os.path.sep.join(components)
         return os.path.sep
@@ -495,10 +495,10 @@ def path_constructor(loader, node):
 
 
 def find_config(
-    test_file: tp.Optional[str] = None,
-    defaults: tp.Optional[tp.List[str]] = None,
+    test_file: str | None = None,
+    defaults: list[str] | None = None,
     root: str = os.curdir,
-) -> tp.Optional[LocalPath]:
+) -> LocalPath | None:
     """
     Find the path to the default config file.
 
@@ -539,8 +539,8 @@ def find_config(
 
 def setup_config(
     cfg: Configuration,
-    config_filenames: tp.Optional[tp.List[str]] = None,
-    env_var_name: tp.Optional[str] = None,
+    config_filenames: list[str] | None = None,
+    env_var_name: str | None = None,
 ) -> None:
     """
     This will initialize the given configuration object.
@@ -572,7 +572,7 @@ def setup_config(
 
 
 def update_env(cfg: Configuration) -> None:
-    env: tp.Dict[str, str] = dict(cfg["env"].value)
+    env: dict[str, str] = dict(cfg["env"].value)
 
     path = env.get("PATH", "")
     path = os.path.pathsep.join(path)

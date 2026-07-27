@@ -2,7 +2,7 @@
 Describe usage of our default container/image domain.
 """
 
-from typing import Hashable
+from collections.abc import Hashable
 
 from benchbuild.environments.domain import model
 

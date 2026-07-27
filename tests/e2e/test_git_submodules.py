@@ -1,5 +1,3 @@
-import typing as tp
-
 import pytest
 
 import benchbuild as bb
@@ -15,7 +13,7 @@ log.set_defaults()
 
 
 class NoopExtension(Extension):
-    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+    def __call__(self, *args, **kwargs) -> list[run.RunInfo]:
         return [run.RunInfo()]
 
 

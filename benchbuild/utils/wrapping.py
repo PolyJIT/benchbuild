@@ -171,7 +171,7 @@ def wrap_dynamic(
     name: str,
     sprefix: Path = Path("."),
     python: str = sys.executable,
-    name_filters: tp.Optional[tp.List[str]] = None,
+    name_filters: list[str] | None = None,
     bin_ext: str = ".bin",
 ) -> BoundCommand:
     """
@@ -335,7 +335,7 @@ def persist(id_obj, filename=None, suffix=None):
     return Path(filename).absolute()
 
 
-def load(filename: str) -> tp.Optional[tp.Any]:
+def load(filename: str) -> tp.Any | None:
     """Load a pickled obj from the filesystem.
 
     You better know what you expect from the given pickle, because we don't

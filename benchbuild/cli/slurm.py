@@ -25,7 +25,7 @@ from benchbuild.utils import slurm
 class Slurm(cli.Application):
     """Generate a SLURM script."""
 
-    group_args: tp.List[str] = []
+    group_args: list[str] = []
 
     def __init__(self, executable):
         super().__init__(executable)
@@ -53,7 +53,7 @@ class Slurm(cli.Application):
         requires=["--experiment"],
         help="Run a group of projects under the given experiments",
     )
-    def group(self, groups: tp.List[str]) -> None:  # type: ignore
+    def group(self, groups: list[str]) -> None:  # type: ignore
         """Run a group of projects under the given experiments"""
         self.group_args = groups
 
@@ -61,7 +61,7 @@ class Slurm(cli.Application):
         """Main entry point of benchbuild run."""
         plugins.discover()
 
-        cli_experiments: tp.List[str] = [self._experiment]
+        cli_experiments: list[str] = [self._experiment]
         cli_groups = self.group_args
         cli_projects, cli_subcommand = split_args(args)
 
@@ -97,14 +97,14 @@ class Slurm(cli.Application):
         return 0
 
 
-def split_args(args: tp.Iterable[str]) -> tp.Tuple[tp.Iterable[str], tp.Iterable[str]]:
+def split_args(args: tp.Iterable[str]) -> tuple[tp.Iterable[str], tp.Iterable[str]]:
     """
     Split our CLI arguments at the '--' into two groups.
 
     The first group will be our projects. The second (optional) group
     will be a custom slurm command to use as subcommand to benchbuild.
     """
-    subcommands: tp.Set[str] = {"run", "container"}
+    subcommands: set[str] = {"run", "container"}
     prj_or_slurm = list(args)
     cli_projects = list(
         itertools.takewhile(lambda x: x not in subcommands, prj_or_slurm)
@@ -122,7 +122,7 @@ def cli_process(
     cli_experiments: tp.Iterable[str],
     cli_projects: tp.Iterable[str],
     cli_groups: tp.Iterable[str],
-) -> tp.Tuple[ExperimentIndex, ProjectIndex]:
+) -> tuple[ExperimentIndex, ProjectIndex]:
     """
     Shared CLI processing of projects/experiment selection.
     """

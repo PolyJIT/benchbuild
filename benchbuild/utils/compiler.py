@@ -20,7 +20,6 @@ configured llvm/clang source directories.
 """
 
 import os
-import typing as tp
 from typing import TYPE_CHECKING
 
 from plumbum import local
@@ -55,7 +54,7 @@ def cc(project: "Project", detect_project: bool = False) -> BoundCommand:
     """
     cc_name = str(CFG["compiler"]["c"])
     wrap_cc(cc_name, compiler(cc_name), project, detect_project=detect_project)
-    return cmd["./{}".format(cc_name)]
+    return cmd[f"./{cc_name}"]
 
 
 def cxx(project: "Project", detect_project: bool = False) -> BoundCommand:
@@ -79,10 +78,10 @@ def cxx(project: "Project", detect_project: bool = False) -> BoundCommand:
 
     cxx_name = str(CFG["compiler"]["cxx"])
     wrap_cc(cxx_name, compiler(cxx_name), project, detect_project=detect_project)
-    return cmd["./{name}".format(name=cxx_name)]
+    return cmd[f"./{cxx_name}"]
 
 
-def __get_paths() -> tp.Dict[str, str]:
+def __get_paths() -> dict[str, str]:
     path = os.getenv("PATH", "")
     lib_path = os.getenv("LD_LIBRARY_PATH", "")
     env = CFG["env"].value

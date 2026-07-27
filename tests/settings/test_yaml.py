@@ -17,20 +17,16 @@ from benchbuild.utils.settings import (
 class FakeLoader(yaml.SafeLoader):
     """FaketLoader for unit-testing."""
 
-    pass
-
 
 class FakeDumper(yaml.SafeDumper):
     """FakeDumper for unit-testing."""
-
-    pass
 
 
 TEST_UUID = "cc3702ca-699a-4aa6-8226-4c938f294d9b"
 EXPECTED_UUID_OBJ = {"test": uuid.UUID(TEST_UUID)}
 EXPECTED_UUID_SCALAR = "test: !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'\n"
-UUID_SCALAR = "{{'test': !uuid '{uuid}'}}".format(uuid=TEST_UUID)
-UUID_OUT = "{{test: {uuid}}}".format(uuid=TEST_UUID)
+UUID_SCALAR = f"{{'test': !uuid '{TEST_UUID}'}}"
+UUID_OUT = f"{{test: {TEST_UUID}}}"
 
 
 class TestUUID(unittest.TestCase):

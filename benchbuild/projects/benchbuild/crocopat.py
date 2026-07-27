@@ -34,7 +34,7 @@ class Crocopat(bb.Project):
         projects = test_dir / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
-                _crocopat_project = bb.watch((cat[_project] | crocopat[program]))
+                _crocopat_project = bb.watch(cat[_project] | crocopat[program])
                 _crocopat_project(retcode=None)
 
     def compile(self):

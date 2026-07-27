@@ -58,13 +58,13 @@ class DummyPrjNoContainerImage(Project):
 @pytest.fixture(params=[["1"], ["1", "2"]], ids=["single", "multi"])
 def mksource(request) -> tp.Callable[[str], FetchableSource]:
     class VersionSource(FetchableSource):
-        test_versions: tp.List[str]
+        test_versions: list[str]
 
         def __init__(
             self,
             local: str,
-            remote: tp.Union[str, tp.Dict[str, str]],
-            test_versions: tp.List[str],
+            remote: str | dict[str, str],
+            test_versions: list[str],
         ):
             super().__init__(local, remote)
 

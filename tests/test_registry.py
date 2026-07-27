@@ -1,6 +1,5 @@
 # pylint: disable=redefined-outer-name
 import copy
-import typing as tp
 
 import pytest
 
@@ -10,7 +9,7 @@ from benchbuild.project import ProjectRegistry
 from benchbuild.utils import actions
 
 
-def empty_afp(exp: Experiment, prj: Project) -> tp.List[actions.Step]:
+def empty_afp(exp: Experiment, prj: Project) -> list[actions.Step]:
     del exp, prj
     return []
 
@@ -39,10 +38,10 @@ def project_registry():
 
 def make_experiment(
     cls_name: str,
-    name: tp.Optional[str] = None,
-    bases: tp.Tuple[type, ...] = (Experiment,),
+    name: str | None = None,
+    bases: tuple[type, ...] = (Experiment,),
     always_set: bool = True,
-) -> tp.Type[Experiment]:
+) -> type[Experiment]:
     """
     Dynamically create a subclass of Experiment to test registration.
     """
@@ -60,10 +59,10 @@ def make_experiment(
 
 def make_project(
     cls_name: str,
-    bases: tp.Tuple[type, ...] = (Project,),
+    bases: tuple[type, ...] = (Project,),
     always_set: bool = True,
     **attrs: str,
-) -> tp.Type[Project]:
+) -> type[Project]:
     """
     Dynamically create a subclass of Project to test registration
     """

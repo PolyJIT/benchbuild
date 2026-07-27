@@ -11,7 +11,7 @@ class Message:
     pass
 
 
-MessageT = tp.Type[Message]
+MessageT = type[Message]
 
 
 @attr.s(frozen=True)
@@ -58,7 +58,7 @@ class FromLayer(Layer):
 
 @attr.s(frozen=True)
 class AddLayer(Layer):
-    sources: tp.Tuple[str, ...] = attr.ib()
+    sources: tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -68,7 +68,7 @@ class AddLayer(Layer):
 
 @attr.s(frozen=True)
 class CopyLayer(Layer):
-    sources: tp.Tuple[str, ...] = attr.ib()
+    sources: tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -76,7 +76,7 @@ class CopyLayer(Layer):
         return f"COPY {sources} {self.destination}"
 
 
-def immutable_kwargs(kwargs: tp.Dict[str, str]) -> tp.Tuple[tp.Tuple[str, str], ...]:
+def immutable_kwargs(kwargs: dict[str, str]) -> tuple[tuple[str, str], ...]:
     """
     Convert str-typed kwargs into a hashable tuple.
     """
@@ -86,8 +86,8 @@ def immutable_kwargs(kwargs: tp.Dict[str, str]) -> tp.Tuple[tp.Tuple[str, str], 
 @attr.s(frozen=True)
 class RunLayer(Layer):
     command: str = attr.ib()
-    args: tp.Tuple[str, ...] = attr.ib()
-    kwargs: tp.Tuple[tp.Tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
+    args: tuple[str, ...] = attr.ib()
+    kwargs: tuple[tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         args = " ".join(self.args)
@@ -104,7 +104,7 @@ class ContextLayer(Layer):
 
 @attr.s(frozen=True)
 class UpdateEnv(Layer):
-    env: tp.Tuple[tp.Tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
+    env: tuple[tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         return f"ENV {len(self.env)} entries"
@@ -120,7 +120,7 @@ class WorkingDirectory(Layer):
 
 @attr.s(frozen=True)
 class EntryPoint(Layer):
-    command: tp.Tuple[str, ...] = attr.ib()
+    command: tuple[str, ...] = attr.ib()
 
     def __str__(self) -> str:
         command = " ".join(self.command)
@@ -129,7 +129,7 @@ class EntryPoint(Layer):
 
 @attr.s(frozen=True)
 class SetCommand(Layer):
-    command: tp.Tuple[str, ...] = attr.ib()
+    command: tuple[str, ...] = attr.ib()
 
     def __str__(self) -> str:
         command = " ".join(self.command)
@@ -149,11 +149,11 @@ class Mount:
 class Image:
     name: str = attr.ib()
     from_: FromLayer = attr.ib()
-    layers: tp.List[Layer] = attr.ib()
-    events: tp.List[Message] = attr.ib(attr.Factory(list))
-    env: tp.Dict[str, str] = attr.ib(attr.Factory(dict))
-    mounts: tp.List[Mount] = attr.ib(attr.Factory(list))
-    layer_index: tp.Dict[Layer, LayerState] = attr.ib(attr.Factory(dict))
+    layers: list[Layer] = attr.ib()
+    events: list[Message] = attr.ib(attr.Factory(list))
+    env: dict[str, str] = attr.ib(attr.Factory(dict))
+    mounts: list[Mount] = attr.ib(attr.Factory(list))
+    layer_index: dict[Layer, LayerState] = attr.ib(attr.Factory(dict))
 
     def update_env(self, **kwargs: str) -> None:
         self.env.update(kwargs)
@@ -192,7 +192,7 @@ class Container:
     context: str = attr.ib()
     name: str = attr.ib()
 
-    events: tp.List[Message] = attr.ib(attr.Factory(list))
+    events: list[Message] = attr.ib(attr.Factory(list))
 
 
 MaybeContainer = tp.Optional[Container]

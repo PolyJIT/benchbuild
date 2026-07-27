@@ -17,7 +17,7 @@ class Node:
         val = self.tok[2]
         if not isinstance(self.tok[2], str):
             val = self.tok[2].indent(1)
-        return t.indent('"{:s}": "{:s}"'.format(self.tok[0], val), level * idt)
+        return t.indent(f'"{self.tok[0]:s}": "{val:s}"', level * idt)
 
 
 @attr.s
@@ -26,7 +26,7 @@ class CoincidenceNode(Node):
         ret = [str(child) for child in self.tok[3]]
         ret = ",".join(ret)
 
-        return t.indent('"{:s}": [{:s}]'.format(self.tok[0], ret), level * idt)
+        return t.indent(f'"{self.tok[0]:s}": [{ret:s}]', level * idt)
 
 
 @attr.s
@@ -36,7 +36,7 @@ class RootNode(Node):
         ret = [child.indent(level + 2) for child in self.tok[1]]
         ret = ",\n".join(ret)
 
-        return t.indent("{{\n{:s}\n}}".format(ret), level * idt)
+        return t.indent(f"{{\n{ret:s}\n}}", level * idt)
 
     def __str__(self):
         return self.indent(0)
@@ -52,7 +52,7 @@ class ChildNode(Node):
 @attr.s
 class SequenceNode(Node):
     def indent(self, level=0, idt=" "):
-        ret = '"{:s}": [\n'.format(self.tok[0])
+        ret = f'"{self.tok[0]:s}": [\n'
         for child in self.tok[3]:
             ret += child.indent(0) + ",\n"
         ret += "\n]"

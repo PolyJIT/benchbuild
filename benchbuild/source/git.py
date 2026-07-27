@@ -16,10 +16,10 @@ from . import base
 
 LOG = logging.getLogger(__name__)
 
-VarRemotes = tp.Union[str, tp.Dict[str, str]]
-Remotes = tp.Dict[str, str]
+VarRemotes = tp.Union[str, dict[str, str]]
+Remotes = dict[str, str]
 
-_fetched_cache: tp.Set["Git"] = set()
+_fetched_cache: set["Git"] = set()
 
 
 class Git(base.FetchableSource):
@@ -32,10 +32,10 @@ class Git(base.FetchableSource):
         remote: str,
         local: str,
         clone: bool = True,
-        limit: tp.Optional[int] = 10,
+        limit: int | None = 10,
         refspec: str = "HEAD",
         shallow: bool = True,
-        submodule_set_urls: tp.Optional[tp.Dict[str, str]] = None,
+        submodule_set_urls: dict[str, str] | None = None,
         version_filter: tp.Callable[[str], bool] = lambda version: True,
     ):
         super().__init__(local, remote)
@@ -151,11 +151,11 @@ class Git(base.FetchableSource):
         ln("-nsf", tgt_subdir, active_loc)
         return tgt_loc
 
-    def versions(self) -> tp.List[base.Variant]:
+    def versions(self) -> list[base.Variant]:
         cache_path = self.fetch()
         git_rev_list = git["rev-list", "--abbrev-commit", "--abbrev=10"]
 
-        rev_list: tp.List[str] = []
+        rev_list: list[str] = []
         with pb.local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split("\n"))
 

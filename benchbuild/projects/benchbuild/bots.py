@@ -102,7 +102,7 @@ class BOTSGroup(bb.Project):
                 "OMPLINK_FLAGS=",
                 "OMPSSLINK_FLAGS=",
             ]
-            lines = [l.format(cc=clang) + "\n" for l in lines]
+            lines = [line.format(cc=clang) + "\n" for line in lines]
             config.writelines(lines)
         mkdir(bots_repo / "bin")
         with local.cwd(bots_repo):
@@ -110,7 +110,7 @@ class BOTSGroup(bb.Project):
             _make("-C", self.path_dict[self.name])
 
     def run_tests(self):
-        binary_name = "{name}.benchbuild.serial".format(name=self.name)
+        binary_name = f"{self.name}.benchbuild.serial"
         bots_repo = local.path(self.source_of("bots.git"))
         binary_path = bots_repo / "bin" / binary_name
         exp = bb.wrap(binary_path, self)

@@ -53,7 +53,7 @@ class Lapack(bb.Project):
         clapack_version = self.version_of("clapack.tgz")
 
         tar("xfz", clapack_source)
-        unpack_dir = "CLAPACK-{0}".format(clapack_version)
+        unpack_dir = f"CLAPACK-{clapack_version}"
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -93,36 +93,36 @@ class Lapack(bb.Project):
 
     def run_tests(self):
         clapack_version = self.version_of("clapack.tgz")
-        unpack_dir = local.path("CLAPACK-{0}".format(clapack_version))
+        unpack_dir = local.path(f"CLAPACK-{clapack_version}")
         with local.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)
-            _xblat2s = bb.watch((xblat2s < "sblat2.in"))
+            _xblat2s = bb.watch(xblat2s < "sblat2.in")
             _xblat2s()
 
             xblat2d = bb.wrap("xblat2d", self)
-            _xblat2d = bb.watch((xblat2d < "dblat2.in"))
+            _xblat2d = bb.watch(xblat2d < "dblat2.in")
             _xblat2d()
 
             xblat2c = bb.wrap("xblat2c", self)
-            _xblat2c = bb.watch((xblat2c < "cblat2.in"))
+            _xblat2c = bb.watch(xblat2c < "cblat2.in")
             _xblat2c()
 
             xblat2z = bb.wrap("xblat2z", self)
-            _xblat2z = bb.watch((xblat2z < "zblat2.in"))
+            _xblat2z = bb.watch(xblat2z < "zblat2.in")
             _xblat2z()
 
             xblat3s = bb.wrap("xblat3s", self)
-            _xblat3s = bb.watch((xblat3s < "sblat3.in"))
+            _xblat3s = bb.watch(xblat3s < "sblat3.in")
             _xblat3s()
 
             xblat3d = bb.wrap("xblat3d", self)
-            _xblat3d = bb.watch((xblat3d < "dblat3.in"))
+            _xblat3d = bb.watch(xblat3d < "dblat3.in")
             _xblat3d()
 
             xblat3c = bb.wrap("xblat3c", self)
-            _xblat3c = bb.watch((xblat3c < "cblat3.in"))
+            _xblat3c = bb.watch(xblat3c < "cblat3.in")
             _xblat3c()
 
             xblat3z = bb.wrap("xblat3z", self)
-            _xblat3z = bb.watch((xblat3z < "zblat3.in"))
+            _xblat3z = bb.watch(xblat3z < "zblat3.in")
             _xblat3z()

@@ -71,7 +71,7 @@ def remove_container(container_id: str) -> Result[str, ProcessExecutionError]:
 
 
 class ContainerRegistry(abc.ABC):
-    containers: tp.Dict[str, model.Container]
+    containers: dict[str, model.Container]
     ro_images: buildah.BuildahImageRegistry
 
     def __init__(self) -> None:
@@ -91,7 +91,7 @@ class ContainerRegistry(abc.ABC):
     def find_image(self, tag: str) -> model.MaybeImage:
         return self.ro_images.find(tag)
 
-    def env(self, tag: str, env_name: str) -> tp.Optional[str]:
+    def env(self, tag: str, env_name: str) -> str | None:
         return self.ro_images.env(tag, env_name)
 
     def mount(self, tag: str, src: str, tgt: str) -> None:

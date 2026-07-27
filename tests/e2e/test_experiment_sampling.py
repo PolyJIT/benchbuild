@@ -1,6 +1,6 @@
 import typing as tp
+from unittest import mock
 
-import mock
 import plumbum as pb
 import pytest
 
@@ -21,7 +21,7 @@ EXPECTED_COMMITS = 5
 
 
 class NoopExtension(Extension):
-    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+    def __call__(self, *args, **kwargs) -> list[run.RunInfo]:
         return [run.RunInfo()]
 
 

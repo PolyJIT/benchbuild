@@ -12,18 +12,40 @@ import os
 from benchbuild.settings import CFG
 
 from . import (
-    autoportage,
-    bzip2,
-    crafty,
-    eix,
-    gentoo,
-    gzip,
-    info,
-    lammps,
-    postgresql,
-    sevenz,
-    x264,
-    xz,
+    autoportage as autoportage,
+)
+from . import (
+    bzip2 as bzip2,
+)
+from . import (
+    crafty as crafty,
+)
+from . import (
+    eix as eix,
+)
+from . import (
+    gentoo as gentoo,
+)
+from . import (
+    gzip as gzip,
+)
+from . import (
+    info as info,
+)
+from . import (
+    lammps as lammps,
+)
+from . import (
+    postgresql as postgresql,
+)
+from . import (
+    sevenz as sevenz,
+)
+from . import (
+    x264 as x264,
+)
+from . import (
+    xz as xz,
 )
 
 LOG = logging.getLogger(__name__)
@@ -40,9 +62,7 @@ def __initialize_dynamic_projects__(autotest_path):
                 ebuild_data = ebuild_data.split("/")
                 domain = ebuild_data[0]
                 name = ebuild_data[1]
-                PortageFactory(
-                    "Auto{0}{1}".format(domain, name), domain + "_" + name, domain
-                )
+                PortageFactory(f"Auto{domain}{name}", domain + "_" + name, domain)
 
 
 __initialize_dynamic_projects__(str(CFG["gentoo"]["autotest_loc"]))

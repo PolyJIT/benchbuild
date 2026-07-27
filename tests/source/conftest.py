@@ -7,13 +7,13 @@ from benchbuild.source import FetchableSource, Revision, Variant
 
 
 class VersionSource(FetchableSource):
-    known_versions: tp.List[str]
+    known_versions: list[str]
 
     def __init__(
         self,
         local: str,
-        remote: tp.Union[str, tp.Dict[str, str]],
-        known_versions: tp.List[str],
+        remote: str | dict[str, str],
+        known_versions: list[str],
     ):
         super().__init__(local, remote)
 
@@ -29,7 +29,7 @@ class VersionSource(FetchableSource):
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return "."
 
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> list[Variant]:
         return [Variant(self, str(v)) for v in self.known_versions]
 
 
@@ -41,7 +41,7 @@ def make_source():
     The generator allows to set the returned versions.
     """
 
-    def _make_version_source(versions: tp.List[int]):
+    def _make_version_source(versions: list[int]):
         str_versions = [str(v) for v in versions]
         return VersionSource("ls", "rs", str_versions)
 
@@ -56,7 +56,7 @@ class CAWSource(FetchableSource):
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         raise NotImplementedError()
 
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> list[Variant]:
         raise NotImplementedError()
 
     def fetch(self) -> pb.LocalPath:

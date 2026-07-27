@@ -42,7 +42,7 @@ def _spawn_run_layer(
     kws = []
     for name, value in layer.kwargs:
         kws.append(f"--{name}")
-        kws.append(f"{str(value)}")
+        kws.append(f"{value!s}")
 
     buildah_run = bb_buildah("run", "--add-history")
     buildah_run = buildah_run[kws][container.container_id, "--", layer.command][
@@ -245,8 +245,8 @@ def find_entrypoint(tag: str) -> str:
 
 
 class ImageRegistry(abc.ABC):
-    images: tp.Dict[str, model.Image]
-    containers: tp.Dict[str, model.Container]
+    images: dict[str, model.Image]
+    containers: dict[str, model.Container]
 
     def __init__(self) -> None:
         self.images = dict()
@@ -378,11 +378,11 @@ class ImageRegistry(abc.ABC):
         """
         raise NotImplementedError
 
-    def env(self, tag: str, name: str) -> tp.Optional[str]:
+    def env(self, tag: str, name: str) -> str | None:
         return self._env(tag, name)
 
     @abc.abstractmethod
-    def _env(self, tag: str, name: str) -> tp.Optional[str]:
+    def _env(self, tag: str, name: str) -> str | None:
         raise NotImplementedError
 
     def temporary_mount(self, tag: str, source: str, target: str) -> None:
@@ -408,7 +408,9 @@ class BuildahImageRegistry(ImageRegistry):
             return container
 
     def _add(self, image: model.Image) -> bool:
-        required_layers = [l for l in image.layers if not image.is_present(l)]
+        required_layers = [
+            layer for layer in image.layers if not image.is_present(layer)
+        ]
         required_layers.reverse()
         if image.name not in self.containers and required_layers:
             # Recreate build container from image tag
@@ -448,7 +450,7 @@ class BuildahImageRegistry(ImageRegistry):
 
         return None
 
-    def _env(self, tag: str, name: str) -> tp.Optional[str]:
+    def _env(self, tag: str, name: str) -> str | None:
         if image := self.find(tag):
             return image.env.get(name)
         return None

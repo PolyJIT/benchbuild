@@ -33,7 +33,7 @@ class Lammps(bb.Project):
         for test in tests:
             dirname = test.dirname
             with local.cwd(dirname):
-                _lmp_serial = bb.watch((lmp_serial < test))
+                _lmp_serial = bb.watch(lmp_serial < test)
                 _lmp_serial(retcode=None)
 
     def compile(self):

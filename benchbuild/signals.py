@@ -8,7 +8,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CleanupOnSignal:
-    __stored_procedures: tp.Dict[tp.Callable, tp.Callable] = {}
+    __stored_procedures: dict[tp.Callable, tp.Callable] = {}
 
     @property
     def stored_procedures(self):

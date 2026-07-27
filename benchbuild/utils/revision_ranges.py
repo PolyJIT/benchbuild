@@ -33,7 +33,7 @@ def _get_git_for_path(repo_path: str) -> LocalCommand:
 
 def _get_all_revisions_between(
     c_start: str, c_end: str, git: LocalCommand
-) -> tp.List[str]:
+) -> list[str]:
     """
     Returns a list of all revisions that are both descendants of c_start, and
     ancestors of c_end.
@@ -53,11 +53,11 @@ class AbstractRevisionRange(abc.ABC):
     history of a git repository.
     """
 
-    def __init__(self, comment: tp.Optional[str] = None):
+    def __init__(self, comment: str | None = None):
         self.__comment = comment
 
     @property
-    def comment(self) -> tp.Optional[str]:
+    def comment(self) -> str | None:
         """
         A comment associated with this revision range.
         """
@@ -93,7 +93,7 @@ class SingleRevision(AbstractRevisionRange):
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
 
-    def __init__(self, rev_id: str, comment: tp.Optional[str] = None):
+    def __init__(self, rev_id: str, comment: str | None = None):
         super().__init__(comment)
         self.__id = rev_id
 
@@ -122,12 +122,12 @@ class RevisionRange(AbstractRevisionRange):
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
 
-    def __init__(self, id_start: str, id_end: str, comment: tp.Optional[str] = None):
+    def __init__(self, id_start: str, id_end: str, comment: str | None = None):
         super().__init__(comment)
         self.__id_start = id_start
         self.__id_end = id_end
         # cache for commit hashes
-        self.__revision_list: tp.Optional[tp.List[str]] = None
+        self.__revision_list: list[str] | None = None
 
     @property
     def id_start(self) -> str:
@@ -161,9 +161,9 @@ class CommitState(IntFlag):
 
 def _find_blocked_commits(
     commit: "pygit2.Commit",
-    good: tp.List["pygit2.Commit"],
-    bad: tp.List["pygit2.Commit"],
-) -> tp.List["pygit2.Commit"]:
+    good: list["pygit2.Commit"],
+    bad: list["pygit2.Commit"],
+) -> list["pygit2.Commit"]:
     """
     Find all commits affected by a bad commit and not yet "fixed" by a
     good commit. This is done by performing a backwards search starting
@@ -178,8 +178,8 @@ def _find_blocked_commits(
         All transitive parents of commit that have an ancestor from bad
         that is not fixed by some commit from good.
     """
-    stack: tp.List["pygit2.Commit"] = [commit]
-    blocked: tp.Dict["pygit2.Commit", CommitState] = {}
+    stack: list[pygit2.Commit] = [commit]
+    blocked: dict[pygit2.Commit, CommitState] = {}
 
     while stack:
         current_commit = stack.pop()
@@ -190,17 +190,17 @@ def _find_blocked_commits(
             blocked[current_commit] = CommitState.BAD
 
         # must be deeper in the stack than its parents
-        if current_commit not in blocked.keys():
+        if current_commit not in blocked:
             stack.append(current_commit)
 
         for parent in current_commit.parents:
-            if parent not in blocked.keys():
+            if parent not in blocked:
                 stack.append(parent)
 
         # if all parents are already handled, determine whether
         # the current commit is blocked or not.
-        if current_commit not in blocked.keys() and all(
-            parent in blocked.keys() for parent in current_commit.parents
+        if current_commit not in blocked and all(
+            parent in blocked for parent in current_commit.parents
         ):
             blocked[current_commit] = CommitState.BOT
             for parent in current_commit.parents:
@@ -232,15 +232,15 @@ class GoodBadSubgraph(AbstractRevisionRange):
 
     def __init__(
         self,
-        bad_commits: tp.List[str],
-        good_commits: tp.List[str],
-        comment: tp.Optional[str] = None,
+        bad_commits: list[str],
+        good_commits: list[str],
+        comment: str | None = None,
     ):
         super().__init__(comment)
         self.__bad_commit_ids = bad_commits
         self.__good_commit_ids = good_commits
         # cache for commit hashes
-        self.__revision_list: tp.Optional[tp.List[str]] = None
+        self.__revision_list: list[str] | None = None
 
     def init_cache(self, repo_path: str) -> None:
         import pygit2  # pylint: disable=import-outside-toplevel
@@ -265,11 +265,11 @@ class GoodBadSubgraph(AbstractRevisionRange):
             )
 
     @property
-    def good_commits(self) -> tp.List[str]:
+    def good_commits(self) -> list[str]:
         return self.__good_commit_ids
 
     @property
-    def bad_commits(self) -> tp.List[str]:
+    def bad_commits(self) -> list[str]:
         return self.__bad_commit_ids
 
     def __iter__(self) -> tp.Iterator[str]:
@@ -295,11 +295,11 @@ class block_revisions:  # pylint: disable=invalid-name
         blocks: A list of :class:`AbstractRevisionRange` s.
     """
 
-    def __init__(self, blocks: tp.List[AbstractRevisionRange]) -> None:
+    def __init__(self, blocks: list[AbstractRevisionRange]) -> None:
         self.__blocks = blocks
 
     def __call__(self, git_source: Git) -> Git:
-        def is_blocked_revision_impl(rev_id: str) -> tp.Tuple[bool, tp.Optional[str]]:
+        def is_blocked_revision_impl(rev_id: str) -> tuple[bool, str | None]:
             """
             Checks whether a revision is blocked or not. Also returns the
             reason for the block if available.

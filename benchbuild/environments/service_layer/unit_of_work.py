@@ -29,7 +29,7 @@ class UnitOfWork(abc.ABC):
 
 class ImageUnitOfWork(UnitOfWork):
     registry: buildah.ImageRegistry
-    events: tp.List[model.Message] = []
+    events: list[model.Message] = []
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
@@ -44,7 +44,7 @@ class ImageUnitOfWork(UnitOfWork):
     def __enter__(self) -> "ImageUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def create(self, tag: str, from_: str) -> model.MaybeContainer:
@@ -138,7 +138,7 @@ class ContainerUnitOfWork(UnitOfWork):
     def __enter__(self) -> "ContainerUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
@@ -191,13 +191,13 @@ class AbstractUnitOfWork(abc.ABC):
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def add_layer(self, container: model.Container, layer: model.Layer) -> None:
         self._add_layer(container, layer)
 
-    def create_image(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
+    def create_image(self, tag: str, layers: list[model.Layer]) -> model.Container:
         return self._create_image(tag, layers)
 
     def create_container(self, image_id: str, container_name: str) -> model.Container:
@@ -221,7 +221,7 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _create_image(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
+    def _create_image(self, tag: str, layers: list[model.Layer]) -> model.Container:
         raise NotImplementedError
 
     @abc.abstractmethod

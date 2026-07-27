@@ -28,10 +28,10 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
     container_out = local.path(builddir) / "container-out"
 
     if in_dir and container_in.exists():
-        if ui.ask("Should I delete '{0}'?".format(container_in)):
+        if ui.ask(f"Should I delete '{container_in}'?"):
             container_in.delete()
     if out_dir and container_out.exists():
-        if ui.ask("Should I delete '{0}'?".format(container_out)):
+        if ui.ask(f"Should I delete '{container_out}'?"):
             container_out.delete()
 
 
@@ -76,7 +76,7 @@ def setup_container(builddir, _container):
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
-            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(container_in)
+            "-c", f"tar --list -f './{container_in}' | grep --silent '.erlent'"
         ]
         has_erlent = has_erlent & TF
 
@@ -168,7 +168,7 @@ def setup_bash_in_container(builddir, _container, outfile, shell):
             pack_container(_container, outfile)
             config_path = str(CFG["config_file"])
             CFG.store(config_path)
-            print("Storing config in {0}".format(os.path.abspath(config_path)))
+            print(f"Storing config in {os.path.abspath(config_path)}")
 
 
 def find_hash(container_db, key):
@@ -252,7 +252,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             want_upgrade = bool(CFG["container"]["strategy"]["polyjit"]["upgrade"])
 
             packages = CFG["container"]["strategy"]["polyjit"]["packages"].value
-            with local.env(MAKEOPTS="-j{0}".format(get_number_of_jobs(CFG))):
+            with local.env(MAKEOPTS=f"-j{get_number_of_jobs(CFG)}"):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
                     emerge_in_chroot("--sync")
@@ -291,14 +291,14 @@ class Container(cli.Application):
         if set_input_container(p, CFG):
             return
 
-        raise ValueError("The path '{0}' does not exist.".format(p))
+        raise ValueError(f"The path '{p}' does not exist.")
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, _container):
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
-            if not ui.ask("Path '{0}' already exists. Overwrite?".format(p)):
+            if not ui.ask(f"Path '{p}' already exists. Overwrite?"):
                 sys.exit(0)
         CFG["container"]["output"] = str(p)
 
@@ -331,13 +331,13 @@ class Container(cli.Application):
         builddir = local.path(str(CFG["build_dir"]))
         if not builddir.exists():
             response = ui.ask(
-                "The build directory {dirname} does not exist yet. "
-                "Should I create it?".format(dirname=builddir)
+                f"The build directory {builddir} does not exist yet. "
+                "Should I create it?"
             )
 
             if response:
                 mkdir("-p", builddir)
-                print("Created directory {0}.".format(builddir))
+                print(f"Created directory {builddir}.")
 
         setup_directories(builddir)
 
@@ -443,7 +443,7 @@ class ContainerBootstrap(cli.Application):
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
-        print("Storing config in {0}".format(os.path.abspath(config_file)))
+        print(f"Storing config in {os.path.abspath(config_file)}")
         print(
             "Future container commands from this directory will automatically"
             " source the config file."

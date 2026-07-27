@@ -9,8 +9,8 @@ import plumbum as pb
 from benchbuild.source import base
 from benchbuild.utils.cmd import cp, ln, mkdir, tar, wget
 
-VarRemotes = tp.Union[str, tp.Dict[str, str]]
-Remotes = tp.Dict[str, str]
+VarRemotes = tp.Union[str, dict[str, str]]
+Remotes = dict[str, str]
 
 
 class HTTP(base.FetchableSource):
@@ -21,7 +21,7 @@ class HTTP(base.FetchableSource):
     def __init__(
         self,
         local: str,
-        remote: tp.Union[str, tp.Dict[str, str]],
+        remote: str | dict[str, str],
         check_certificate: bool = True,
     ):
         super().__init__(local, remote)
@@ -69,7 +69,7 @@ class HTTP(base.FetchableSource):
 
         return target_path
 
-    def versions(self) -> tp.List[base.Variant]:
+    def versions(self) -> list[base.Variant]:
         remotes = normalize_remotes(self.remote)
         return [base.Variant(version=rev, owner=self) for rev in remotes]
 
@@ -127,8 +127,8 @@ class HTTPMultiple(HTTP):
     def __init__(
         self,
         local: str,
-        remote: tp.Union[str, tp.Dict[str, str]],
-        files: tp.List[str],
+        remote: str | dict[str, str],
+        files: list[str],
         check_certificate: bool = True,
     ):
         super().__init__(local, remote, check_certificate)
@@ -163,7 +163,7 @@ def normalize_remotes(remote: VarRemotes) -> Remotes:
 
 
 def versioned_target_name(target_name: str, version: str) -> str:
-    return "{}-{}".format(version, target_name)
+    return f"{version}-{target_name}"
 
 
 def download_single_version(url: str, target_path: str, check_certificate: bool) -> str:

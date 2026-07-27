@@ -50,7 +50,7 @@ class Variant:
         return str(self.version)
 
 
-NestedVariants = tp.Iterable[tp.Tuple[Variant, ...]]
+NestedVariants = tp.Iterable[tuple[Variant, ...]]
 
 
 class Revision:
@@ -66,11 +66,11 @@ class Revision:
     then forms a project revision.
     """
 
-    project_cls: tp.Type["Project"]
+    project_cls: type["Project"]
     variants: tp.Sequence[Variant]
 
     def __init__(
-        self, project_cls: tp.Type["Project"], _primary: Variant, *variants: Variant
+        self, project_cls: type["Project"], _primary: Variant, *variants: Variant
     ) -> None:
         self.project_cls = project_cls
         self.variants = [_primary] + list(variants)
@@ -196,7 +196,7 @@ class Fetchable(Protocol):
         """
 
     @property
-    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+    def remote(self) -> str | dict[str, str]:
         """
         The source location in the remote location.
         """
@@ -301,9 +301,9 @@ class FetchableSource(ContextFreeMixin):
     """
 
     _local: str
-    _remote: tp.Union[str, tp.Dict[str, str]]
+    _remote: str | dict[str, str]
 
-    def __init__(self, local: str, remote: tp.Union[str, tp.Dict[str, str]]):
+    def __init__(self, local: str, remote: str | dict[str, str]):
         super().__init__()
 
         self._local = local
@@ -314,7 +314,7 @@ class FetchableSource(ContextFreeMixin):
         return self._local
 
     @property
-    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+    def remote(self) -> str | dict[str, str]:
         return self._remote
 
     @property
@@ -384,7 +384,7 @@ class FetchableSource(ContextFreeMixin):
         raise NotImplementedError()
 
 
-Sources = tp.List["FetchableSource"]
+Sources = list["FetchableSource"]
 
 
 class NoSource(FetchableSource):
@@ -395,7 +395,7 @@ class NoSource(FetchableSource):
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return "None"
 
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> list[Variant]:
         return [Variant(owner=self, version="None")]
 
     def fetch(self) -> pb.LocalPath:
@@ -478,7 +478,7 @@ def _default_enumerator(*sources: Expandable) -> NestedVariants:
 class ContextEnumeratorFn(Protocol):
     def __call__(
         self,
-        project_cls: tp.Type["Project"],
+        project_cls: type["Project"],
         context: Revision,
         *sources: ContextAwareSource,
     ) -> tp.Sequence[Revision]:
@@ -488,7 +488,7 @@ class ContextEnumeratorFn(Protocol):
 
 
 def _default_caw_enumerator(
-    project_cls: tp.Type["Project"], context: Revision, *sources: ContextAwareSource
+    project_cls: type["Project"], context: Revision, *sources: ContextAwareSource
 ) -> tp.Sequence[Revision]:
     """
     Transform given variant into a list of variants to check.
@@ -512,7 +512,7 @@ def _default_caw_enumerator(
 
 
 def enumerate_revisions(
-    project_cls: tp.Type["Project"],
+    project_cls: type["Project"],
     context_free_enumerator: EnumeratorFn = _default_enumerator,
     context_aware_enumerator: ContextEnumeratorFn = _default_caw_enumerator,
 ) -> tp.Sequence[Revision]:
@@ -547,7 +547,7 @@ def enumerate_revisions(
     return project_revisions
 
 
-SourceContext = tp.Dict[str, Fetchable]
+SourceContext = dict[str, Fetchable]
 
 
 def sources_as_dict(*sources: Fetchable) -> SourceContext:
@@ -563,7 +563,7 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
 
 
 def revision_from_str(
-    revs: tp.Sequence[RevisionStr], project_cls: tp.Type["Project"]
+    revs: tp.Sequence[RevisionStr], project_cls: type["Project"]
 ) -> Revision:
     """
     Create a Revision from a sequence of revision strings.
@@ -584,7 +584,7 @@ def revision_from_str(
     Returns:
         A variant context.
     """
-    found: tp.List[Variant] = []
+    found: list[Variant] = []
     sources = project_cls.SOURCE
 
     for source in sources:

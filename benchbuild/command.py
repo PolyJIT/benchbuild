@@ -32,7 +32,7 @@ class ArgsRenderStrategy(Protocol):
         Returns an unrendered representation of this strategy.
         """
 
-    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+    def rendered(self, **kwargs: tp.Any) -> tuple[str, ...]:
         """Renders this strategy."""
 
 
@@ -193,7 +193,7 @@ class ArgsToken:
     def __init__(self, renderer: ArgsRenderStrategy) -> None:
         self.renderer = renderer
 
-    def render(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+    def render(self, **kwargs: tp.Any) -> tuple[str, ...]:
         """
         Renders the PathToken as a standard pathlib Path.
 
@@ -222,9 +222,7 @@ class PathToken:
     right: tp.Optional["PathToken"]
 
     @classmethod
-    def make_token(
-        cls, renderer: tp.Optional[PathRenderStrategy] = None
-    ) -> "PathToken":
+    def make_token(cls, renderer: PathRenderStrategy | None = None) -> "PathToken":
         if renderer:
             return PathToken(renderer)
         return PathToken(RootRenderer())
@@ -339,7 +337,7 @@ class WorkloadSet:
     inserted values.
     """
 
-    _tags: tp.FrozenSet[tp.Any]
+    _tags: frozenset[tp.Any]
 
     def __init__(self, *args: tp.Any) -> None:
         self._tags = frozenset(args)
@@ -479,10 +477,10 @@ class Command:
     [/tmp/foo]
     """
 
-    _args: tp.Tuple[tp.Any, ...]
-    _env: tp.Dict[str, str]
-    _label: tp.Optional[str]
-    _output: tp.Optional[PathToken]
+    _args: tuple[tp.Any, ...]
+    _env: dict[str, str]
+    _label: str | None
+    _output: PathToken | None
     _output_param: tp.Sequence[str]
     _path: PathToken
     _creates: tp.Sequence[PathToken]
@@ -492,11 +490,11 @@ class Command:
         self,
         path: PathToken,
         *args: tp.Any,
-        output: tp.Optional[PathToken] = None,
-        output_param: tp.Optional[tp.Sequence[str]] = None,
-        label: tp.Optional[str] = None,
-        creates: tp.Optional[tp.Sequence[ArtefactPath]] = None,
-        consumes: tp.Optional[tp.Sequence[ArtefactPath]] = None,
+        output: PathToken | None = None,
+        output_param: tp.Sequence[str] | None = None,
+        label: str | None = None,
+        creates: tp.Sequence[ArtefactPath] | None = None,
+        consumes: tp.Sequence[ArtefactPath] | None = None,
         **kwargs: str,
     ) -> None:
         def _to_pathtoken(token: ArtefactPath) -> PathToken:
@@ -538,7 +536,7 @@ class Command:
         return self._path.dirname
 
     @property
-    def output(self) -> tp.Optional[PathToken]:
+    def output(self) -> PathToken | None:
         return self._output
 
     @property
@@ -560,7 +558,7 @@ class Command:
     def label(self, new_label: str) -> None:
         self._label = new_label
 
-    def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
+    def __getitem__(self, args: tuple[tp.Any, ...]) -> "Command":
         return Command(
             self._path,
             *self._args,
@@ -577,8 +575,8 @@ class Command:
         cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
-    def rendered_args(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
-        args: tp.List[str] = []
+    def rendered_args(self, **kwargs: tp.Any) -> tuple[str, ...]:
+        args: list[str] = []
 
         for arg in self._args:
             if isinstance(arg, ArgsToken):
@@ -602,7 +600,7 @@ class Command:
             An executable plumbum command.
         """
         cmd_path = self.path.render(**kwargs)
-        assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
+        assert cmd_path.exists(), f"{cmd_path!s} doesn't exist!"
 
         cmd = local[str(cmd_path)]
         cmd_w_args = cmd[self.rendered_args(**kwargs)]
@@ -634,7 +632,7 @@ class Command:
         return f"Command({repr_str})"
 
     def __str__(self) -> str:
-        env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
+        env_str = " ".join([f"{k}={v!s}" for k, v in self._env.items()])
         args_str = " ".join(tuple(str(arg) for arg in self._args))
 
         command_str = f"{self._path}"
@@ -712,12 +710,12 @@ def _default_prune(project_command: ProjectCommand) -> None:
 
 def _default_backup(
     project_command: ProjectCommand, _suffix: str = ".benchbuild_backup"
-) -> tp.List[Path]:
+) -> list[Path]:
     command = project_command.command
     project = project_command.project
     builddir = Path(str(project.builddir))
 
-    backup_destinations: tp.List[Path] = []
+    backup_destinations: list[Path] = []
     for backup in command.consumes:
         backup_path = backup.render(project=project)
         backup_destination = backup_path.with_suffix(_suffix)
@@ -731,7 +729,7 @@ def _default_backup(
     return backup_destinations
 
 
-def _default_restore(backup_paths: tp.List[Path]) -> None:
+def _default_restore(backup_paths: list[Path]) -> None:
     for backup_path in backup_paths:
         original_path = backup_path.with_suffix("")
         if not original_path.exists() and backup_path.exists():
@@ -755,13 +753,13 @@ class BackupFn(Protocol):
 
     def __call__(
         self, project_command: ProjectCommand, _suffix: str = ...
-    ) -> tp.List[Path]: ...
+    ) -> list[Path]: ...
 
 
 class RestoreFn(Protocol):
     """Restore function protocol."""
 
-    def __call__(self, backup_paths: tp.List[Path]) -> None: ...
+    def __call__(self, backup_paths: list[Path]) -> None: ...
 
 
 @contextmanager
@@ -787,7 +785,7 @@ def cleanup(
     restore(backup_paths)
 
 
-WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
+WorkloadIndex = tp.MutableMapping[WorkloadSet, list[Command]]
 
 
 def unwrap(
@@ -803,8 +801,8 @@ def unwrap(
 
 
 def filter_workload_index(
-    only: tp.Optional[WorkloadSet], index: WorkloadIndex
-) -> tp.Generator[tp.List[Command], None, None]:
+    only: WorkloadSet | None, index: WorkloadIndex
+) -> tp.Generator[list[Command], None, None]:
     """
     Yield only commands from the index that match the filter.
 

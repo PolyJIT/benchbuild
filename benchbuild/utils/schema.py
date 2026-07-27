@@ -57,7 +57,7 @@ def metadata():
 
 def exceptions(
     error_is_fatal: bool = True,
-    error_messages: tp.Optional[tp.Dict[Exception, str]] = None,
+    error_messages: dict[Exception, str] | None = None,
 ) -> tp.Callable:
     """
     Handle SQLAlchemy exceptions in a sane way.
@@ -184,9 +184,7 @@ class Run(BASE):
     )
 
     def __repr__(self):
-        return ("<Run: {0} status={1} run={2}>").format(
-            self.project_name, self.status, self.id
-        )
+        return f"<Run: {self.project_name} status={self.status} run={self.id}>"
 
 
 class RunGroup(BASE):
@@ -228,7 +226,7 @@ class Experiment(BASE):
     )
 
     def __repr__(self):
-        return "<Experiment {name}>".format(name=self.name)
+        return f"<Experiment {self.name}>"
 
 
 class Project(BASE):
@@ -248,12 +246,7 @@ class Project(BASE):
     )
 
     def __repr__(self):
-        return "<Project {group}@{domain}/{name} V:{version}>".format(
-            group=self.group_name,
-            domain=self.domain,
-            name=self.name,
-            version=self.version,
-        )
+        return f"<Project {self.group_name}@{self.domain}/{self.name} V:{self.version}>"
 
 
 class Metric(BASE):
@@ -271,7 +264,7 @@ class Metric(BASE):
     )
 
     def __repr__(self):
-        return "{0} - {1}".format(self.name, self.value)
+        return f"{self.name} - {self.value}"
 
 
 class RunLog(BASE):

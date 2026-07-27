@@ -103,9 +103,7 @@ class Gentoo(Container):
     @property
     def remote(self):
         """Get a remote URL of the requested container."""
-        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".format(
-            self.src_file
-        )
+        return f"http://distfiles.gentoo.org/releases/amd64/autobuilds/{self.src_file}"
 
 
 def is_valid(container, path):
@@ -123,7 +121,7 @@ def is_valid(container, path):
         tmp_hash_path = container.filename + ".hash"
         with open(tmp_hash_path, "r") as tmp_file:
             tmp_hash = tmp_file.readline()
-    except IOError:
+    except OSError:
         LOG.info("No .hash-file in the tmp-directory.")
 
     container_hash_path = local.path(path) / "gentoo.tar.bz2.hash"
@@ -163,9 +161,7 @@ def unpack(container, path):
         uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w", os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
-        has_erlent = bash[
-            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(name)
-        ]
+        has_erlent = bash["-c", f"tar --list -f './{name}' | grep --silent '.erlent'"]
         has_erlent = has_erlent & TF
 
         untar = local["/bin/tar"]["xf", "./" + name]

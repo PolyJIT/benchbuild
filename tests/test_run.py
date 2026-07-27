@@ -26,7 +26,7 @@ class TestShadow(unittest.TestCase):
         true = cmd.true
         mkdir = cmd.mkdir
 
-        class test_class(object):
+        class test_class:
             @shadow_commands("true")
             def shadow_hook(self):
                 return cmd.mkdir

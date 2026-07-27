@@ -15,7 +15,7 @@ from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
 
-CommandResult = t.Tuple[int, str, str]
+CommandResult = tuple[int, str, str]
 
 
 class WatchableCommand(Protocol):
@@ -275,7 +275,7 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
+def exit_code_from_run_infos(run_infos: list[RunInfo]) -> int:
     """Generate a single exit code from a list of RunInfo objects.
 
     Takes a list of RunInfos and returns the exit code that is furthest away

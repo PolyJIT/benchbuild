@@ -9,7 +9,7 @@ from benchbuild.source import FetchableSource, Revision, Variant, nosource
 
 
 class TestSource(FetchableSource):
-    _versions: tp.Tuple[Variant, ...]
+    _versions: tuple[Variant, ...]
 
     def __init__(self, *versions: str):
         super().__init__("test.local", "test.remote")
@@ -28,7 +28,7 @@ class TestSource(FetchableSource):
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return "None"
 
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> list[Variant]:
         return list(self._versions)
 
     def fetch(self) -> pb.LocalPath:
@@ -36,11 +36,11 @@ class TestSource(FetchableSource):
 
 
 class CAWTestSource(FetchableSource):
-    _versions: tp.Dict[Variant, tp.List[Variant]]
+    _versions: dict[Variant, list[Variant]]
 
     def __init__(
         self,
-        *versions: tp.Tuple[str, str],
+        *versions: tuple[str, str],
     ):
         super().__init__("test.caw.local", "test.caw.remote")
 
@@ -76,7 +76,7 @@ class CAWTestSource(FetchableSource):
         """
         return "None"
 
-    def versions(self) -> tp.List[Variant]:
+    def versions(self) -> list[Variant]:
         raise ValueError("Context-Aware sources must not use versions()!")
 
     def is_context_free(self) -> bool:

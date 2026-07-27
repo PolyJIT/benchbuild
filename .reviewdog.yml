@@ -6,7 +6,7 @@ runner:
     level: error
 
   ruff:
-    cmd: ruff check --output-format=github benchbuild
+    cmd: ruff check --output-format=concise benchbuild
     errorformat:
       - "%f:%l:%c: %m"
     level: warning

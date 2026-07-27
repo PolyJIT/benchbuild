@@ -2,6 +2,7 @@ name: Code Quality
 on: push
 
 jobs:
+  ruff-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

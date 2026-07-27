@@ -16,14 +16,10 @@ jobs:
 
     - run: uv sync --frozen --all-extras --dev
 
-    - uses: benny123tw/action-ruff@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        reporter: github-pr-check
+    - uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252 # v1.4.0
 
     - name: Run reviewdog
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        uv pip install reviewdog
-        uv run reviewdog -runners=mypy -reporter=github-pr-check -conf=.reviewdog.yml
+        reviewdog -reporter=github-pr-check -runners=mypy,ruff

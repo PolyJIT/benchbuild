@@ -22,4 +22,5 @@ jobs:
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        uv run reviewdog -reporter=github-pr-check -runners=mypy,ruff
+        uv run reviewdog -reporter=github-pr-check -runners=mypy
+        uv run reviewdog -reporter=github-pr-check -runners=ruff

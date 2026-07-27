@@ -1,0 +1,37 @@
+name: CI Pipeline for BenchBuild
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  unittests:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    uses: ./.github/workflows/ci.yml
+    with:
+      python-version: "${{ matrix.python-version }}"
+    secrets: inherit
+
+  integration:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        db_support: [true, false]
+    uses: ./.github/workflows/integration.yml
+    with:
+      python-version: "${{ matrix.python-version }}"
+      db_support: "${{ matrix.db_support }}"
+    secrets: inherit
+
+  coverage:
+    needs: [unittests, integration]
+    uses: ./.github/workflows/coverage-upload.yml
+    secrets: inherit
+
+  docs:
+    needs: [unittests, integration]
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit

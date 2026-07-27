@@ -12,11 +12,11 @@ def fs_compliant_name(name: str) -> str:
     Convert a name to a valid filename.
     """
     value = str(name)
-    value = unicodedata.normalize('NFKD',
-                                  value).encode('ascii',
-                                                'ignore').decode('ascii')
-    value = re.sub(r'[^\w\s-]', '', value.lower())
-    return re.sub(r'[-\s]+', '-', value).strip('-_')
+    value = (
+        unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    )
+    value = re.sub(r"[^\w\s-]", "", value.lower())
+    return re.sub(r"[-\s]+", "-", value).strip("-_")
 
 
 def oci_compliant_name(name: str) -> str:
@@ -76,8 +76,8 @@ class RunProjectContainer(model.Command):
 
     build_dir: str = attr.ib()
     tmp_dir: str = attr.ib()
-    mount_build_dir: bool = attr.ib()
-    mount_tmp_dir: bool = attr.ib()
+    mount_build_dir: bool = attr.ib(default=False)
+    mount_tmp_dir: bool = attr.ib(default=False)
     args: tp.Sequence[str] = attr.ib(default=attr.Factory(list))
 
 

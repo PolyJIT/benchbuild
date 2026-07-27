@@ -5,7 +5,8 @@ runner:
       - "%f:%l:%c: %m"
     level: error
 
-  pylint:
-    cmd: pylint benchbuild
+  ruff:
+    cmd: ruff check --output-format=concise benchbuild
     errorformat:
-      - "%f:%l:%c: %t%n: %m"
+      - "%f:%l:%c: %m"
+    level: warning

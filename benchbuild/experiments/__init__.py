@@ -10,6 +10,7 @@ settings:
 Any subclass of benchbuild.experiments.Experiment will be
 automatically registered and made available on the command line.
 """
+
 import importlib
 import logging
 

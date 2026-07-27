@@ -48,6 +48,7 @@ def get_git_hash(from_url):
         git commit hash of HEAD, or empty string.
     """
     from benchbuild.utils.cmd import git
+
     if from_url is None:
         return ""
 

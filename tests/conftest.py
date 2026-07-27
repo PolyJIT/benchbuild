@@ -1,8 +1,7 @@
-import tempfile as tf
-import typing as tp
-import shutil
 import os
+import shutil
 import sys
+import tempfile as tf
 
 import faker
 import git
@@ -10,7 +9,7 @@ import plumbum as pb
 import pytest
 from faker.providers import file
 
-RepoT = tp.Tuple[pb.local.path, git.Repo]
+RepoT = tuple[pb.local.path, git.Repo]
 
 
 @pytest.fixture
@@ -20,8 +19,7 @@ def mk_git_repo():
     fake.add_provider(file)
 
     def _git_repository(
-        num_commits: int = 2,
-        git_submodule: tp.Optional[git.Repo] = None
+        num_commits: int = 2, git_submodule: git.Repo | None = None
     ) -> RepoT:
         nonlocal tmp_dir
 
@@ -33,41 +31,39 @@ def mk_git_repo():
             some_content = fake.text()
             a_name = fake.file_name()
             a_file = a_repo_base / a_name
-            with open(a_file, 'w') as a_file_handle:
+            with open(a_file, "w") as a_file_handle:
                 a_file_handle.writelines(some_content)
             repo.index.add(a_file)
-            repo.index.commit(f'Add {a_name}')
+            repo.index.commit(f"Add {a_name}")
 
         if git_submodule:
             a_sm_path = fake.file_name()
             a_sm_name = fake.file_name()
             repo.create_submodule(
-                a_sm_name,
-                a_sm_path,
-                url=git_submodule.git_dir,
-                branch='master'
+                a_sm_name, a_sm_path, url=git_submodule.git_dir, branch="master"
             )
             repo.index.commit(
-                f'Add submodule {a_sm_name} to {a_sm_path} from: {repo.git_dir}'
+                f"Add submodule {a_sm_name} to {a_sm_path} from: {repo.git_dir}"
             )
 
             return (tmp_dir, repo)
         return (tmp_dir, repo)
 
     yield _git_repository
-    
+
     try:
         tmp_dir.delete()
     except (OSError, PermissionError) as e:
         # on Windows, git operations can lock files
         # try to use shutil.rmtree with error handling
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             try:
+
                 def handle_remove_readonly(func, path, exc):
                     if os.path.exists(path):
                         os.chmod(path, 0o777)
                         func(path)
-                
+
                 shutil.rmtree(str(tmp_dir), onerror=handle_remove_readonly)
             except Exception:
                 # if all else fails, just pass - the temp directory will be

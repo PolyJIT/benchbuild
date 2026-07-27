@@ -1,9 +1,9 @@
-from pathlib import Path, PosixPath
+from pathlib import PosixPath
 
 from benchbuild.command import (
     Command,
-    ProjectCommand,
     PathToken,
+    ProjectCommand,
     RootRenderer,
     cleanup,
 )

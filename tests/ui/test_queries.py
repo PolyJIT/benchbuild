@@ -1,4 +1,5 @@
 """Test user interface utility methods."""
+
 import os
 
 import pytest

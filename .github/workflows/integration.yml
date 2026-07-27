@@ -1,0 +1,59 @@
+name: Integration Tests
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to use"
+        type: string
+        required: false
+        default: "3.14"
+      db_support:
+        description: "Use BenchBuild's DB support"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-runner
+        with:
+          python-version: "${{ inputs.python-version }}"
+
+      - name: Run integration tests
+        env:
+          BB_DB_ENABLED: ${{ inputs.db_support }}
+          BB_DB_CONNECT_STRING: "sqlite://"
+          BB_COVERAGE_COLLECT: true
+          BB_COVERAGE_PATH: ${{ github.workspace }}
+          BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
+          BB_CONTAINER_ROOT: ${{ runner.temp }}
+          BB_CONTAINER_RUNROOT: ${{ runner.temp }}
+          BB_VERBOSITY: 5
+        run: |
+          source .venv/bin/activate
+          coverage run -p .venv/bin/benchbuild bootstrap -s
+          coverage run -p .venv/bin/benchbuild config view
+          coverage run -p .venv/bin/benchbuild experiment view
+          coverage run -p .venv/bin/benchbuild project view
+          coverage run -p .venv/bin/benchbuild run --full test
+          coverage run -p .venv/bin/benchbuild slurm -E empty test
+          coverage run -p .venv/bin/benchbuild slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
+          coverage run -p .venv/bin/benchbuild run -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container run -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container bases --export -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container bases --import -E raw bzip2/benchbuild
+          coverage run -p .venv/bin/benchbuild container rmi --with-projects -E raw bzip2/benchbuild
+          coverage combine
+          coverage report -m
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-integration-${{ inputs.python-version }}
+          path: ./.coverage
+          # Security: Careful with adding wildcard patterns above!
+          include-hidden-files: true

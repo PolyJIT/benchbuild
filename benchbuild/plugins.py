@@ -14,6 +14,7 @@ Any subclass of
 will automatically register itself and is available on the CLI for all
 subcommands.
 """
+
 import importlib
 import itertools
 import logging

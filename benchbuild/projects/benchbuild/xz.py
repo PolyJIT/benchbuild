@@ -1,59 +1,63 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild import CFG
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
 
 class XZ(bb.Project):
-    """ XZ """
-    VERSION = '5.2.1'
-    NAME = 'xz'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
+    """XZ"""
+
+    VERSION = "5.2.1"
+    NAME = "xz"
+    DOMAIN = "compression"
+    GROUP = "benchbuild"
 
     SOURCE = [
         HTTP(
-            remote={'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
-            local='xz.tar.gz'
+            remote={"5.2.1": "http://tukaani.org/xz/xz-5.2.1.tar.gz"}, local="xz.tar.gz"
         ),
         HTTP(
-            remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
-            local='compression.tar.gz'
-        )
+            remote={"1.0": "http://lairosiel.de/dist/compression.tar.gz"},
+            local="compression.tar.gz",
+        ),
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        xz_source = local.path(self.source_of('xz.tar.gz'))
-        xz_version = self.version_of('xz.tar.gz')
-        compression_source = local.path(self.source_of('compression.tar.gz'))
+        xz_source = local.path(self.source_of("xz.tar.gz"))
+        xz_version = self.version_of("xz.tar.gz")
+        compression_source = local.path(self.source_of("compression.tar.gz"))
 
-        tar('xf', xz_source)
-        tar('xf', compression_source)
+        tar("xf", xz_source)
+        tar("xf", compression_source)
 
-        unpack_dir = local.path(f'xz-{xz_version}')
+        unpack_dir = local.path(f"xz-{xz_version}")
         clang = bb.compiler.cc(self)
         with local.cwd(unpack_dir):
             configure = local["./configure"]
             _configure = bb.watch(configure)
             with local.env(CC=str(clang)):
                 _configure(
-                    "--enable-threads=no", "--with-gnu-ld=yes",
-                    "--disable-shared", "--disable-dependency-tracking",
-                    "--disable-xzdec", "--disable-lzmadec",
-                    "--disable-lzmainfo", "--disable-lzma-links",
-                    "--disable-scripts", "--disable-doc"
+                    "--enable-threads=no",
+                    "--with-gnu-ld=yes",
+                    "--disable-shared",
+                    "--disable-dependency-tracking",
+                    "--disable-xzdec",
+                    "--disable-lzmadec",
+                    "--disable-lzmainfo",
+                    "--disable-lzma-links",
+                    "--disable-scripts",
+                    "--disable-doc",
                 )
 
             _make = bb.watch(make)
             _make("CC=" + str(clang), "clean", "all")
 
     def run_tests(self):
-        xz_version = self.version_of('xz.tar.gz')
-        unpack_dir = local.path(f'xz-{xz_version}')
+        xz_version = self.version_of("xz.tar.gz")
+        unpack_dir = local.path(f"xz-{xz_version}")
         xz = bb.wrap(unpack_dir / "src" / "xz" / "xz", self)
         _xz = bb.watch(xz)
 

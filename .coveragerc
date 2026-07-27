@@ -1,13 +1,14 @@
 [run]
-include = */benchbuild/*
 omit =
+  ./venv/*
+  */bin/benchbuild*
   */benchbuild/lib/*
   */benchbuild/bin/*
+  .venv/*
 branch = True
 parallel = True
 
 [paths]
-data_file = ${BB_COVERAGE_PATH-default .}/.coverage
 source =
   benchbuild/
   */site-packages/benchbuild/

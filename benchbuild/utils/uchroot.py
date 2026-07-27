@@ -1,7 +1,6 @@
 import enum
 import logging
 import os
-import typing as tp
 
 from plumbum import local
 from plumbum.commands import ProcessExecutionError
@@ -28,9 +27,17 @@ def uchroot(*args, **kwargs):
 
 def __default_opts__(uid=0, gid=0):
     return [
-        "-C", "-w", "/", "-r", local.cwd, "-u",
-        str(uid), "-g",
-        str(gid), "-E", "-A"
+        "-C",
+        "-w",
+        "/",
+        "-r",
+        local.cwd,
+        "-u",
+        str(uid),
+        "-g",
+        str(gid),
+        "-E",
+        "-A",
     ]
 
 
@@ -62,7 +69,7 @@ def no_args(**kwargs):
     uchrt = run.with_env_recursive(
         uchrt,
         LD_LIBRARY_PATH=path.list_to_path(p_libs),
-        PATH=path.list_to_path(p_paths)
+        PATH=path.list_to_path(p_paths),
     )
 
     return uchrt
@@ -83,7 +90,7 @@ def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     uchroot_cmd = run.with_env_recursive(
         uchroot_cmd,
         LD_LIBRARY_PATH=path.list_to_path(libs + prefix_libs),
-        PATH=path.list_to_path(paths + prefix_paths)
+        PATH=path.list_to_path(paths + prefix_paths),
     )
     return uchroot_cmd
 
@@ -101,7 +108,7 @@ def retry(
     retries: int = 0,
     max_retries: int = 10,
     retcode: int = 0,
-    retry_retcodes: tp.Optional[tp.List[int]] = None
+    retry_retcodes: list[int] | None = None,
 ) -> None:
     try:
         pb_cmd.run_fg(retcode=retcode)
@@ -117,7 +124,7 @@ def retry(
                 retries=retries + 1,
                 max_retries=max_retries,
                 retcode=retcode,
-                retry_retcodes=retry_retcodes
+                retry_retcodes=retry_retcodes,
             )
         else:
             raise
@@ -128,22 +135,22 @@ def uretry(cmd: BoundCommand, retcode: int = 0) -> None:
         cmd,
         retcode=retcode,
         retry_retcodes=[
-            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
-            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
-        ]
+            UchrootEC.MNT_PROC_FAILED.value,
+            UchrootEC.MNT_DEV_FAILED.value,
+            UchrootEC.MNT_SYS_FAILED.value,
+            UchrootEC.MNT_PTS_FAILED.value,
+        ],
     )
 
 
-def clean_env(
-    uchroot_cmd: BoundCommand, varnames: tp.List[str]
-) -> BoundCommand:
+def clean_env(uchroot_cmd: BoundCommand, varnames: list[str]) -> BoundCommand:
     """Returns a uchroot cmd that runs inside a filtered environment."""
     _env = uchroot_cmd["/usr/bin/env"]
     __clean_env = _env["-u", ",".join(varnames)]
     return __clean_env
 
 
-def mounts(prefix: str, __mounts: tp.List) -> tp.List[str]:
+def mounts(prefix: str, __mounts: list) -> list[str]:
     """
     Compute the mountpoints of the current user.
 
@@ -157,14 +164,13 @@ def mounts(prefix: str, __mounts: tp.List) -> tp.List[str]:
     mntpoints = []
     for mount in __mounts:
         if not isinstance(mount, dict):
-            mntpoint = "{0}/{1}".format(prefix, str(i))
+            mntpoint = f"{prefix}/{i!s}"
             mntpoints.append(mntpoint)
             i = i + 1
     return mntpoints
 
 
-def __mounts__(prefix: str,
-               _mounts: tp.List) -> tp.Tuple[tp.List[str], tp.List[str]]:
+def __mounts__(prefix: str, _mounts: list) -> tuple[list[str], list[str]]:
     i = 0
     mntpoints = []
     uchroot_opts = []
@@ -174,17 +180,17 @@ def __mounts__(prefix: str,
             tgt_mount = mount["tgt"]
         else:
             src_mount = mount
-            tgt_mount = "{0}/{1}".format(prefix, str(i))
+            tgt_mount = f"{prefix}/{i!s}"
             i = i + 1
         mkdir_uchroot(tgt_mount)
-        uchroot_opts.extend(["-M", "{0}:{1}".format(src_mount, tgt_mount)])
+        uchroot_opts.extend(["-M", f"{src_mount}:{tgt_mount}"])
         mntpoints.append(tgt_mount)
     return uchroot_opts, mntpoints
 
 
 def env(
-    uchroot_mounts: tp.List[str]
-) -> tp.Tuple[tp.List[local.path], tp.List[local.path]]:
+    uchroot_mounts: list[str],
+) -> tuple[list[local.path], list[local.path]]:
     """
     Compute the environment of the change root for the user.
 

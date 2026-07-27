@@ -8,11 +8,11 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class SDCC(bb.Project):
-    NAME = 'sdcc'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
-    SRC_FILE = 'sdcc'
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    NAME = "sdcc"
+    DOMAIN = "compilation"
+    GROUP = "benchbuild"
+    SRC_FILE = "sdcc"
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 
@@ -27,14 +27,13 @@ class SDCC(bb.Project):
             _configure = bb.watch(configure)
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure(
-                    "--without-ccache", "--disable-pic14-port",
-                    "--disable-pic16-port"
+                    "--without-ccache", "--disable-pic14-port", "--disable-pic16-port"
                 )
 
             _make = bb.watch(make)
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        sdcc = bb.wrap('sdcc', self)
+        sdcc = bb.wrap("sdcc", self)
         _sdcc = bb.watch(sdcc)
         _sdcc()

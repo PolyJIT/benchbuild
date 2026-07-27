@@ -1,6 +1,7 @@
 """
 Test the SLURM options generator.
 """
+
 import unittest
 
 import benchbuild.utils.requirements as req
@@ -40,10 +41,10 @@ class TestCoresPerSocket(unittest.TestCase):
         option = req.SlurmCoresPerSocket(4)
         other_option = req.SlurmCoresPerSocket(8)
 
-        merged_option = req.SlurmCoresPerSocket.merge_requirements(
-            option, other_option)
+        merged_option = req.SlurmCoresPerSocket.merge_requirements(option, other_option)
         merged_option_swapped = req.SlurmCoresPerSocket.merge_requirements(
-            other_option, option)
+            other_option, option
+        )
 
         self.assertEqual(merged_option.cores, 8)
         self.assertEqual(merged_option_swapped.cores, 8)
@@ -91,10 +92,10 @@ class TestNiceness(unittest.TestCase):
         option = req.SlurmNiceness(4)
         other_option = req.SlurmNiceness(8)
 
-        merged_option = req.SlurmNiceness.merge_requirements(
-            option, other_option)
+        merged_option = req.SlurmNiceness.merge_requirements(option, other_option)
         merged_option_swapped = req.SlurmNiceness.merge_requirements(
-            other_option, option)
+            other_option, option
+        )
 
         self.assertEqual(merged_option.niceness, 4)
         self.assertEqual(merged_option_swapped.niceness, 4)
@@ -119,8 +120,7 @@ class TestHint(unittest.TestCase):
         """
         option = req.SlurmHint({req.SlurmHint.SlurmHints.compute_bound})
 
-        self.assertSetEqual(option.hints,
-                            {req.SlurmHint.SlurmHints.compute_bound})
+        self.assertSetEqual(option.hints, {req.SlurmHint.SlurmHints.compute_bound})
 
     def test_merge_requirements_disj(self):
         """
@@ -130,44 +130,52 @@ class TestHint(unittest.TestCase):
         other_option = req.SlurmHint({req.SlurmHint.SlurmHints.multithread})
 
         merged_option = req.SlurmHint.merge_requirements(option, other_option)
-        merged_option_swapped = req.SlurmHint.merge_requirements(
-            other_option, option)
+        merged_option_swapped = req.SlurmHint.merge_requirements(other_option, option)
 
         self.assertSetEqual(
-            merged_option.hints, {
+            merged_option.hints,
+            {
                 req.SlurmHint.SlurmHints.compute_bound,
-                req.SlurmHint.SlurmHints.multithread
-            })
+                req.SlurmHint.SlurmHints.multithread,
+            },
+        )
         self.assertSetEqual(
-            merged_option_swapped.hints, {
+            merged_option_swapped.hints,
+            {
                 req.SlurmHint.SlurmHints.compute_bound,
-                req.SlurmHint.SlurmHints.multithread
-            })
+                req.SlurmHint.SlurmHints.multithread,
+            },
+        )
 
     def test_merge_requirements_additional(self):
         """
         Checks if hint options are correctly merged together.
         """
         option = req.SlurmHint({req.SlurmHint.SlurmHints.compute_bound})
-        other_option = req.SlurmHint({
-            req.SlurmHint.SlurmHints.multithread,
-            req.SlurmHint.SlurmHints.compute_bound
-        })
+        other_option = req.SlurmHint(
+            {
+                req.SlurmHint.SlurmHints.multithread,
+                req.SlurmHint.SlurmHints.compute_bound,
+            }
+        )
 
         merged_option = req.SlurmHint.merge_requirements(option, other_option)
-        merged_option_swapped = req.SlurmHint.merge_requirements(
-            other_option, option)
+        merged_option_swapped = req.SlurmHint.merge_requirements(other_option, option)
 
         self.assertSetEqual(
-            merged_option.hints, {
+            merged_option.hints,
+            {
                 req.SlurmHint.SlurmHints.compute_bound,
-                req.SlurmHint.SlurmHints.multithread
-            })
+                req.SlurmHint.SlurmHints.multithread,
+            },
+        )
         self.assertSetEqual(
-            merged_option_swapped.hints, {
+            merged_option_swapped.hints,
+            {
                 req.SlurmHint.SlurmHints.compute_bound,
-                req.SlurmHint.SlurmHints.multithread
-            })
+                req.SlurmHint.SlurmHints.multithread,
+            },
+        )
 
     def test_merge_requirements_mutally_exclusive(self):
         """
@@ -176,8 +184,9 @@ class TestHint(unittest.TestCase):
         option = req.SlurmHint({req.SlurmHint.SlurmHints.compute_bound})
         other_option = req.SlurmHint({req.SlurmHint.SlurmHints.memory_bound})
 
-        self.assertRaises(ValueError, req.SlurmHint.merge_requirements, option,
-                          other_option)
+        self.assertRaises(
+            ValueError, req.SlurmHint.merge_requirements, option, other_option
+        )
 
     def test_cli_opt(self):
         """
@@ -191,10 +200,12 @@ class TestHint(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = req.SlurmHint({
-            req.SlurmHint.SlurmHints.compute_bound,
-            req.SlurmHint.SlurmHints.nomultithread
-        })
+        option = req.SlurmHint(
+            {
+                req.SlurmHint.SlurmHints.compute_bound,
+                req.SlurmHint.SlurmHints.nomultithread,
+            }
+        )
 
         output_string = option.to_slurm_cli_opt()
         self.assertTrue(output_string.startswith("--hint="))
@@ -223,8 +234,7 @@ class TestTime(unittest.TestCase):
         other_option = req.SlurmTime("3:3:1")
 
         merged_option = req.SlurmTime.merge_requirements(option, other_option)
-        merged_option_swapped = req.SlurmTime.merge_requirements(
-            other_option, option)
+        merged_option_swapped = req.SlurmTime.merge_requirements(other_option, option)
 
         self.assertEqual(merged_option.timelimit, (0, 3, 3, 1))
         self.assertEqual(merged_option_swapped.timelimit, (0, 3, 3, 1))

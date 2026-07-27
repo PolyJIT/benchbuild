@@ -1,6 +1,7 @@
 """
 Declare a git source.
 """
+
 import logging
 import os
 import typing as tp
@@ -15,10 +16,10 @@ from . import base
 
 LOG = logging.getLogger(__name__)
 
-VarRemotes = tp.Union[str, tp.Dict[str, str]]
-Remotes = tp.Dict[str, str]
+VarRemotes = tp.Union[str, dict[str, str]]
+Remotes = dict[str, str]
 
-_fetched_cache: tp.Set['Git'] = set()
+_fetched_cache: set["Git"] = set()
 
 
 class Git(base.FetchableSource):
@@ -31,11 +32,11 @@ class Git(base.FetchableSource):
         remote: str,
         local: str,
         clone: bool = True,
-        limit: tp.Optional[int] = 10,
-        refspec: str = 'HEAD',
+        limit: int | None = 10,
+        refspec: str = "HEAD",
         shallow: bool = True,
-        submodule_set_urls: tp.Optional[tp.Dict[str, str]] = None,
-        version_filter: tp.Callable[[str], bool] = lambda version: True
+        submodule_set_urls: dict[str, str] | None = None,
+        version_filter: tp.Callable[[str], bool] = lambda version: True,
     ):
         super().__init__(local, remote)
 
@@ -66,13 +67,13 @@ class Git(base.FetchableSource):
             str: [description]
         """
         prefix = base.target_prefix()
-        clone = maybe_shallow(git['clone'], self.shallow)
-        fetch = git['fetch', '--update-shallow', '--all']
-        checkout = git['checkout', '-f', '--recurse-submodules']
-        set_url = git['submodule', 'set-url']
-        submodule_update = git['submodule', 'update', '--init', '--recursive']
+        clone = maybe_shallow(git["clone"], self.shallow)
+        fetch = git["fetch", "--update-shallow", "--all"]
+        checkout = git["checkout", "-f", "--recurse-submodules"]
+        set_url = git["submodule", "set-url"]
+        submodule_update = git["submodule", "update", "--init", "--recursive"]
 
-        flat_local = self.local.replace(os.sep, '-')
+        flat_local = self.local.replace(os.sep, "-")
         cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
@@ -80,25 +81,25 @@ class Git(base.FetchableSource):
 
             with pb.local.cwd(cache_path):
                 if "HEAD" not in self.refspec:
-                    checkout(self.refspec.split('/')[-1])
+                    checkout(self.refspec.split("/")[-1])
 
                 if self.submodule_set_urls:
                     for submodule, url in self.submodule_set_urls.items():
-                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        LOG.debug("Setting url for submodule %s to %s.", submodule, url)
                         set_url(submodule, url)
                 submodule_update()
         else:
             if self in _fetched_cache:
-                LOG.debug('Already fetched %s, skipping.', self.local)
+                LOG.debug("Already fetched %s, skipping.", self.local)
             else:
-                LOG.debug('Fetching %s.', self.local)
+                LOG.debug("Fetching %s.", self.local)
                 _fetched_cache.add(self)
                 with pb.local.cwd(cache_path):
                     fetch()
 
         return cache_path
 
-    def version(self, target_dir: str, version: str = 'HEAD') -> pb.LocalPath:
+    def version(self, target_dir: str, version: str = "HEAD") -> pb.LocalPath:
         """
         Create a new git worktree pointing to the requested version.
 
@@ -114,57 +115,57 @@ class Git(base.FetchableSource):
         """
         src_loc = self.fetch()
         active_loc = pb.local.path(target_dir) / self.local
-        tgt_subdir = f'{self.local}-{version}'
+        tgt_subdir = f"{self.local}-{version}"
         tgt_loc = pb.local.path(target_dir) / tgt_subdir
 
-        clone = git['clone']
-        pull = git['pull']
-        rev_parse = git['rev-parse']
-        set_url = git['submodule', 'set-url']
-        submodule_update = git['submodule', 'update', '--init', '--recursive']
-        checkout = git['checkout', '-f']
+        clone = git["clone"]
+        pull = git["pull"]
+        rev_parse = git["rev-parse"]
+        set_url = git["submodule", "set-url"]
+        submodule_update = git["submodule", "update", "--init", "--recursive"]
+        checkout = git["checkout", "-f"]
 
         with pb.local.cwd(src_loc):
-            is_shallow = rev_parse('--is-shallow-repository').strip()
-            if is_shallow == 'true':
-                pull('--unshallow')
+            is_shallow = rev_parse("--is-shallow-repository").strip()
+            if is_shallow == "true":
+                pull("--unshallow")
 
         if Path(tgt_loc).exists():
             LOG.info(
-                'Found target location %s. Going to skip creation and '
-                'repository cloning.', str(tgt_loc)
+                "Found target location %s. Going to skip creation and "
+                "repository cloning.",
+                str(tgt_loc),
             )
         else:
-            mkdir('-p', tgt_loc)
+            mkdir("-p", tgt_loc)
             with pb.local.cwd(tgt_loc):
-                clone('--dissociate', '--reference', src_loc, self.remote, '.')
-                checkout('--detach', version)
+                clone("--dissociate", "--reference", src_loc, self.remote, ".")
+                checkout("--detach", version)
 
                 if self.submodule_set_urls:
                     for submodule, url in self.submodule_set_urls.items():
-                        LOG.debug('Setting url for submodule %s to %s.', submodule, url)
+                        LOG.debug("Setting url for submodule %s to %s.", submodule, url)
                         set_url(submodule, url)
                 submodule_update()
 
-        ln('-nsf', tgt_subdir, active_loc)
+        ln("-nsf", tgt_subdir, active_loc)
         return tgt_loc
 
-    def versions(self) -> tp.List[base.Variant]:
+    def versions(self) -> list[base.Variant]:
         cache_path = self.fetch()
-        git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
+        git_rev_list = git["rev-list", "--abbrev-commit", "--abbrev=10"]
 
-        rev_list: tp.List[str] = []
+        rev_list: list[str] = []
         with pb.local.cwd(cache_path):
-            rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
+            rev_list = list(git_rev_list(self.refspec).strip().split("\n"))
 
         rev_list = list(filter(self.version_filter, rev_list))
-        rev_list = rev_list[:self.limit] if self.limit else rev_list
+        rev_list = rev_list[: self.limit] if self.limit else rev_list
         revs = [base.Variant(version=rev, owner=self) for rev in rev_list]
         return revs
 
 
 class GitSubmodule(Git):
-
     @property
     def is_expandable(self) -> bool:
         """Submodules will not participate in version expansion."""
@@ -185,7 +186,7 @@ def maybe_shallow(cmd: BoundCommand, enable: bool) -> BoundCommand:
         Any: A new git clone command, with shallow clone enabled, if selected.
     """
     if enable:
-        return cmd['--depth', '1']
+        return cmd["--depth", "1"]
     return cmd
 
 
@@ -193,6 +194,6 @@ def clone_needed(repository: VarRemotes, repo_loc: str) -> bool:
     from benchbuild.utils.download import __clone_needed__
 
     if not isinstance(repository, str):
-        raise TypeError('\'remote\' needs to be a git repo string')
+        raise TypeError("'remote' needs to be a git repo string")
 
     return __clone_needed__(repository, repo_loc)

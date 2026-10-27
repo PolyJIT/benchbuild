@@ -39,8 +39,7 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.types import CHAR, Float, TypeDecorator
 
 from benchbuild import settings
@@ -57,7 +56,7 @@ def metadata():
 
 def exceptions(
     error_is_fatal: bool = True,
-    error_messages: tp.Optional[tp.Dict[Exception, str]] = None
+    error_messages: dict[Exception, str] | None = None,
 ) -> tp.Callable:
     """
     Handle SQLAlchemy exceptions in a sane way.
@@ -90,9 +89,7 @@ def exceptions(
                 LOG.error("For developers: (%s) %s", err.__class__, str(err))
                 if error_is_fatal:
                     sys.exit("Abort, SQL operation failed.")
-                if not ui.ask(
-                    "I can continue at your own risk, do you want that?"
-                ):
+                if not ui.ask("I can continue at your own risk, do you want that?"):
                     raise err
             return result
 
@@ -107,6 +104,7 @@ class GUID(TypeDecorator):
     Uses Postgresql's UUID type, otherwise uses
     CHAR(32), storing as stringified hex values.
     """
+
     impl = CHAR
     as_uuid = False
     cache_ok = False
@@ -116,7 +114,7 @@ class GUID(TypeDecorator):
         super().__init__(*args, **kwargs)
 
     def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
+        if dialect.name == "postgresql":
             return dialect.type_descriptor(UUID(as_uuid=self.as_uuid))
         return dialect.type_descriptor(CHAR(32))
 
@@ -133,12 +131,14 @@ class GUID(TypeDecorator):
 class Run(BASE):
     """Store a run for each executed test binary."""
 
-    __tablename__ = 'run'
+    __tablename__ = "run"
     __table_args__ = (
-        ForeignKeyConstraint(['project_name', 'project_group'],
-                             ['project.name', 'project.group_name'],
-                             onupdate="CASCADE",
-                             ondelete="CASCADE"),
+        ForeignKeyConstraint(
+            ["project_name", "project_group"],
+            ["project.name", "project.group_name"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
     )
 
     id = Column(Integer, primary_key=True)
@@ -150,64 +150,63 @@ class Run(BASE):
     experiment_group = Column(
         GUID(as_uuid=True),
         ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
-        index=True
+        index=True,
     )
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
-    status = Column(Enum('completed', 'running', 'failed', name="run_state"))
+    status = Column(Enum("completed", "running", "failed", name="run_state"))
 
     metrics = sa.orm.relationship(
         "Metric",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        passive_updates=True
+        passive_updates=True,
     )
     logs = sa.orm.relationship(
         "RunLog",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        passive_updates=True
+        passive_updates=True,
     )
     stored_data = sa.orm.relationship(
         "Metadata",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        passive_updates=True
+        passive_updates=True,
     )
     configurations = sa.orm.relationship(
         "Config",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        passive_updates=True
+        passive_updates=True,
     )
 
     def __repr__(self):
-        return ("<Run: {0} status={1} run={2}>"
-               ).format(self.project_name, self.status, self.id)
+        return f"<Run: {self.project_name} status={self.status} run={self.id}>"
 
 
 class RunGroup(BASE):
-    """ Store information about a run group. """
+    """Store information about a run group."""
 
-    __tablename__ = 'rungroup'
+    __tablename__ = "rungroup"
 
     id = Column(GUID(as_uuid=True), primary_key=True, index=True)
     experiment = Column(
         GUID(as_uuid=True),
         ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
-        index=True
+        index=True,
     )
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
-    status = Column(Enum('completed', 'running', 'failed', name="run_state"))
+    status = Column(Enum("completed", "running", "failed", name="run_state"))
 
 
 class Experiment(BASE):
     """Store metadata about experiments."""
 
-    __tablename__ = 'experiment'
+    __tablename__ = "experiment"
 
     name = Column(String)
     description = Column(String)
@@ -216,26 +215,23 @@ class Experiment(BASE):
     end = Column(DateTime(timezone=False))
 
     runs = sa.orm.relationship(
-        "Run",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True
+        "Run", cascade="all, delete-orphan", passive_deletes=True, passive_updates=True
     )
     run_groups = sa.orm.relationship(
         "RunGroup",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        passive_updates=True
+        passive_updates=True,
     )
 
     def __repr__(self):
-        return "<Experiment {name}>".format(name=self.name)
+        return f"<Experiment {self.name}>"
 
 
 class Project(BASE):
     """Store project metadata."""
 
-    __tablename__ = 'project'
+    __tablename__ = "project"
 
     name = Column(String, primary_key=True)
     description = Column(String)
@@ -245,25 +241,17 @@ class Project(BASE):
     version = Column(String)
 
     runs = sa.orm.relationship(
-        "Run",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True
+        "Run", cascade="all, delete-orphan", passive_deletes=True, passive_updates=True
     )
 
     def __repr__(self):
-        return "<Project {group}@{domain}/{name} V:{version}>".format(
-            group=self.group_name,
-            domain=self.domain,
-            name=self.name,
-            version=self.version
-        )
+        return f"<Project {self.group_name}@{self.domain}/{self.name} V:{self.version}>"
 
 
 class Metric(BASE):
     """Store default metrics, simple name value store."""
 
-    __tablename__ = 'metrics'
+    __tablename__ = "metrics"
 
     name = Column(String, primary_key=True, index=True, nullable=False)
     value = Column(Float)
@@ -271,11 +259,11 @@ class Metric(BASE):
         Integer,
         ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
-        primary_key=True
+        primary_key=True,
     )
 
     def __repr__(self):
-        return "{0} - {1}".format(self.name, self.value)
+        return f"{self.name} - {self.value}"
 
 
 class RunLog(BASE):
@@ -286,13 +274,13 @@ class RunLog(BASE):
     are stored here.
     """
 
-    __tablename__ = 'log'
+    __tablename__ = "log"
 
     run_id = Column(
         Integer,
         ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
-        primary_key=True
+        primary_key=True,
     )
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
@@ -316,7 +304,7 @@ class Metadata(BASE):
         Integer,
         ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
-        primary_key=True
+        primary_key=True,
     )
     name = Column(String)
     value = Column(String)
@@ -330,13 +318,13 @@ class Config(BASE):
     Use it for extended filtering against the run table.
     """
 
-    __tablename__ = 'config'
+    __tablename__ = "config"
 
     run_id = Column(
         Integer,
         ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
-        primary_key=True
+        primary_key=True,
     )
     name = Column(String, primary_key=True)
     value = Column(String)
@@ -364,7 +352,6 @@ def needed_schema(connection, meta):
 
 
 class SessionManager:
-
     def connect_engine(self):
         """
         Establish a connection to the database.
@@ -379,8 +366,7 @@ class SessionManager:
             return True
         except sa.exc.OperationalError as opex:
             LOG.critical(
-                "Could not connect to the database. The error was: '%s'",
-                str(opex)
+                "Could not connect to the database. The error was: '%s'", str(opex)
             )
         return False
 
@@ -401,12 +387,11 @@ class SessionManager:
 
     @exceptions(
         error_messages={
-            sa.exc.NoSuchModuleError:
-                "Connect string contained an invalid backend."
+            sa.exc.NoSuchModuleError: "Connect string contained an invalid backend."
         }
     )
     def __init__(self):
-        self.__test_mode = bool(settings.CFG['db']['rollback'])
+        self.__test_mode = bool(settings.CFG["db"]["rollback"])
         self.engine = create_engine(str(settings.CFG["db"]["connect_string"]))
 
         if not (self.connect_engine() and self.configure_engine()):
@@ -424,7 +409,7 @@ class SessionManager:
         return sessionmaker(bind=self.connection)
 
     def __del__(self):
-        if hasattr(self, '__transaction') and self.__transaction:
+        if hasattr(self, "__transaction") and self.__transaction:
             self.__transaction.rollback()
 
 

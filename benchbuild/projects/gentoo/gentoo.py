@@ -11,6 +11,7 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
 """
+
 import logging
 import typing as tp
 
@@ -32,11 +33,11 @@ LOG = logging.getLogger(__name__)
 class GentooGroup(bb.Project):
     """Gentoo ProjectGroup is the base class for every portage build."""
 
-    GROUP = 'gentoo'
+    GROUP = "gentoo"
     SRC_FILE = None
-    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = declarative.ContainerImage().from_("benchbuild:alpine")
 
-    emerge_env: tp.Dict[str, tp.Any] = attr.ib(
+    emerge_env: dict[str, tp.Any] = attr.ib(
         default=attr.Factory(dict), repr=False, eq=False, order=False
     )
 
@@ -52,34 +53,30 @@ class GentooGroup(bb.Project):
         uchroot.mkfile_uchroot("/.benchbuild-container")
         benchbuild = find_benchbuild()
         _benchbuild = run.watch(benchbuild)
-        with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
-            project_id = "{0}/{1}".format(self.name, self.group)
+        with local.env(BB_VERBOSITY=str(CFG["verbosity"])):
+            project_id = f"{self.name}/{self.group}"
             _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self) -> None:
-        package_atom = "{domain}/{name}".format(
-            domain=self.domain, name=self.name
-        )
+        package_atom = f"{self.domain}/{self.name}"
 
-        LOG.debug('Installing dependencies.')
-        emerge(package_atom, '--onlydeps', env=self.emerge_env)
+        LOG.debug("Installing dependencies.")
+        emerge(package_atom, "--onlydeps", env=self.emerge_env)
         c_compiler = local.path(str(compiler.cc(self)))
         cxx_compiler = local.path(str(compiler.cxx(self)))
 
-        setup_compilers('/etc/portage/make.conf')
-        ln("-sf", str(c_compiler), local.path('/') / c_compiler.basename)
-        ln('-sf', str(cxx_compiler), local.path('/') / cxx_compiler.basename)
+        setup_compilers("/etc/portage/make.conf")
+        ln("-sf", str(c_compiler), local.path("/") / c_compiler.basename)
+        ln("-sf", str(cxx_compiler), local.path("/") / cxx_compiler.basename)
 
-        LOG.debug('Installing %s.', package_atom)
+        LOG.debug("Installing %s.", package_atom)
         emerge(package_atom, env=self.emerge_env)
 
     def configure_benchbuild(self, cfg: Configuration) -> None:
         config_file = local.path("/.benchbuild.yml")
-        paths, libs = \
-                uchroot.env(
-                    uchroot.mounts(
-                        "mnt",
-                        cfg["container"]["mounts"].value))
+        paths, libs = uchroot.env(
+            uchroot.mounts("mnt", cfg["container"]["mounts"].value)
+        )
 
         uchroot_cfg = cfg
         env = uchroot_cfg["env"].value
@@ -87,10 +84,8 @@ class GentooGroup(bb.Project):
         env["LD_LIBRARY_PATH"] = libs
 
         uchroot_cfg["env"] = env
-        uchroot_cfg['plugins']['projects'] = [str(self.__module__)]
-        uchroot_cfg['plugins']['experiments'] = [
-            str(self.experiment.__module__)
-        ]
+        uchroot_cfg["plugins"]["projects"] = [str(self.__module__)]
+        uchroot_cfg["plugins"]["experiments"] = [str(self.experiment.__module__)]
         uchroot_cfg["config_file"] = str(config_file)
         uchroot_cfg["unionfs"]["enable"] = False
         uchroot_cfg["build_dir"] = "/benchbuild/build"
@@ -126,21 +121,21 @@ def configure_portage() -> None:
 
 
 def write_sandbox_d(_path: str) -> None:
-    uchroot.mkfile_uchroot(local.path('/') / _path)
-    with open(_path, 'a') as sandbox_conf:
-        lines = '''
+    uchroot.mkfile_uchroot(local.path("/") / _path)
+    with open(_path, "a") as sandbox_conf:
+        lines = """
 SANDBOX_WRITE="/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout"
-'''
+"""
         sandbox_conf.write(lines)
 
 
 def setup_compilers(_path: str) -> None:
     LOG.debug("Arming compiler symlinks.")
-    with open(_path, 'a') as makeconf:
-        lines = '''
+    with open(_path, "a") as makeconf:
+        lines = """
 CC="/clang"
 CXX="/clang++"
-'''
+"""
         makeconf.write(lines)
 
 
@@ -155,9 +150,9 @@ def write_makeconfig(_path: str) -> None:
     ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
     rsync_proxy = str(CFG["gentoo"]["rsync_proxy"])
 
-    uchroot.mkfile_uchroot(local.path('/') / _path)
-    with open(_path, 'w') as makeconf:
-        lines = '''
+    uchroot.mkfile_uchroot(local.path("/") / _path)
+    with open(_path, "w") as makeconf:
+        lines = """
 PORTAGE_USERNAME=root
 PORTAGE_GROUPNAME=root
 CFLAGS="-O2 -pipe"
@@ -168,7 +163,7 @@ USE="bindist mmx sse sse2"
 PORTDIR="/usr/portage"
 DISTDIR="/mnt/distfiles"
 PKGDIR="${PORTDIR}/packages"
-'''
+"""
 
         makeconf.write(lines)
 
@@ -178,17 +173,17 @@ PKGDIR="${PORTDIR}/packages"
         CFG["container"]["mounts"] = mounts
 
         if http_proxy is not None:
-            http_s = "http_proxy={0}".format(http_proxy)
-            https_s = "https_proxy={0}".format(http_proxy)
+            http_s = f"http_proxy={http_proxy}"
+            https_s = f"https_proxy={http_proxy}"
             makeconf.write(http_s + "\n")
             makeconf.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(ftp_proxy)
+            fp_s = f"ftp_proxy={ftp_proxy}"
             makeconf.write(fp_s + "\n")
 
         if rsync_proxy is not None:
-            rp_s = "RSYNC_PROXY={0}".format(rsync_proxy)
+            rp_s = f"RSYNC_PROXY={rsync_proxy}"
             makeconf.write(rp_s + "\n")
 
 
@@ -210,11 +205,11 @@ def write_bashrc(_path: str) -> None:
     paths = paths + p_paths
     libs = libs + p_libs
 
-    with open(_path, 'w') as bashrc:
-        lines = '''
-export PATH="{0}:${{PATH}}"
-export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(path.list_to_path(paths), path.list_to_path(libs))
+    with open(_path, "w") as bashrc:
+        lines = f"""
+export PATH="{path.list_to_path(paths)}:${{PATH}}"
+export LD_LIBRARY_PATH="{path.list_to_path(libs)}:${{LD_LIBRARY_PATH}}"
+"""
 
         bashrc.write(lines)
 
@@ -229,8 +224,8 @@ def write_layout(_path: str) -> None:
 
     uchroot.mkdir_uchroot("/etc/portage/metadata")
     uchroot.mkfile_uchroot("/etc/portage/metadata/layout.conf")
-    with open(_path, 'w') as layoutconf:
-        lines = '''masters = gentoo'''
+    with open(_path, "w") as layoutconf:
+        lines = """masters = gentoo"""
         layoutconf.write(lines)
 
 
@@ -245,30 +240,30 @@ def write_wgetrc(_path: str) -> None:
     ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
 
     uchroot.mkfile_uchroot("/etc/wgetrc")
-    with open(_path, 'w') as wgetrc:
+    with open(_path, "w") as wgetrc:
         if http_proxy is not None:
-            http_s = "http_proxy = {0}".format(http_proxy)
-            https_s = "https_proxy = {0}".format(http_proxy)
+            http_s = f"http_proxy = {http_proxy}"
+            https_s = f"https_proxy = {http_proxy}"
             wgetrc.write("use_proxy = on\n")
             wgetrc.write(http_s + "\n")
             wgetrc.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(ftp_proxy)
+            fp_s = f"ftp_proxy={ftp_proxy}"
             wgetrc.write(fp_s + "\n")
 
 
 def setup_virtualenv(_path: str = "/benchbuild") -> None:
     LOG.debug("Setting up Benchbuild virtualenv...")
     env = uchroot.uchroot()["/usr/bin/env"]
-    env = env['-i', '--']
+    env = env["-i", "--"]
     venv = env["/usr/bin/virtualenv"]
     venv = venv("-p", "/usr/bin/python3", _path)
 
 
-def find_benchbuild() -> tp.Optional[BoundCommand]:
+def find_benchbuild() -> BoundCommand | None:
     try:
-        uchrt = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
+        uchrt = uchroot.clean_env(uchroot.uchroot(), ["HOME"])
         benchbuild_loc = uchrt("which", "benchbuild").strip()
         benchbuild = uchrt[benchbuild_loc]
         return benchbuild
@@ -327,10 +322,9 @@ def setup_benchbuild() -> None:
 
 def __upgrade_from_pip(venv_dir: local.path) -> None:
     LOG.debug("Upgrading from pip")
-    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ["HOME"])
     uchroot.uretry(
-        uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade",
-                  "benchbuild"]
+        uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade", "benchbuild"]
     )
 
 
@@ -344,7 +338,7 @@ def __mount_source(src_dir: str) -> None:
 
 def __upgrade_from_source(venv_dir: local.path, with_deps: bool = True) -> None:
     LOG.debug("Upgrading from source")
-    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ["HOME"])
     opts = ["--upgrade"]
     if not with_deps:
         opts.append("--no-deps")

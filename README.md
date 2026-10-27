@@ -256,12 +256,13 @@ to the configuration.
 ```python
 from pprof.projects.gentoo.portage_gen import AutoPortage
 
-class BZip(AutoPortage):
-  NAME = "app-arch"
-  DOMAIN = "bzip2"
 
-  def run_tests(self):
-    """Add your custom test routines here."""
+class BZip(AutoPortage):
+    NAME = "app-arch"
+    DOMAIN = "bzip2"
+
+    def run_tests(self):
+        """Add your custom test routines here."""
 ```
 
 Now we just need to add this to the plugin registry via `benchbuild`'s

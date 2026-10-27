@@ -1,6 +1,5 @@
 import logging
 import shutil
-import sys
 import typing as tp
 from contextlib import contextmanager
 from pathlib import Path
@@ -33,7 +32,7 @@ class ArgsRenderStrategy(Protocol):
         Returns an unrendered representation of this strategy.
         """
 
-    def rendered(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+    def rendered(self, **kwargs: tp.Any) -> tuple[str, ...]:
         """Renders this strategy."""
 
 
@@ -77,6 +76,7 @@ class ConstStrRenderer:
     """
     Renders a constant string defined by the user.
     """
+
     value: str
 
     def __init__(self, value: str) -> None:
@@ -108,8 +108,8 @@ class BuilddirRenderer:
 
     def rendered(
         self,
-        project: tp.Optional['benchbuild.project.Project'] = None,
-        **kwargs: tp.Any
+        project: tp.Optional["benchbuild.project.Project"] = None,
+        **kwargs: tp.Any,
     ) -> Path:
         """
         Render the project's build directory.
@@ -141,6 +141,7 @@ class SourceRootRenderer:
     If the local name cannot be found inside the project's source definition,
     it will concatenate the project's builddir with the given name.
     """
+
     local: str
 
     def __init__(self, local_name: str) -> None:
@@ -152,8 +153,8 @@ class SourceRootRenderer:
 
     def rendered(
         self,
-        project: tp.Optional['benchbuild.project.Project'] = None,
-        **kwargs: tp.Any
+        project: tp.Optional["benchbuild.project.Project"] = None,
+        **kwargs: tp.Any,
     ) -> Path:
         """
         Render the project's source directory.
@@ -170,7 +171,7 @@ class SourceRootRenderer:
             LOG.error("Cannot render a source directory without a project.")
             return Path(self.unrendered)
 
-        if (src_path := project.source_of(self.local)):
+        if src_path := project.source_of(self.local):
             return Path(src_path)
         return Path(project.builddir) / self.local
 
@@ -182,18 +183,17 @@ class ArgsToken:
     """
     Base class for tokens that can be rendered into command-line arguments.
     """
+
     renderer: ArgsRenderStrategy
 
     @classmethod
-    def make_token(
-        cls, renderer: ArgsRenderStrategy
-    ) -> 'ArgsToken':
+    def make_token(cls, renderer: ArgsRenderStrategy) -> "ArgsToken":
         return ArgsToken(renderer)
 
     def __init__(self, renderer: ArgsRenderStrategy) -> None:
         self.renderer = renderer
 
-    def render(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
+    def render(self, **kwargs: tp.Any) -> tuple[str, ...]:
         """
         Renders the PathToken as a standard pathlib Path.
 
@@ -215,15 +215,14 @@ class PathToken:
     A path token can use similar to pathlib's Path components. However, each
     token can render dynamically based on the given render context.
     """
+
     renderer: PathRenderStrategy
 
-    left: tp.Optional['PathToken']
-    right: tp.Optional['PathToken']
+    left: tp.Optional["PathToken"]
+    right: tp.Optional["PathToken"]
 
     @classmethod
-    def make_token(
-        cls, renderer: tp.Optional[PathRenderStrategy] = None
-    ) -> 'PathToken':
+    def make_token(cls, renderer: PathRenderStrategy | None = None) -> "PathToken":
         if renderer:
             return PathToken(renderer)
         return PathToken(RootRenderer())
@@ -231,10 +230,9 @@ class PathToken:
     def __init__(
         self,
         renderer: PathRenderStrategy,
-        left: tp.Optional['PathToken'] = None,
-        right: tp.Optional['PathToken'] = None
+        left: tp.Optional["PathToken"] = None,
+        right: tp.Optional["PathToken"] = None,
     ) -> None:
-
         self.renderer = renderer
         self.left = left
         self.right = right
@@ -269,7 +267,7 @@ class PathToken:
 
         return p
 
-    def __truediv__(self, rhs: tp.Union[str, 'PathToken']) -> 'PathToken':
+    def __truediv__(self, rhs: tp.Union[str, "PathToken"]) -> "PathToken":
         if isinstance(rhs, str):
             render_str = ConstStrRenderer(rhs)
             rhs_token = PathToken(render_str)
@@ -316,8 +314,7 @@ class SupportsUnwrap(Protocol):
     Unwrapping ensures access to a WorkloadSet from any wrapper object.
     """
 
-    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet":
-        ...
+    def unwrap(self, project: "benchbuild.project.Project") -> "WorkloadSet": ...
 
 
 class WorkloadSet:
@@ -340,7 +337,7 @@ class WorkloadSet:
     inserted values.
     """
 
-    _tags: tp.FrozenSet[tp.Any]
+    _tags: frozenset[tp.Any]
 
     def __init__(self, *args: tp.Any) -> None:
         self._tags = frozenset(args)
@@ -396,12 +393,11 @@ class OnlyIn:
     iff, the Project's revision is included in the range specified by the
     RevisionRange.
     """
+
     rev_range: RevisionRange
     workload_set: WorkloadSet
 
-    def __init__(
-        self, rev_range: RevisionRange, workload_set: WorkloadSet
-    ) -> None:
+    def __init__(self, rev_range: RevisionRange, workload_set: WorkloadSet) -> None:
         self.rev_range = rev_range
         self.workload_set = workload_set
 
@@ -481,10 +477,10 @@ class Command:
     [/tmp/foo]
     """
 
-    _args: tp.Tuple[tp.Any, ...]
-    _env: tp.Dict[str, str]
-    _label: tp.Optional[str]
-    _output: tp.Optional[PathToken]
+    _args: tuple[tp.Any, ...]
+    _env: dict[str, str]
+    _label: str | None
+    _output: PathToken | None
     _output_param: tp.Sequence[str]
     _path: PathToken
     _creates: tp.Sequence[PathToken]
@@ -494,14 +490,13 @@ class Command:
         self,
         path: PathToken,
         *args: tp.Any,
-        output: tp.Optional[PathToken] = None,
-        output_param: tp.Optional[tp.Sequence[str]] = None,
-        label: tp.Optional[str] = None,
-        creates: tp.Optional[tp.Sequence[ArtefactPath]] = None,
-        consumes: tp.Optional[tp.Sequence[ArtefactPath]] = None,
+        output: PathToken | None = None,
+        output_param: tp.Sequence[str] | None = None,
+        label: str | None = None,
+        creates: tp.Sequence[ArtefactPath] | None = None,
+        consumes: tp.Sequence[ArtefactPath] | None = None,
         **kwargs: str,
     ) -> None:
-
         def _to_pathtoken(token: ArtefactPath) -> PathToken:
             if isinstance(token, str):
                 return ProjectRoot() / token
@@ -541,7 +536,7 @@ class Command:
         return self._path.dirname
 
     @property
-    def output(self) -> tp.Optional[PathToken]:
+    def output(self) -> PathToken | None:
         return self._output
 
     @property
@@ -563,7 +558,7 @@ class Command:
     def label(self, new_label: str) -> None:
         self._label = new_label
 
-    def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
+    def __getitem__(self, args: tuple[tp.Any, ...]) -> "Command":
         return Command(
             self._path,
             *self._args,
@@ -572,7 +567,7 @@ class Command:
             output_param=self._output_param,
             creates=self._creates,
             consumes=self._consumes,
-            **self._env
+            **self._env,
         )
 
     def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> tp.Any:
@@ -580,8 +575,8 @@ class Command:
         cmd_w_output = self.as_plumbum(**kwargs)
         return watch(cmd_w_output)(*args)
 
-    def rendered_args(self, **kwargs: tp.Any) -> tp.Tuple[str, ...]:
-        args: tp.List[str] = []
+    def rendered_args(self, **kwargs: tp.Any) -> tuple[str, ...]:
+        args: list[str] = []
 
         for arg in self._args:
             if isinstance(arg, ArgsToken):
@@ -605,7 +600,7 @@ class Command:
             An executable plumbum command.
         """
         cmd_path = self.path.render(**kwargs)
-        assert cmd_path.exists(), f"{str(cmd_path)} doesn't exist!"
+        assert cmd_path.exists(), f"{cmd_path!s} doesn't exist!"
 
         cmd = local[str(cmd_path)]
         cmd_w_args = cmd[self.rendered_args(**kwargs)]
@@ -637,7 +632,7 @@ class Command:
         return f"Command({repr_str})"
 
     def __str__(self) -> str:
-        env_str = " ".join([f"{k}={str(v)}" for k, v in self._env.items()])
+        env_str = " ".join([f"{k}={v!s}" for k, v in self._env.items()])
         args_str = " ".join(tuple(str(arg) for arg in self._args))
 
         command_str = f"{self._path}"
@@ -670,9 +665,7 @@ class ProjectCommand:
     project: "benchbuild.project.Project"
     command: Command
 
-    def __init__(
-        self, project: "benchbuild.project.Project", command: Command
-    ) -> None:
+    def __init__(self, project: "benchbuild.project.Project", command: Command) -> None:
         self.project = project
         self.command = command
 
@@ -716,14 +709,13 @@ def _default_prune(project_command: ProjectCommand) -> None:
 
 
 def _default_backup(
-    project_command: ProjectCommand,
-    _suffix: str = ".benchbuild_backup"
-) -> tp.List[Path]:
+    project_command: ProjectCommand, _suffix: str = ".benchbuild_backup"
+) -> list[Path]:
     command = project_command.command
     project = project_command.project
     builddir = Path(str(project.builddir))
 
-    backup_destinations: tp.List[Path] = []
+    backup_destinations: list[Path] = []
     for backup in command.consumes:
         backup_path = backup.render(project=project)
         backup_destination = backup_path.with_suffix(_suffix)
@@ -737,7 +729,7 @@ def _default_backup(
     return backup_destinations
 
 
-def _default_restore(backup_paths: tp.List[Path]) -> None:
+def _default_restore(backup_paths: list[Path]) -> None:
     for backup_path in backup_paths:
         original_path = backup_path.with_suffix("")
         if not original_path.exists() and backup_path.exists():
@@ -753,24 +745,21 @@ def _default_restore(backup_paths: tp.List[Path]) -> None:
 class PruneFn(Protocol):
     """Prune function protocol."""
 
-    def __call__(self, project_command: ProjectCommand) -> None:
-        ...
+    def __call__(self, project_command: ProjectCommand) -> None: ...
 
 
 class BackupFn(Protocol):
     """Backup callback function protocol."""
 
-    def __call__(self,
-                 project_command: ProjectCommand,
-                 _suffix: str = ...) -> tp.List[Path]:
-        ...
+    def __call__(
+        self, project_command: ProjectCommand, _suffix: str = ...
+    ) -> list[Path]: ...
 
 
 class RestoreFn(Protocol):
     """Restore function protocol."""
 
-    def __call__(self, backup_paths: tp.List[Path]) -> None:
-        ...
+    def __call__(self, backup_paths: list[Path]) -> None: ...
 
 
 @contextmanager
@@ -778,7 +767,7 @@ def cleanup(
     project_command: ProjectCommand,
     backup: BackupFn = _default_backup,
     restore: RestoreFn = _default_restore,
-    prune: PruneFn = _default_prune
+    prune: PruneFn = _default_prune,
 ):
     """
     Encapsulate a command in automatic backup, restore and prune.
@@ -796,11 +785,11 @@ def cleanup(
     restore(backup_paths)
 
 
-WorkloadIndex = tp.MutableMapping[WorkloadSet, tp.List[Command]]
+WorkloadIndex = tp.MutableMapping[WorkloadSet, list[Command]]
 
 
 def unwrap(
-    index: WorkloadIndex, project: 'benchbuild.project.Project'
+    index: WorkloadIndex, project: "benchbuild.project.Project"
 ) -> WorkloadIndex:
     """
     Unwrap all keys in a workload index.
@@ -812,8 +801,8 @@ def unwrap(
 
 
 def filter_workload_index(
-    only: tp.Optional[WorkloadSet], index: WorkloadIndex
-) -> tp.Generator[tp.List[Command], None, None]:
+    only: WorkloadSet | None, index: WorkloadIndex
+) -> tp.Generator[list[Command], None, None]:
     """
     Yield only commands from the index that match the filter.
 

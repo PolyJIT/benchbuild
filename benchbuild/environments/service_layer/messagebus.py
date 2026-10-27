@@ -9,23 +9,21 @@ from benchbuild.environments.service_layer import ensure
 LOG = logging.getLogger(__name__)
 
 Message = tp.Union[model.Command, model.Event]
-Messages = tp.List[Message]
+Messages = list[Message]
 
-#EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
-EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None,
-                                                        None]]
-#CommandHandlerT = tp.Callable[
+# EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
+EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None, None]]
+# CommandHandlerT = tp.Callable[
 #    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
-CommandHandlerT = tp.Callable[[model.Command], tp.Generator[model.Event, None,
-                                                            None]]
+CommandHandlerT = tp.Callable[[model.Command], tp.Generator[model.Event, None, None]]
 
-MessageT = tp.Union[tp.Type[model.Command], tp.Type[model.Event]]
+MessageT = tp.Union[type[model.Command], type[model.Event]]
 
 MessageHandler = tp.Callable[[Message], tp.Generator]
-MessageHandlers = tp.Dict[MessageT, MessageHandler]
+MessageHandlers = dict[MessageT, MessageHandler]
 
-EventHandlers = tp.Dict[tp.Type[model.Event], EventHandlerT]
-CommandHandlers = tp.Dict[tp.Type[model.Command], CommandHandlerT]
+EventHandlers = dict[type[model.Event], EventHandlerT]
+CommandHandlers = dict[type[model.Command], CommandHandlerT]
 
 
 def handle(
@@ -46,12 +44,10 @@ def handle(
         elif isinstance(message, model.Command):
             _handle_command(cmd_handlers, message, queue)
         else:
-            raise Exception(f'{message} was not an Event or Command')
+            raise Exception(f"{message} was not an Event or Command")
 
 
-def _handle_event(
-    handlers: EventHandlers, event: model.Event, queue: Messages
-) -> None:
+def _handle_event(handlers: EventHandlers, event: model.Event, queue: Messages) -> None:
     """
     Invokes all registered event handlers for this event.
 
@@ -61,11 +57,11 @@ def _handle_event(
         queue: The message queue to hold  new events/commands that spawn from
                this handler.
     """
-    for handler in tp.cast(tp.List[EventHandlerT], handlers[type(event)]):
+    for handler in tp.cast(list[EventHandlerT], handlers[type(event)]):
         try:
             queue.extend(handler(event))
         except Exception:
-            LOG.exception('Exception handling event %s', event)
+            LOG.exception("Exception handling event %s", event)
             continue
 
 
@@ -85,10 +81,10 @@ def _handle_command(
         handler = handlers[type(command)]
         queue.extend(handler(command))
     except ensure.ImageNotFound as ex:
-        print((
-            'Command could not be executed, because I could not find a required'
-            f' image: {ex}'
-        ))
+        print(
+            "Command could not be executed, because I could not find a required"
+            f" image: {ex}"
+        )
     except Exception:
-        LOG.exception('Exception handling command %s', command)
+        LOG.exception("Exception handling command %s", command)
         raise

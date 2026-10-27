@@ -8,15 +8,13 @@ LOG = logging.getLogger(__name__)
 
 
 class CleanupOnSignal:
-    __stored_procedures: tp.Dict[tp.Callable, tp.Callable] = {}
+    __stored_procedures: dict[tp.Callable, tp.Callable] = {}
 
     @property
     def stored_procedures(self):
         return self.__stored_procedures
 
-    def register(
-        self, callback: tp.Callable, *args: tp.Any, **kwargs: tp.Any
-    ) -> None:
+    def register(self, callback: tp.Callable, *args: tp.Any, **kwargs: tp.Any) -> None:
         new_func = functools.partial(callback, *args, **kwargs)
         self.__stored_procedures[callback] = new_func
 

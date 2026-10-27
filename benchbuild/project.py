@@ -15,6 +15,7 @@ The project definition ensures that all experiments run through the same
 series of commands in both phases and that all experiments run inside
 a separate build directory in isolation of one another.
 """
+
 import copy
 import logging
 import typing as tp
@@ -29,24 +30,33 @@ from plumbum import local
 from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import extensions, source
+from benchbuild import extensions
 from benchbuild.command import Command, SupportsUnwrap
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
-from benchbuild.source import primary, Git
+from benchbuild.source import (
+    BaseVersionFilter,
+    FetchableSource,
+    Git,
+    Revision,
+    SingleVersionFilter,
+    primary,
+    secondaries,
+    sources_as_dict,
+)
 from benchbuild.utils import db, run
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange
 
 LOG = logging.getLogger(__name__)
 
-MaybeGroupNames = tp.Optional[tp.List[str]]
-ProjectNames = tp.List[str]
-Sources = tp.List[source.FetchableSource]
-ContainerDeclaration = tp.Union[ContainerImage,
-                                tp.List[tp.Tuple[RevisionRange,
-                                                 ContainerImage]]]
-Workloads = tp.MutableMapping[SupportsUnwrap, tp.List[Command]]
+MaybeGroupNames = tp.Optional[list[str]]
+ProjectNames = list[str]
+Sources = list[FetchableSource]
+ContainerDeclaration = tp.Union[
+    ContainerImage, list[tuple[RevisionRange, ContainerImage]]
+]
+Workloads = tp.MutableMapping[SupportsUnwrap, list[Command]]
 
 __REGISTRATION_SEPARATOR = "/"
 __REGISTRATION_OPTIONALS = ["/", "-"]
@@ -58,13 +68,13 @@ class ProjectRegistry(type):
     projects = StringTrie()
 
     def __new__(
-        mcs: tp.Type["Project"],
+        mcs: type["Project"],
         name: str,
-        bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any],
+        bases: tuple[type, ...],
+        attrs: dict[str, tp.Any],
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
+        cls = super().__new__(mcs, name, bases, attrs)
         name = attrs["NAME"] if "NAME" in attrs else cls.NAME
         domain = attrs["DOMAIN"] if "DOMAIN" in attrs else cls.DOMAIN
         group = attrs["GROUP"] if "GROUP" in attrs else cls.GROUP
@@ -79,10 +89,10 @@ class ProjectRegistry(type):
 
 
 class MultiVersioned:
-    _active_revision: tp.Optional[source.Revision]
-    _active_revisions: tp.List[source.Revision]
+    _active_revision: Revision | None
+    _active_revisions: list[Revision]
 
-    revision: source.Revision
+    revision: Revision
 
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
@@ -91,16 +101,14 @@ class MultiVersioned:
         cls._active_revisions = []
 
     @property
-    def active_revision(self) -> source.Revision:
+    def active_revision(self) -> Revision:
         """
         Get the active revision.
 
         Returns:
             Active revision context.
         """
-        assert hasattr(
-            self, "revision"
-        ), "revision attribute missing from subclass."
+        assert hasattr(self, "revision"), "revision attribute missing from subclass."
 
         if self._active_revision is None:
             self._active_revision = self.revision
@@ -109,12 +117,12 @@ class MultiVersioned:
         return self._active_revision
 
     @active_revision.setter
-    def active_revision(self, revision: source.Revision) -> None:
+    def active_revision(self, revision: Revision) -> None:
         self._active_revisions.append(revision)
         self._active_revision = revision
 
     @property
-    def active_revisions(self) -> tp.Sequence[source.Revision]:
+    def active_revisions(self) -> tp.Sequence[Revision]:
         return self._active_revisions
 
 
@@ -123,7 +131,7 @@ class PathTracker:
     Remember paths in any subclass
     """
 
-    _tracked_paths: tp.Set[Path]
+    _tracked_paths: set[Path]
 
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
@@ -144,17 +152,16 @@ class PathTracker:
 
 
 class ProjectRunnables:
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        if hasattr(cls, 'run_tests'):
+        if hasattr(cls, "run_tests"):
             f_run_tests = run.in_builddir()(run.store_config(cls.run_tests))
-            setattr(cls, 'run_tests', f_run_tests)
+            cls.run_tests = f_run_tests
 
-        if hasattr(cls, 'compile'):
+        if hasattr(cls, "compile"):
             f_compile = run.in_builddir()(run.store_config(cls.compile))
-            setattr(cls, 'compile', f_compile)
+            cls.compile = f_compile
 
     @abstractmethod
     def compile(self) -> None:
@@ -166,9 +173,7 @@ class ProjectRunnables:
 
 
 @attr.s
-class Project(
-    PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry
-):  # pylint: disable=too-many-instance-attributes
+class Project(PathTracker, MultiVersioned, ProjectRunnables, metaclass=ProjectRegistry):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in
@@ -234,7 +239,7 @@ class Project(
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
-    REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
+    REQUIREMENTS: tp.ClassVar[list[Requirement]] = []
     SOURCE: tp.ClassVar[Sources] = []
     WORKLOADS: tp.ClassVar[Workloads] = {}
 
@@ -242,12 +247,10 @@ class Project(
         """Create a new project instance and set some defaults."""
         del args, kwargs
 
-        new_self = super(Project, cls).__new__(cls)
+        new_self = super().__new__(cls)
         mod_ident = f"{cls.__name__} @ {cls.__module__}"
         if not cls.NAME:
-            raise AttributeError(
-                f"{mod_ident} does not define a NAME class attribute."
-            )
+            raise AttributeError(f"{mod_ident} does not define a NAME class attribute.")
         if not cls.DOMAIN:
             raise AttributeError(
                 f"{mod_ident} does not define a DOMAIN class attribute."
@@ -259,19 +262,19 @@ class Project(
 
         return new_self
 
-    revision: source.Revision = attr.ib()
+    revision: Revision = attr.ib()
 
     @revision.default
-    def __default_revision(self) -> source.Revision:  # pylint: disable=unused-private-member
+    def __default_revision(self) -> Revision:  # pylint: disable=unused-private-member
         srcs = type(self).SOURCE
         if len(srcs) == 0:
             raise ValueError("A project requires at least one source!")
 
         assert len(srcs) > 0, "A project requires at least one source!"
-        return source.Revision(
+        return Revision(
             type(self),
-            source.primary(srcs[0]).default,
-            *[src.default for src in source.secondaries(srcs[1:])]
+            primary(srcs[0]).default,
+            *[src.default for src in secondaries(srcs[1:])],
         )
 
     name: str = attr.ib(
@@ -288,15 +291,15 @@ class Project(
 
     container: ContainerImage = attr.ib(default=attr.Factory(ContainerImage))
 
-    cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
+    cflags: list[str] = attr.ib(default=attr.Factory(list))
 
-    ldflags: tp.List[str] = attr.ib(default=attr.Factory(list))
+    ldflags: list[str] = attr.ib(default=attr.Factory(list))
 
     run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
     def __default_run_uuid(self):  # pylint: disable=unused-private-member
-        if (run_group := getenv("BB_DB_RUN_GROUP", None)):
+        if run_group := getenv("BB_DB_RUN_GROUP", None):
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
@@ -307,8 +310,7 @@ class Project(
 
     builddir: local.path = attr.ib(
         default=attr.Factory(
-            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.
-            run_uuid,
+            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.run_uuid,
             takes_self=True,
         )
     )
@@ -318,15 +320,14 @@ class Project(
     )
 
     workloads: Workloads = attr.ib(
-        default=attr.
-        Factory(lambda self: type(self).WORKLOADS, takes_self=True)
+        default=attr.Factory(lambda self: type(self).WORKLOADS, takes_self=True)
     )
 
     primary_source: str = attr.ib()
 
     @primary_source.default
     def __default_primary_source(self) -> str:  # pylint: disable=unused-private-member
-        return source.primary(*self.source).key
+        return primary(*self.source).key
 
     compiler_extension = attr.ib(
         default=attr.Factory(extensions.MissingExtension, takes_self=False)
@@ -345,7 +346,7 @@ class Project(
             )
         else:
             primary_source = primary(*self.SOURCE)
-            if isinstance(primary_source, source.BaseVersionFilter):
+            if isinstance(primary_source, BaseVersionFilter):
                 primary_source = primary_source.child
             if not isinstance(primary_source, Git):
                 raise AssertionError(
@@ -387,7 +388,7 @@ class Project(
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
 
-    def source_of(self, name: str) -> tp.Optional[str]:
+    def source_of(self, name: str) -> str | None:
         """
         Retrieve source for given index name.
 
@@ -411,12 +412,12 @@ class Project(
         except KeyError:
             LOG.debug("%s not found in revision. Skipping.", name)
 
-        if name in (all_sources := source.sources_as_dict(*self.source)):
+        if name in (all_sources := sources_as_dict(*self.source)):
             return str(self.builddir / all_sources[name].local)
 
         return None
 
-    def version_of(self, name: str) -> tp.Optional[str]:
+    def version_of(self, name: str) -> str | None:
         """
         Retrieve version for given index name.
 
@@ -457,12 +458,10 @@ class Project(
         return source_str
 
 
-ProjectT = tp.Type[Project]
+ProjectT = type[Project]
 
 
-def __split_project_input__(
-    project_input: str
-) -> tp.Tuple[str, tp.Optional[str]]:
+def __split_project_input__(project_input: str) -> tuple[str, str | None]:
     split_input = project_input.rsplit("@", maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -470,7 +469,7 @@ def __split_project_input__(
     return (first, second)
 
 
-def discovered() -> tp.Dict[str, ProjectT]:
+def discovered() -> dict[str, ProjectT]:
     """Return all discovered projects."""
     return dict(ProjectRegistry.projects)
 
@@ -483,42 +482,36 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     victim = sources[0]
-    victim = source.SingleVersionFilter(victim, version)
+    victim = SingleVersionFilter(victim, version)
     sources[0] = victim
 
     project.SOURCE = sources
     return project
 
 
-def __add_indexed_filters__(
-    project: ProjectT, versions: tp.List[str]
-) -> ProjectT:
+def __add_indexed_filters__(project: ProjectT, versions: list[str]) -> ProjectT:
     sources = [src for src in project.SOURCE if src.is_expandable]
 
     for i in range(min(len(sources), len(versions))):
         if versions[i] == "*":
             continue
-        sources[i] = source.SingleVersionFilter(sources[i], versions[i])
+        sources[i] = SingleVersionFilter(sources[i], versions[i])
 
     project.SOURCE = sources
     return project
 
 
-def __add_named_filters__(
-    project: ProjectT, versions: tp.Dict[str, str]
-) -> ProjectT:
+def __add_named_filters__(project: ProjectT, versions: dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     sources = [src for src in project.SOURCE if src.is_expandable]
-    named_sources: tp.Dict[str, source.base.FetchableSource] = {
-        s.key: s for s in sources
-    }
+    named_sources: dict[str, FetchableSource] = {s.key: s for s in sources}
     for k, v in versions.items():
         if v == "*":
             continue
 
         if k in named_sources:
-            victim: source.base.FetchableSource = named_sources[k]
-            victim = source.SingleVersionFilter(victim, v)
+            victim: FetchableSource = named_sources[k]
+            victim = SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())
 
@@ -544,7 +537,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     if not project.SOURCE:
         return project
 
-    def csv(in_str: tp.Union[tp.Any, str]) -> bool:
+    def csv(in_str: tp.Any | str) -> bool:
         if isinstance(in_str, str):
             return len(in_str.split(",")) > 1
         return False
@@ -571,8 +564,7 @@ ProjectIndex = tp.Mapping[str, ProjectT]
 
 
 def populate(
-    projects_to_filter: ProjectNames,
-    group: MaybeGroupNames = None
+    projects_to_filter: ProjectNames, group: MaybeGroupNames = None
 ) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
@@ -616,13 +608,9 @@ def populate(
 
     if group:
         groupkeys = set(group)
-        prjs = {
-            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
-        }
+        prjs = {name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys}
 
-    populated = {
-        x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f
-    }
+    populated = {x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f}
     return populated
 
 

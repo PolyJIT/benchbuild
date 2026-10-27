@@ -16,6 +16,7 @@ as well fail dynamically, if the user forgets to configure it. We won't
 make any assumptions about the quality/types of the 'extensions'. This
 can be enforced on the project level using attr's validators.
 """
+
 import pytest
 
 from benchbuild import extensions, project, source
@@ -23,11 +24,11 @@ from benchbuild.environments.domain.declarative import ContainerImage
 
 
 class DummyPrj(project.Project):
-    NAME: str = 'TestMissingExtension'
-    GROUP: str = 'TestMissingExtension'
-    DOMAIN: str = 'TestMissingExtension'
+    NAME: str = "TestMissingExtension"
+    GROUP: str = "TestMissingExtension"
+    DOMAIN: str = "TestMissingExtension"
     SOURCE = [source.nosource()]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER: ContainerImage = ContainerImage().from_("benchbuild:alpine")
 
     def run_tests(self):
         raise NotImplementedError()

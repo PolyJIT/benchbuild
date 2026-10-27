@@ -1,6 +1,7 @@
 """
 Test issue 213: Wrong error tracking for failed commands
 """
+
 import unittest
 
 import attr
@@ -38,7 +39,7 @@ class EmptyProject(prj.Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
-    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = declarative.ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
         pass
@@ -68,24 +69,24 @@ class TrackErrorsTestCase(unittest.TestCase):
 
     def test_exception(self):
         plan = list(
-            tasks.generate_plan({"test_exception": ExceptionExp}.values(),
-                                {"test_empty": EmptyProject}.values())
+            tasks.generate_plan(
+                {"test_exception": ExceptionExp}.values(),
+                {"test_empty": EmptyProject}.values(),
+            )
         )
-        self.assertEqual(
-            len(plan), 1, msg="The test plan must have a length of 1."
-        )
+        self.assertEqual(len(plan), 1, msg="The test plan must have a length of 1.")
 
         failed = tasks.execute_plan(plan)
         self.assertEqual(len(failed), 1, msg="One step must fail!")
 
     def test_error_state(self):
         plan = list(
-            tasks.generate_plan({"test_error_state": ErrorStateExp}.values(),
-                                {"test_empty": EmptyProject}.values())
+            tasks.generate_plan(
+                {"test_error_state": ErrorStateExp}.values(),
+                {"test_empty": EmptyProject}.values(),
+            )
         )
-        self.assertEqual(
-            len(plan), 1, msg="The test plan must have a length of 1."
-        )
+        self.assertEqual(len(plan), 1, msg="The test plan must have a length of 1.")
 
         failed = tasks.execute_plan(plan)
         self.assertEqual(len(failed), 1, msg="One step must fail!")

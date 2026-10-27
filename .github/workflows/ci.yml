@@ -1,173 +1,41 @@
-name: ci
+name: Unittests
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to use"
+        type: string
+        required: false
+        default: "3.14"
 
 jobs:
-  unittests:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10"]
-
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v7
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: ./.github/actions/setup-runner
+        with:
+          python-version: "${{ inputs.python-version }}"
 
-    - name: Install system dependencies for CI
-      run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang
+      - name: Run unittests
+        env:
+          # Avoid 50 char hard-limit of podman. These are enforced because of
+          # a kernel limit of 128-chars for socket paths.
+          BB_CONTAINER_RUNROOT: "/tmp"
+          BB_CONTAINER_ROOT: "/tmp"
+        run: |
+          git config --global protocol.file.allow always
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip wheel
-        pip install .
-        pip install -r requirements.txt
-        pip install -r test-requirements.txt
+          uv run pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
+          uv run pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
 
-    - name: Run unittests
-      env:
-        # Avoid 50 char hard-limit of podman. These are enforced because of
-        # a kernel limit of 128-chars for socket paths.
-        BB_CONTAINER_RUNROOT: "/tmp"
-        BB_CONTAINER_ROOT: "/tmp"
-      run: |
-        git config --global protocol.file.allow always
+          find . -type f -iname '*.coverage*'
 
-        pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
-        pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: coverage-unittests-${{ matrix.python-version }}
-        path: ./.coverage
-
-
-  integration:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10"]
-        db_support: [true, false]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install system dependencies for CI
-      run: |
-        sudo apt-get install time unionfs-fuse libfuse-dev clang slurm-client
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip wheel
-        pip install .
-        pip install -r requirements.txt
-        pip install -r test-requirements.txt
-
-    - name: Run integration tests
-      env:
-        BB_DB_ENABLED: ${{ matrix.db_support }}
-        BB_DB_CONNECT_STRING: "sqlite://"
-        BB_COVERAGE_COLLECT: true
-        BB_COVERAGE_PATH: ${{ github.workspace }}
-        BB_COVERAGE_CONFIG: ${{ github.workspace }}/.coveragerc
-        BB_CONTAINER_ROOT: ${{ runner.temp }}
-        BB_CONTAINER_RUNROOT: ${{ runner.temp }}
-        BB_VERBOSITY: 5
-      run: |
-        coverage run -p `which benchbuild` bootstrap -s
-        coverage run -p `which benchbuild` config view
-        coverage run -p `which benchbuild` experiment view
-        coverage run -p `which benchbuild` project view
-        coverage run -p `which benchbuild` run --full test
-        coverage run -p `which benchbuild` slurm -E empty test
-        coverage run -p `which benchbuild` slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
-        coverage run -p `which benchbuild` run -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container bases --export -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container bases --import -E raw bzip2/benchbuild
-        coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
-        coverage combine
-        coverage report -m
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: coverage-integration-${{ matrix.python-version }}
-        path: ./.coverage
-
-  upload_coverage:
-    needs: [unittests, integration]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10"]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - uses: actions/download-artifact@master
-      with:
-        name: coverage-unittests-${{ matrix.python-version }}
-        path: ./.coverage.unittests
-
-    - uses: actions/download-artifact@master
-      with:
-        name: coverage-integration-${{ matrix.python-version }}
-        path: ./.coverage.integration
-
-    - run: |
-        ls -lah .
-        python -m pip install --upgrade pip wheel
-        pip install coverage
-        coverage combine -a ./.coverage.integration/.coverage ./.coverage.unittests/.coverage
-        coverage xml
-
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-
-  docs:
-    needs: [unittests, integration]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10"]
-
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Setup a git user
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .
-        pip install -r docs/requirements.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-unittests-${{ inputs.python-version }}
+          path: ./.coverage
+          # Security: Careful with adding wildcard patterns above!
+          include-hidden-files: true

@@ -1,4 +1,5 @@
 """Database support module for the benchbuild study."""
+
 import logging
 
 from benchbuild.settings import CFG
@@ -7,9 +8,8 @@ LOG = logging.getLogger(__name__)
 
 
 def validate(func):
-
     def validate_run_func(run, session, *args, **kwargs):
-        if run.status == 'failed':
+        if run.status == "failed":
             LOG.debug("Run failed. Execution of '%s' cancelled", str(func))
             return None
 
@@ -47,7 +47,7 @@ def create_run(cmd, project, exp, grp):
         project_group=project.group,
         experiment_name=exp.name,
         run_group=str(grp),
-        experiment_group=exp.id
+        experiment_group=exp.id,
     )
     session.add(run)
     session.commit()
@@ -91,10 +91,13 @@ def persist_project(project):
         project: The project we want to persist.
     """
     from benchbuild.utils.schema import Project, Session
+
     session = Session()
-    projects = session.query(Project) \
-        .filter(Project.name == project.name) \
+    projects = (
+        session.query(Project)
+        .filter(Project.name == project.name)
         .filter(Project.group_name == project.group)
+    )
 
     name = project.name
     desc = project.__doc__
@@ -104,7 +107,7 @@ def persist_project(project):
     try:
         src_url = project.src_uri
     except AttributeError:
-        src_url = 'unknown'
+        src_url = "unknown"
 
     if projects.count() == 0:
         newp = Project()
@@ -122,7 +125,7 @@ def persist_project(project):
             "src_url": src_url,
             "domain": domain,
             "group_name": group_name,
-            "version": version
+            "version": version,
         }
         projects.update(newp_value)
 
@@ -158,7 +161,7 @@ def persist_experiment(experiment):
         session.add(newe)
         ret = newe
     else:
-        exps.update({'name': name, 'description': desc})
+        exps.update({"name": name, "description": desc})
         ret = exps.first()
 
     try:
@@ -184,15 +187,9 @@ def persist_time(run, session, timings):
     from benchbuild.utils import schema as s
 
     for timing in timings:
-        session.add(
-            s.Metric(name="time.user_s", value=timing[0], run_id=run.id)
-        )
-        session.add(
-            s.Metric(name="time.system_s", value=timing[1], run_id=run.id)
-        )
-        session.add(
-            s.Metric(name="time.real_s", value=timing[2], run_id=run.id)
-        )
+        session.add(s.Metric(name="time.user_s", value=timing[0], run_id=run.id))
+        session.add(s.Metric(name="time.system_s", value=timing[1], run_id=run.id))
+        session.add(s.Metric(name="time.real_s", value=timing[2], run_id=run.id))
 
 
 def persist_perf(run, session, svg_path):
@@ -210,11 +207,9 @@ def persist_perf(run, session, svg_path):
     # pylint: disable=import-outside-toplevel
     from benchbuild.utils import schema as s
 
-    with open(svg_path, 'r') as svg_file:
+    with open(svg_path, "r") as svg_file:
         svg_data = svg_file.read()
-        session.add(
-            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id)
-        )
+        session.add(s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id))
 
 
 def persist_compilestats(run, session, stats):

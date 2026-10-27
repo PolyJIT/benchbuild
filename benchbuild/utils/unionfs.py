@@ -13,7 +13,7 @@ from benchbuild.utils.container import in_container
 LOG = logging.getLogger(__name__)
 
 
-def unionfs(rw='rw', ro=None, union='union'):
+def unionfs(rw="rw", ro=None, union="union"):
     """
     Decorator for the UnionFS feature.
 
@@ -60,8 +60,7 @@ def unionfs(rw='rw', ro=None, union='union'):
             LOG.debug("UnionFS - Project builddir: %s", project.builddir)
             if __unionfs_is_active(root=build_dir):
                 LOG.debug(
-                    "UnionFS already active in %s, nesting not supported.",
-                    build_dir
+                    "UnionFS already active in %s, nesting not supported.", build_dir
                 )
                 return func(project, *args, **kwargs)
 
@@ -75,8 +74,7 @@ def unionfs(rw='rw', ro=None, union='union'):
             project.builddir = un_dir
 
             proc = unionfs_cmd.popen()
-            while (not __unionfs_is_active(root=un_dir)) and \
-                  (proc.poll() is None):
+            while (not __unionfs_is_active(root=un_dir)) and (proc.poll() is None):
                 pass
 
             ret = None
@@ -153,11 +151,15 @@ def __unionfs_set_up(ro_dir, rw_dir, mount_dir):
         raise ValueError("Base directory does not exist")
 
     from benchbuild.utils.cmd import unionfs as unionfs_cmd
-    LOG.debug(
-        "Mounting UnionFS on %s with RO:%s RW:%s", mount_dir, ro_dir, rw_dir
-    )
-    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow",
-                       rw_dir + "=RW:" + ro_dir + "=RO", mount_dir]
+
+    LOG.debug("Mounting UnionFS on %s with RO:%s RW:%s", mount_dir, ro_dir, rw_dir)
+    return unionfs_cmd[
+        "-f",
+        "-o",
+        "auto_unmount,allow_other,cow",
+        rw_dir + "=RW:" + ro_dir + "=RO",
+        mount_dir,
+    ]
 
 
 class UnmountError(BaseException):

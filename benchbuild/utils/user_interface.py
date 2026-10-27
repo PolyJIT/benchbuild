@@ -1,6 +1,7 @@
 """
 User interface helpers for benchbuild.
 """
+
 import logging
 import os
 import sys
@@ -30,25 +31,20 @@ def query_yes_no(question, default="yes"):
     elif default == "no":
         prompt = " [y/N] "
     else:
-        raise ValueError("invalid default answer: '{0!s}'".format(default))
+        raise ValueError(f"invalid default answer: '{default!s}'")
 
     while True:
         sys.stdout.write(question + prompt)
         choice = input().lower()
-        if default is not None and choice == '':
+        if default is not None and choice == "":
             return valid[default]
         if choice in valid:
             return valid[choice]
-        sys.stdout.write(
-            "Please respond with 'yes' or 'no' "
-            "(or 'y' or 'n').\n"
-        )
+        sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
 def ask(
-    question: str,
-    default_answer: bool = False,
-    default_answer_str: str = "no"
+    question: str, default_answer: bool = False, default_answer_str: str = "no"
 ) -> bool:
     """
     Ask for user input.

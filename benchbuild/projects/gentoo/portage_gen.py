@@ -1,6 +1,7 @@
 """
 Generic experiment to test portage packages within gentoo chroot.
 """
+
 import logging
 
 from plumbum import ProcessExecutionError, local
@@ -37,23 +38,23 @@ class FuncClass:
     def __str__(self):
         try:
             domain, _, name = self.name.partition("_")
-            package = domain + '/' + name
+            package = domain + "/" + name
             _container = self.container()
 
             _uchroot = uchroot.no_args()
             _uchroot = _uchroot["-E", "-A", "-C", "-w", "/", "-r"]
             _uchroot = _uchroot[_container.local]
             with local.env(CONFIG_PROTECT="-*"):
-                fake_emerge = _uchroot["emerge", "--autounmask-only=y",
-                                       "--autounmask-write=y", "--nodeps"]
+                fake_emerge = _uchroot[
+                    "emerge", "--autounmask-only=y", "--autounmask-write=y", "--nodeps"
+                ]
                 _fake_emerge = run.watch(fake_emerge)
                 _fake_emerge(package)
 
-            emerge_in_chroot = \
-                _uchroot["emerge", "-p", "--nodeps", package]
+            emerge_in_chroot = _uchroot["emerge", "-p", "--nodeps", package]
             _, stdout, _ = emerge_in_chroot.run()
 
-            for line in stdout.split('\n'):
+            for line in stdout.split("\n"):
                 if package in line:
                     _, _, package_name = line.partition("/")
                     _, name, version = package_name.partition(name)
@@ -105,13 +106,15 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         LOG.warning("Runtime testing not supported on auto-generated projects.")
 
     newclass = type(
-        name, (BaseClass,), {
+        name,
+        (BaseClass,),
+        {
             "NAME": NAME,
             "DOMAIN": DOMAIN,
             "SOURCE": [nosource()],
             "GROUP": "auto-gentoo",
             "run": run_not_supported,
-            "__module__": "__main__"
-        }
+            "__module__": "__main__",
+        },
     )
     return newclass

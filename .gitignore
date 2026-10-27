@@ -16,3 +16,4 @@ __pycache__/
 .vim/coc-settings.json
 .pheasant_cache/
 build/
+benchbuild/_version.py

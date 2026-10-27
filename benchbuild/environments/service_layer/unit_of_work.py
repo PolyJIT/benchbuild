@@ -1,6 +1,5 @@
 import abc
 import logging
-import sys
 import typing as tp
 from typing import Protocol
 
@@ -8,20 +7,17 @@ from plumbum import local
 from plumbum.path.utils import delete
 from result import Err
 
-from benchbuild.environments.adapters import common, buildah, podman
-from benchbuild.environments.domain import model, events
+from benchbuild.environments.adapters import buildah, common, podman
+from benchbuild.environments.domain import events, model
 
 LOG = logging.getLogger(__name__)
 
 
 class EventCollector(Protocol):
-
-    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
-        ...
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]: ...
 
 
 class UnitOfWork(abc.ABC):
-
     @abc.abstractmethod
     def commit(self) -> None:
         raise NotImplementedError
@@ -33,7 +29,7 @@ class UnitOfWork(abc.ABC):
 
 class ImageUnitOfWork(UnitOfWork):
     registry: buildah.ImageRegistry
-    events: tp.List[model.Message] = []
+    events: list[model.Message] = []
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
@@ -45,10 +41,10 @@ class ImageUnitOfWork(UnitOfWork):
             evt = self.events.pop(0)
             yield evt
 
-    def __enter__(self) -> 'ImageUnitOfWork':
+    def __enter__(self) -> "ImageUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def create(self, tag: str, from_: str) -> model.MaybeContainer:
@@ -103,7 +99,6 @@ class ImageUnitOfWork(UnitOfWork):
 
 
 class BuildahImageUOW(ImageUnitOfWork):
-
     def __init__(self) -> None:
         self.registry = buildah.BuildahImageRegistry()
 
@@ -112,7 +107,7 @@ class BuildahImageUOW(ImageUnitOfWork):
         return self.registry.create(tag, from_layer)
 
     def _destroy(self, tag: str) -> None:
-        common.run(common.bb_buildah('rmi')['-f', tag])
+        common.run(common.bb_buildah("rmi")["-f", tag])
 
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
@@ -123,8 +118,7 @@ class BuildahImageUOW(ImageUnitOfWork):
     def _commit(self, container: model.Container) -> None:
         image = container.image
         res = common.run(
-            common.bb_buildah('commit')[container.container_id,
-                                        image.name.lower()]
+            common.bb_buildah("commit")[container.container_id, image.name.lower()]
         )
 
         if isinstance(res, Err):
@@ -132,7 +126,7 @@ class BuildahImageUOW(ImageUnitOfWork):
             LOG.error("Reason: %s", str(res.unwrap_err))
 
     def _rollback(self, container: model.Container) -> None:
-        buildah.run(buildah.bb_buildah('rm')[container.container_id])
+        buildah.run(buildah.bb_buildah("rm")[container.container_id])
         context_path = local.path(container.context)
         if context_path.exists():
             delete(context_path)
@@ -141,10 +135,10 @@ class BuildahImageUOW(ImageUnitOfWork):
 class ContainerUnitOfWork(UnitOfWork):
     registry: podman.ContainerRegistry
 
-    def __enter__(self) -> 'ContainerUnitOfWork':
+    def __enter__(self) -> "ContainerUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
@@ -158,9 +152,7 @@ class ContainerUnitOfWork(UnitOfWork):
         return self._create(image_id, name, args)
 
     @abc.abstractmethod
-    def _create(
-        self, tag: str, name: str, args: tp.Sequence[str]
-    ) -> model.Container:
+    def _create(self, tag: str, name: str, args: tp.Sequence[str]) -> model.Container:
         raise NotImplementedError
 
     def start(self, container: model.Container) -> None:
@@ -178,13 +170,10 @@ class ContainerUnitOfWork(UnitOfWork):
 
 
 class PodmanContainerUOW(ContainerUnitOfWork):
-
     def __init__(self) -> None:
         self.registry = podman.PodmanRegistry()
 
-    def _create(
-        self, tag: str, name: str, args: tp.Sequence[str]
-    ) -> model.Container:
+    def _create(self, tag: str, name: str, args: tp.Sequence[str]) -> model.Container:
         return self.registry.create(tag, name, args)
 
     def _start(self, container: model.Container) -> None:
@@ -199,23 +188,19 @@ class AbstractUnitOfWork(abc.ABC):
             while image.events:
                 yield image.events.pop(0)
 
-    def __enter__(self) -> 'AbstractUnitOfWork':
+    def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
-    def __exit__(self, *args: tp.Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.rollback()
 
     def add_layer(self, container: model.Container, layer: model.Layer) -> None:
         self._add_layer(container, layer)
 
-    def create_image(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
+    def create_image(self, tag: str, layers: list[model.Layer]) -> model.Container:
         return self._create_image(tag, layers)
 
-    def create_container(
-        self, image_id: str, container_name: str
-    ) -> model.Container:
+    def create_container(self, image_id: str, container_name: str) -> model.Container:
         return self._create_container(image_id, container_name)
 
     def export_image(self, image_id: str, out_path: str) -> None:
@@ -236,21 +221,15 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _create_image(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
+    def _create_image(self, tag: str, layers: list[model.Layer]) -> model.Container:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _add_layer(
-        self, container: model.Container, layer: model.Layer
-    ) -> None:
+    def _add_layer(self, container: model.Container, layer: model.Layer) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _create_container(
-        self, image_id: str, container_name: str
-    ) -> model.Container:
+    def _create_container(self, image_id: str, container_name: str) -> model.Container:
         raise NotImplementedError
 
     @abc.abstractmethod

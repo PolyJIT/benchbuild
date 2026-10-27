@@ -7,18 +7,18 @@ from benchbuild import settings
 
 
 def __create_handler__() -> RichHandler:
-    force_terminal = bool(settings.CFG['force_tty'])
+    force_terminal = bool(settings.CFG["force_tty"])
 
     return RichHandler(
         rich_tracebacks=True,
         show_time=False,
         show_level=False,
-        console=Console(stderr=True, force_terminal=force_terminal)
+        console=Console(stderr=True, force_terminal=force_terminal),
     )
 
 
 def configure_plumbum_log():
-    plumbum_format = logging.Formatter('$> %(message)s')
+    plumbum_format = logging.Formatter("$> %(message)s")
     handler = __create_handler__()
     handler.setFormatter(plumbum_format)
 
@@ -42,7 +42,7 @@ def configure():
         3: logging.INFO,
         2: logging.WARNING,
         1: logging.ERROR,
-        0: logging.ERROR
+        0: logging.ERROR,
     }
 
     handler = __create_handler__()
@@ -50,13 +50,13 @@ def configure():
     root_logger = logging.getLogger()
     if settings.CFG["debug"]:
         details_format = logging.Formatter(
-            '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s'
+            "%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s"
         )
         details_hdl = handler
         details_hdl.setFormatter(details_format)
         root_logger.addHandler(details_hdl)
     else:
-        brief_format = logging.Formatter('%(message)s')
+        brief_format = logging.Formatter("%(message)s")
         console_hdl = handler
         console_hdl.setFormatter(brief_format)
         root_logger.addHandler(console_hdl)

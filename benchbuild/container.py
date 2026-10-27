@@ -5,6 +5,7 @@ This tool assists in the creation of customized uchroot containers.
 You can define strategies and apply them on a given container base-image
 to have a fixed way of creating a user-space environment.
 """
+
 import logging
 import os
 import sys
@@ -27,10 +28,10 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
     container_out = local.path(builddir) / "container-out"
 
     if in_dir and container_in.exists():
-        if ui.ask("Should I delete '{0}'?".format(container_in)):
+        if ui.ask(f"Should I delete '{container_in}'?"):
             container_in.delete()
     if out_dir and container_out.exists():
-        if ui.ask("Should I delete '{0}'?".format(container_out)):
+        if ui.ask(f"Should I delete '{container_out}'?"):
             container_out.delete()
 
 
@@ -58,15 +59,26 @@ def setup_container(builddir, _container):
         uchrt = uchroot.no_args()
 
         with local.cwd("container-in"):
-            uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-r", "/",
-                          "-w",
-                          os.path.abspath("."), "--"]
+            uchrt = uchrt[
+                "-E",
+                "-A",
+                "-u",
+                "0",
+                "-g",
+                "0",
+                "-C",
+                "-r",
+                "/",
+                "-w",
+                os.path.abspath("."),
+                "--",
+            ]
 
         # Check, if we need erlent support for this archive.
-        has_erlent = bash["-c",
-                          "tar --list -f './{0}' | grep --silent '.erlent'".
-                          format(container_in)]
-        has_erlent = (has_erlent & TF)
+        has_erlent = bash[
+            "-c", f"tar --list -f './{container_in}' | grep --silent '.erlent'"
+        ]
+        has_erlent = has_erlent & TF
 
         # Unpack input container to: container-in
         if not has_erlent:
@@ -92,16 +104,15 @@ def run_in_container(command, container_dir):
     container_p = local.path(container_dir)
     with local.cwd(container_p):
         uchrt = uchroot.with_mounts()
-        uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w", "/", "-r",
-                      container_p]
+        uchrt = uchrt[
+            "-E", "-A", "-u", "0", "-g", "0", "-C", "-w", "/", "-r", container_p
+        ]
         uchrt = uchrt["--"]
 
-        cmd_path = container_p / command[0].lstrip('/')
+        cmd_path = container_p / command[0].lstrip("/")
         if not cmd_path.exists():
-            LOG.error(
-                "The command does not exist inside the container! %s", cmd_path
-            )
-            raise ValueError('The command does not exist inside the container!')
+            LOG.error("The command does not exist inside the container! %s", cmd_path)
+            raise ValueError("The command does not exist inside the container!")
 
         cmd = uchrt[command]
         return cmd & FG
@@ -157,7 +168,7 @@ def setup_bash_in_container(builddir, _container, outfile, shell):
             pack_container(_container, outfile)
             config_path = str(CFG["config_file"])
             CFG.store(config_path)
-            print("Storing config in {0}".format(os.path.abspath(config_path)))
+            print(f"Storing config in {os.path.abspath(config_path)}")
 
 
 def find_hash(container_db, key):
@@ -209,8 +220,7 @@ class BashStrategy(ContainerStrategy):
             "command to leave the container."
         )
         setup_bash_in_container(
-            context.builddir, context.in_container, context.out_container,
-            context.shell
+            context.builddir, context.in_container, context.out_container, context.shell
         )
 
 
@@ -225,6 +235,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
         with local.cwd(context.in_container):
             from benchbuild.projects.gentoo import gentoo
+
             gentoo.setup_networking()
             gentoo.configure_portage()
 
@@ -234,25 +245,21 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             emerge_in_chroot = run.watch(emerge_in_chroot)
             has_pkg = uchroot.uchroot()["/usr/bin/qlist", "-I"]
 
-            sed_in_chroot("-i", '/CC=/d', "/etc/portage/make.conf")
-            sed_in_chroot("-i", '/CXX=/d', "/etc/portage/make.conf")
+            sed_in_chroot("-i", "/CC=/d", "/etc/portage/make.conf")
+            sed_in_chroot("-i", "/CXX=/d", "/etc/portage/make.conf")
 
             want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
-            want_upgrade = bool(
-                CFG["container"]["strategy"]["polyjit"]["upgrade"]
-            )
+            want_upgrade = bool(CFG["container"]["strategy"]["polyjit"]["upgrade"])
 
-            packages = \
-                CFG["container"]["strategy"]["polyjit"]["packages"].value
-            with local.env(MAKEOPTS="-j{0}".format(get_number_of_jobs(CFG))):
+            packages = CFG["container"]["strategy"]["polyjit"]["packages"].value
+            with local.env(MAKEOPTS=f"-j{get_number_of_jobs(CFG)}"):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
                     emerge_in_chroot("--sync")
                 if want_upgrade:
                     LOG.debug("Upgrading world.")
                     emerge_in_chroot(
-                        "--autounmask-only=y", "-uUDN", "--with-bdeps=y",
-                        "@world"
+                        "--autounmask-only=y", "-uUDN", "--with-bdeps=y", "@world"
                     )
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
@@ -284,27 +291,25 @@ class Container(cli.Application):
         if set_input_container(p, CFG):
             return
 
-        raise ValueError("The path '{0}' does not exist.".format(p))
+        raise ValueError(f"The path '{p}' does not exist.")
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, _container):
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
-            if not ui.ask("Path '{0}' already exists." " Overwrite?".format(p)):
+            if not ui.ask(f"Path '{p}' already exists. Overwrite?"):
                 sys.exit(0)
         CFG["container"]["output"] = str(p)
 
-    @cli.switch(["-s", "--shell"],
-                str,
-                help="The shell command we invoke inside the container.")
+    @cli.switch(
+        ["-s", "--shell"], str, help="The shell command we invoke inside the container."
+    )
     def shell(self, custom_shell):
         """The command to run inside the container."""
         CFG["container"]["shell"] = custom_shell
 
-    @cli.switch(["-t", "-tmp-dir"],
-                cli.ExistingDirectory,
-                help="Temporary directory")
+    @cli.switch(["-t", "-tmp-dir"], cli.ExistingDirectory, help="Temporary directory")
     def builddir(self, tmpdir):
         """Set the current builddir of the container."""
         CFG["build_dir"] = tmpdir
@@ -313,26 +318,26 @@ class Container(cli.Application):
         ["m", "--mount"],
         cli.ExistingDirectory,
         list=True,
-        help="Mount the given directory under / inside the uchroot container"
+        help="Mount the given directory under / inside the uchroot container",
     )
     def mounts(self, user_mount):
         """Save the current mount of the container into the settings."""
         CFG["container"]["mounts"] = user_mount
 
-    verbosity = cli.CountOf('-v', help="Enable verbose output")
+    verbosity = cli.CountOf("-v", help="Enable verbose output")
 
     def main(self, *args):
         log.configure()
         builddir = local.path(str(CFG["build_dir"]))
         if not builddir.exists():
             response = ui.ask(
-                "The build directory {dirname} does not exist yet. "
-                "Should I create it?".format(dirname=builddir)
+                f"The build directory {builddir} does not exist yet. "
+                "Should I create it?"
             )
 
             if response:
                 mkdir("-p", builddir)
-                print("Created directory {0}.".format(builddir))
+                print(f"Created directory {builddir}.")
 
         setup_directories(builddir)
 
@@ -372,10 +377,12 @@ class ContainerCreate(cli.Application):
 
     _strategy = BashStrategy()
 
-    @cli.switch(["-S", "--strategy"],
-                cli.Set("bash", "polyjit", case_sensitive=False),
-                help="Defines the strategy used to create a new container.",
-                mandatory=False)
+    @cli.switch(
+        ["-S", "--strategy"],
+        cli.Set("bash", "polyjit", case_sensitive=False),
+        help="Defines the strategy used to create a new container.",
+        mandatory=False,
+    )
     def strategy(self, strategy):
         """Select strategy based on key.
 
@@ -387,7 +394,7 @@ class ContainerCreate(cli.Application):
         """
         self._strategy = {
             "bash": BashStrategy(),
-            "polyjit": SetupPolyJITGentooStrategy()
+            "polyjit": SetupPolyJITGentooStrategy(),
         }[strategy]
 
     def main(self, *args):
@@ -410,7 +417,7 @@ class ContainerCreate(cli.Application):
                 in_container=in_container,
                 out_container=out_container,
                 mounts=mounts,
-                shell=shell
+                shell=shell,
             )
         )
         clean_directories(builddir, in_is_file, True)
@@ -422,10 +429,7 @@ class ContainerBootstrap(cli.Application):
 
     def install_cmake_and_exit(self):
         """Tell the user to install cmake and aborts the current process."""
-        print(
-            "You need to  install cmake via your package manager manually."
-            " Exiting."
-        )
+        print("You need to  install cmake via your package manager manually. Exiting.")
         sys.exit(-1)
 
     def main(self, *args):
@@ -439,7 +443,7 @@ class ContainerBootstrap(cli.Application):
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
-        print("Storing config in {0}".format(os.path.abspath(config_file)))
+        print(f"Storing config in {os.path.abspath(config_file)}")
         print(
             "Future container commands from this directory will automatically"
             " source the config file."

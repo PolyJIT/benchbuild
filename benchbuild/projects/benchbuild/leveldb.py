@@ -9,21 +9,21 @@ from benchbuild.utils.cmd import make
 
 
 class LevelDB(bb.Project):
-    NAME = 'leveldb'
-    DOMAIN = 'database'
-    GROUP = 'benchbuild'
+    NAME = "leveldb"
+    DOMAIN = "database"
+    GROUP = "benchbuild"
     SOURCE = [
         Git(
-            remote='https://github.com/google/leveldb',
-            local='leveldb.src',
+            remote="https://github.com/google/leveldb",
+            local="leveldb.src",
             limit=5,
-            refspec='HEAD'
+            refspec="HEAD",
         )
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        leveldb_repo = local.path(self.source_of('leveldb.src'))
+        leveldb_repo = local.path(self.source_of("leveldb.src"))
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -41,12 +41,13 @@ class LevelDB(bb.Project):
         Args:
             experiment: The experiment's run function.
         """
-        leveldb_repo = local.path(self.source_of('leveldb.src'))
+        leveldb_repo = local.path(self.source_of("leveldb.src"))
 
         leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
         _leveldb = bb.watch(leveldb)
         with local.env(
-            LD_LIBRARY_PATH="{}:{}".
-            format(leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))
+            LD_LIBRARY_PATH="{}:{}".format(
+                leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", "")
+            )
         ):
             _leveldb()

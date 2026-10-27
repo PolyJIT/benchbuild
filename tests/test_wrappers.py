@@ -1,4 +1,5 @@
 """Test benchbuild's runtime wrappers."""
+
 import os
 import tempfile
 import unittest
@@ -6,9 +7,9 @@ import unittest
 from plumbum import local
 from plumbum.cmd import rm
 
-import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers
+from benchbuild import project
 from benchbuild.environments.domain import declarative
 from benchbuild.source.base import nosource
 
@@ -18,7 +19,7 @@ class EmptyProject(project.Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
-    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = declarative.ContainerImage().from_("benchbuild:alpine")
 
     def __attrs_post_init__(self):
         pass
@@ -37,7 +38,6 @@ class EmptyProject(project.Project):
 
 
 class WrapperTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.tmp_dir = tempfile.mkdtemp()
@@ -54,7 +54,6 @@ class WrapperTests(unittest.TestCase):
 
 
 class RunCompiler(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = compilers.cc(EmptyProject())
@@ -62,16 +61,14 @@ class RunCompiler(WrapperTests):
 
 
 class RunStatic(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap(self.tmp_script, EmptyProject())
-            self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
+            self.assertTrue(os.path.exists(f"{self.tmp_script}.bin"))
         self.assertTrue(os.path.exists(str(cmd)))
 
 
 class RunDynamic(WrapperTests):
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap_dynamic(EmptyProject(), self.tmp_script)

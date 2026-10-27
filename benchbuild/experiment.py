@@ -24,6 +24,7 @@ class HelloExperiment(Experiment):
 ```
 
 """
+
 import copy
 import typing as tp
 import uuid
@@ -41,8 +42,8 @@ from . import source
 from .project import Project
 
 Actions = tp.MutableSequence[actns.Step]
-ProjectT = tp.Type[Project]
-Projects = tp.List[ProjectT]
+ProjectT = type[Project]
+Projects = list[ProjectT]
 
 
 class ExperimentRegistry(type):
@@ -51,12 +52,15 @@ class ExperimentRegistry(type):
     experiments = {}
 
     def __new__(
-        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any], *args: tp.Any, **kwargs: tp.Any
+        mcs: type[tp.Any],
+        name: str,
+        bases: tuple[type, ...],
+        attrs: dict[str, tp.Any],
+        *args: tp.Any,
+        **kwargs: tp.Any,
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ExperimentRegistry,
-                    mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
+        cls = super().__new__(mcs, name, bases, attrs, *args, **kwargs)
         if bases and "NAME" in attrs:
             ExperimentRegistry.experiments[attrs["NAME"]] = cls
         return cls
@@ -90,19 +94,16 @@ class Experiment(metaclass=ExperimentRegistry):
 
     NAME: tp.ClassVar[str] = ""
     SCHEMA = None
-    REQUIREMENTS: tp.List[Requirement] = []
-    CONTAINER: tp.ClassVar[declarative.ContainerImage
-                          ] = declarative.ContainerImage()
+    REQUIREMENTS: list[Requirement] = []
+    CONTAINER: tp.ClassVar[declarative.ContainerImage] = declarative.ContainerImage()
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
         del args, kwargs  # Temporarily unused
-        new_self = super(Experiment, cls).__new__(cls)
+        new_self = super().__new__(cls)
         if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__
-                )
+                f"{cls.__name__} @ {cls.__module__} does not define a NAME class attribute."
             )
         return new_self
 
@@ -129,8 +130,8 @@ class Experiment(metaclass=ExperimentRegistry):
     def validate_id(self, _: tp.Any, new_id: uuid.UUID) -> None:
         if not isinstance(new_id, uuid.UUID):
             raise TypeError(
-                "%s expected to be '%s' but got '%s'" %
-                (str(new_id), str(uuid.UUID), str(type(new_id)))
+                "%s expected to be '%s' but got '%s'"
+                % (str(new_id), str(uuid.UUID), str(type(new_id)))
             )
 
     schema = attr.ib()
@@ -179,10 +180,7 @@ class Experiment(metaclass=ExperimentRegistry):
                 atomic_actions: Actions = [
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
-                    actns.Echo(
-                        message="Selected {0} with version {1}".
-                        format(p.name, version_str)
-                    ),
+                    actns.Echo(message=f"Selected {p.name} with version {version_str}"),
                     actns.ProjectEnvironment(p),
                 ]
                 atomic_actions.extend(self.actions_for_project(p))
@@ -230,7 +228,7 @@ class Experiment(metaclass=ExperimentRegistry):
         return [actns.Compile(project), actns.Clean(project)]
 
 
-ExperimentIndex = tp.Dict[str, tp.Type[Experiment]]
+ExperimentIndex = dict[str, type[Experiment]]
 
 
 class Configuration:
@@ -246,6 +244,6 @@ class Configuration:
         self.config.update(rhs.config)
 
 
-def discovered() -> tp.Dict[str, tp.Type[Experiment]]:
+def discovered() -> dict[str, type[Experiment]]:
     """Return all discovered experiments."""
     return ExperimentRegistry.experiments

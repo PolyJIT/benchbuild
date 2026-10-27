@@ -1,6 +1,7 @@
 """
 bzip2 experiment within gentoo chroot.
 """
+
 from plumbum import local
 
 import benchbuild as bb
@@ -10,16 +11,15 @@ from benchbuild.utils.cmd import tar
 
 class BZip2(GentooGroup):
     """
-        app-arch/bzip2
+    app-arch/bzip2
     """
+
     NAME = "bzip2"
     DOMAIN = "app-arch"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = [
-        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
-    ]
+    testfiles = ["text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"]
 
     def compile(self):
         super().compile()
@@ -30,7 +30,7 @@ class BZip2(GentooGroup):
         tar("fxz", test_archive)
 
     def run_tests(self):
-        bzip2 = bb.wrap(local.path('/bin/bzip2'), self)
+        bzip2 = bb.wrap(local.path("/bin/bzip2"), self)
         bzip2 = bb.watch(bzip2)
 
         # Compress

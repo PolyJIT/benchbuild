@@ -12,7 +12,7 @@ from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
-RequirementSubType = tp.TypeVar("RequirementSubType", bound='Requirement')
+RequirementSubType = tp.TypeVar("RequirementSubType", bound="Requirement")
 
 
 @attr.s
@@ -36,8 +36,9 @@ class Requirement:
     @classmethod
     @abc.abstractmethod
     def merge_requirements(
-        cls: tp.Type[RequirementSubType], lhs_option: RequirementSubType,
-        rhs_option: RequirementSubType
+        cls: type[RequirementSubType],
+        lhs_option: RequirementSubType,
+        rhs_option: RequirementSubType,
     ) -> RequirementSubType:
         """
         Merge the requirements of the same type together.
@@ -88,6 +89,7 @@ class SlurmCoresPerSocket(SlurmRequirement):
     cores per socket. See additional information under -B option in the slurm
     documentation. Only works when task/affinity plugin is enabled.
     """
+
     cores: int = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
@@ -95,9 +97,8 @@ class SlurmCoresPerSocket(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmCoresPerSocket',
-        rhs_option: 'SlurmCoresPerSocket'
-    ) -> 'SlurmCoresPerSocket':
+        cls, lhs_option: "SlurmCoresPerSocket", rhs_option: "SlurmCoresPerSocket"
+    ) -> "SlurmCoresPerSocket":
         """
         Merge the requirements of the same type together.
         """
@@ -120,8 +121,8 @@ class SlurmExclusive(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmExclusive', rhs_option: 'SlurmExclusive'
-    ) -> 'SlurmExclusive':
+        cls, lhs_option: "SlurmExclusive", rhs_option: "SlurmExclusive"
+    ) -> "SlurmExclusive":
         """
         Merge the requirements of the same type together.
         """
@@ -137,6 +138,7 @@ class SlurmNiceness(SlurmRequirement):
     range is +/- 2147483645. Only privileged users can specify a negative
     adjustment.
     """
+
     niceness: int = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
@@ -144,8 +146,8 @@ class SlurmNiceness(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmNiceness', rhs_option: 'SlurmNiceness'
-    ) -> 'SlurmNiceness':
+        cls, lhs_option: "SlurmNiceness", rhs_option: "SlurmNiceness"
+    ) -> "SlurmNiceness":
         """
         Merge the requirements of the same type together.
         """
@@ -183,7 +185,7 @@ class SlurmHint(SlurmRequirement):
         def __str__(self) -> str:
             return str(self.value)
 
-    hints: tp.Set[SlurmHints] = attr.ib()
+    hints: set[SlurmHints] = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
         return f"--hint={','.join(map(str, self.hints))}"
@@ -192,12 +194,12 @@ class SlurmHint(SlurmRequirement):
         return f"Hints: {','.join(map(str, self.hints))}"
 
     def __repr__(self) -> str:
-        return f"Hint ({str(self)})"
+        return f"Hint ({self!s})"
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmHint', rhs_option: 'SlurmHint'
-    ) -> 'SlurmHint':
+        cls, lhs_option: "SlurmHint", rhs_option: "SlurmHint"
+    ) -> "SlurmHint":
         """
         Merge the requirements of the same type together.
         """
@@ -205,14 +207,12 @@ class SlurmHint(SlurmRequirement):
         combined_hints |= lhs_option.hints | rhs_option.hints
 
         if not cls.__hints_not_mutually_exclusive(combined_hints):
-            raise ValueError(
-                "Two mutally exclusive hints for slurm have be specified."
-            )
+            raise ValueError("Two mutally exclusive hints for slurm have be specified.")
 
         return SlurmHint(combined_hints)
 
     @staticmethod
-    def __hints_not_mutually_exclusive(hints: tp.Set[SlurmHints]) -> bool:
+    def __hints_not_mutually_exclusive(hints: set[SlurmHints]) -> bool:
         """
         Checks that a list of `SlurmHints` does not include mutally exclusive
         hints.
@@ -221,20 +221,20 @@ class SlurmHint(SlurmRequirement):
             True, if no mutally exclusive hints are in the list
         """
         if (
-            SlurmHint.SlurmHints.compute_bound in hints and
-            SlurmHint.SlurmHints.memory_bound in hints
+            SlurmHint.SlurmHints.compute_bound in hints
+            and SlurmHint.SlurmHints.memory_bound in hints
         ):
             return False
         if (
-            SlurmHint.SlurmHints.nomultithread in hints and
-            SlurmHint.SlurmHints.multithread in hints
+            SlurmHint.SlurmHints.nomultithread in hints
+            and SlurmHint.SlurmHints.multithread in hints
         ):
             return False
 
         return True
 
 
-def _convert_to_time_tuple(time_specifier: str) -> tp.Tuple[int, int, int, int]:
+def _convert_to_time_tuple(time_specifier: str) -> tuple[int, int, int, int]:
     """
     Convert slurm time specifier to tuple.
 
@@ -260,14 +260,14 @@ def _convert_to_time_tuple(time_specifier: str) -> tp.Tuple[int, int, int, int]:
     minutes = 0
     seconds = 0
 
-    if time_specifier.count('-'):
+    if time_specifier.count("-"):
         with_days = True
-        days = int(time_specifier.split('-')[0])
-        time_specifier = time_specifier.split('-')[1]
+        days = int(time_specifier.split("-")[0])
+        time_specifier = time_specifier.split("-")[1]
     else:
         with_days = False
 
-    num_colon = time_specifier.count(':')
+    num_colon = time_specifier.count(":")
 
     if num_colon == 0:
         if with_days:
@@ -276,15 +276,15 @@ def _convert_to_time_tuple(time_specifier: str) -> tp.Tuple[int, int, int, int]:
             minutes = int(time_specifier)
     elif num_colon == 1:
         if with_days:
-            hours = int(time_specifier.split(':')[0])
-            minutes = int(time_specifier.split(':')[1])
+            hours = int(time_specifier.split(":")[0])
+            minutes = int(time_specifier.split(":")[1])
         else:
-            minutes = int(time_specifier.split(':')[0])
-            seconds = int(time_specifier.split(':')[1])
+            minutes = int(time_specifier.split(":")[0])
+            seconds = int(time_specifier.split(":")[1])
     elif num_colon == 2:
-        hours = int(time_specifier.split(':')[0])
-        minutes = int(time_specifier.split(':')[1])
-        seconds = int(time_specifier.split(':')[2])
+        hours = int(time_specifier.split(":")[0])
+        minutes = int(time_specifier.split(":")[1])
+        seconds = int(time_specifier.split(":")[2])
 
     return (days, hours, minutes, seconds)
 
@@ -298,8 +298,8 @@ class SlurmTime(SlurmRequirement):
     time formats include "minutes", "minutes:seconds", "hours:minutes:seconds",
     "days-hours", "days-hours:minutes" and "days-hours:minutes:seconds".
     """
-    timelimit: tp.Tuple[int, int, int,
-                        int] = attr.ib(converter=_convert_to_time_tuple)
+
+    timelimit: tuple[int, int, int, int] = attr.ib(converter=_convert_to_time_tuple)
 
     def to_slurm_time_format(self) -> str:
         """
@@ -333,8 +333,8 @@ class SlurmTime(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmTime', rhs_option: 'SlurmTime'
-    ) -> 'SlurmTime':
+        cls, lhs_option: "SlurmTime", rhs_option: "SlurmTime"
+    ) -> "SlurmTime":
         """
         Merge the requirements of the same type together.
         """
@@ -374,7 +374,7 @@ def _to_bytes(byte_str: str) -> int:
     >>> _to_bytes("10G")
     10737418240
     """
-    if (match := _BYTE_RGX.search(byte_str)):
+    if match := _BYTE_RGX.search(byte_str):
         size = int(match.group("size"))
         byte_suffix = match.group("byte_suffix")
         return size * _get_byte_size_factor(byte_suffix)
@@ -382,7 +382,7 @@ def _to_bytes(byte_str: str) -> int:
     raise ValueError("Passed byte size was wrongly formatted")
 
 
-def _to_biggests_byte_size(num_bytes: int) -> tp.Tuple[int, str]:
+def _to_biggests_byte_size(num_bytes: int) -> tuple[int, str]:
     """
     >>> _to_biggests_byte_size(4)
     (4, 'B')
@@ -423,8 +423,8 @@ class SlurmMem(SlurmRequirement):
 
     @classmethod
     def merge_requirements(
-        cls, lhs_option: 'SlurmMem', rhs_option: 'SlurmMem'
-    ) -> 'SlurmMem':
+        cls, lhs_option: "SlurmMem", rhs_option: "SlurmMem"
+    ) -> "SlurmMem":
         """
         Merge the requirements of the same type together.
         """
@@ -432,39 +432,37 @@ class SlurmMem(SlurmRequirement):
 
 
 def merge_slurm_options(
-    list_1: tp.List[Requirement], list_2: tp.List[Requirement]
-) -> tp.List[Requirement]:
+    list_1: list[Requirement], list_2: list[Requirement]
+) -> list[Requirement]:
     """
     Merged two lists of SlurmOptions into one.
     """
-    merged_options: tp.Dict[tp.Type[Requirement], Requirement] = dict()
+    merged_options: dict[type[Requirement], Requirement] = dict()
 
     for opt in list_1 + list_2:
         key = type(opt)
         if key in merged_options:
             current_opt = merged_options[key]
-            merged_options[key] = current_opt.merge_requirements(
-                current_opt, opt
-            )
+            merged_options[key] = current_opt.merge_requirements(current_opt, opt)
         else:
             merged_options[key] = opt
 
     return list(merged_options.values())
 
 
-def get_slurm_options_from_config() -> tp.List[Requirement]:
+def get_slurm_options_from_config() -> list[Requirement]:
     """
     Generates a list of `SlurmOptions` which are specified in the BenchBuild
     config.
     """
-    slurm_options: tp.List[Requirement] = []
-    if CFG['slurm']['exclusive']:
+    slurm_options: list[Requirement] = []
+    if CFG["slurm"]["exclusive"]:
         slurm_options.append(SlurmExclusive())
 
-    if not CFG['slurm']['multithread']:
+    if not CFG["slurm"]["multithread"]:
         slurm_options.append(SlurmHint({SlurmHint.SlurmHints.nomultithread}))
 
-    slurm_options.append(SlurmTime(str(CFG['slurm']['timelimit'])))
-    slurm_options.append(SlurmNiceness(int(CFG['slurm']['nice'])))
+    slurm_options.append(SlurmTime(str(CFG["slurm"]["timelimit"])))
+    slurm_options.append(SlurmNiceness(int(CFG["slurm"]["nice"])))
 
     return slurm_options

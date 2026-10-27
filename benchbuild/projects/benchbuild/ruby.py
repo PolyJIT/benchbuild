@@ -9,34 +9,30 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 class Ruby(bb.Project):
-    NAME = 'ruby'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
+    NAME = "ruby"
+    DOMAIN = "compilation"
+    GROUP = "benchbuild"
     SOURCE = [
         HTTP(
             remote={
-                '2.2.2': (
-                    'http://cache.ruby-lang.org/pub/ruby/2.2.2/'
-                    'ruby-2.2.2.tar.gz'
-                )
+                "2.2.2": ("http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz")
             },
-            local='ruby.tar.gz'
+            local="ruby.tar.gz",
         ),
         HTTP(
             remote={
-                '2016-11-ruby-inputs.tar.gz':
-                    'http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz'
+                "2016-11-ruby-inputs.tar.gz": "http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz"
             },
-            local='inputs.tar.gz'
-        )
+            local="inputs.tar.gz",
+        ),
     ]
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_("benchbuild:alpine")
 
     def compile(self):
-        ruby_source = local.path(self.source_of('ruby.tar.gz'))
-        ruby_version = self.version_of('ruby.tar.gz')
+        ruby_source = local.path(self.source_of("ruby.tar.gz"))
+        ruby_version = self.version_of("ruby.tar.gz")
         tar("xfz", ruby_source)
-        unpack_dir = local.path(f'ruby-{ruby_version}')
+        unpack_dir = local.path(f"ruby-{ruby_version}")
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -49,16 +45,22 @@ class Ruby(bb.Project):
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        ruby_version = self.version_of('ruby.tar.gz')
-        unpack_dir = local.path(f'ruby-{ruby_version}')
+        ruby_version = self.version_of("ruby.tar.gz")
+        unpack_dir = local.path(f"ruby-{ruby_version}")
         ruby_n = bb.wrap(unpack_dir / "ruby", self)
-        test_dir = local.path('./ruby/')
+        test_dir = local.path("./ruby/")
 
         with local.env(RUBYOPT=""):
             _ = bb.watch(ruby)
             ruby(
                 test_dir / "benchmark" / "run.rb",
-                "--ruby=\"" + str(ruby_n) + "\"",
-                "--opts=\"-I" + test_dir / "lib" + " -I" + test_dir / "." +
-                " -I" + test_dir / ".ext" / "common" + "\"", "-r"
+                '--ruby="' + str(ruby_n) + '"',
+                '--opts="-I'
+                + test_dir / "lib"
+                + " -I"
+                + test_dir / "."
+                + " -I"
+                + test_dir / ".ext" / "common"
+                + '"',
+                "-r",
             )

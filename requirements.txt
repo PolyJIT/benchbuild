@@ -15,6 +15,6 @@ rich>=15
 schema>=0
 SQLAlchemy>=2
 typing-extensions>=4
-virtualenv>=20
+virtualenv>=21.3.0
 winfcntl>=1.0.0; sys_platform == "win32"
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
